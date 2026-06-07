@@ -52,7 +52,7 @@ The system uses a single **PostgreSQL** instance isolated into three database sc
     The database will be automatically initialized using `init.sql`. You can connect via DBeaver or any other client using the credentials defined in your local `.env` file (default values):
 
     - Host: `localhost`
-    - Port: `5432`
+    - Port: `5559` (or whatever you set as `DB_HOST_PORT` in `database/.env`)
     - Database: `retailrocket`
     - User: `admin`
     - Password: `admin` (or your custom password from `.env`)

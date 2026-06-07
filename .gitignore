@@ -222,5 +222,5 @@ __marimo__/
 *.db
 
 # Data
-data/processed/.gitkeep
+data/**/*
 !data/**/.gitkeep

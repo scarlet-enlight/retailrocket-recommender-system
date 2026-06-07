@@ -220,3 +220,7 @@ __marimo__/
 # Databases
 .duckdb
 *.db
+
+# Data
+data/processed/.gitkeep
+!data/**/.gitkeep

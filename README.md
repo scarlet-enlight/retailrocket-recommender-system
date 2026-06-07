@@ -19,6 +19,9 @@ The system uses a single **PostgreSQL** instance isolated into three database sc
 ## Project Structure
 
 ```text
+├── data/                # Raw and processed datasets (Local only, Git ignored)
+│   ├── raw/             # Place downloaded Retailrocket CSVs here
+│   └── processed/       # DuckDB analytical storage files
 ├── database/            # Docker Compose & Database Initialization scripts
 ├── data-pipeline/       # ETL processes (DuckDB analytical engine)
 ├── backend/             # E-commerce web backend (C# / .NET)
@@ -53,6 +56,10 @@ The system uses a single **PostgreSQL** instance isolated into three database sc
     - Database: `retailrocket`
     - User: `admin`
     - Password: `admin` (or your custom password from `.env`)
+
+3. **Dataset Setup (Local Only):**
+   - Ensure the `data/raw/` and `data/processed/` folders exist in the project root.
+   - Download the raw Retailrocket CSV files from the team's Google Drive (link shared in chat) and place them inside `data/raw/`.
 
 ## Git & Development Workflow
 

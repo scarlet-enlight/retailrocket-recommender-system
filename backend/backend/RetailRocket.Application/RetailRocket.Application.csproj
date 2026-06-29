@@ -11,9 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="DTOs\" />
-      <Folder Include="Interfaces\" />
-      <Folder Include="Services\" />
+      <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
     </ItemGroup>
 
 </Project>

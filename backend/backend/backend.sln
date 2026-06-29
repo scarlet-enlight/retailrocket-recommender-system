@@ -1,11 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "backend", "backend\backend.csproj", "{3E4536DE-86AC-43DE-B2E9-AA25693B525E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetailRocket.API", "RetailRocket.API\RetailRocket.API.csproj", "{3E4536DE-86AC-43DE-B2E9-AA25693B525E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1646EC03-40C3-48AC-8863-84237787BAA5}"
 	ProjectSection(SolutionItems) = preProject
 		compose.yaml = compose.yaml
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetailRocket.Application", "RetailRocket.Application\RetailRocket.Application.csproj", "{D756BE5F-623A-4D7E-98E7-7F4E976BB9E0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetailRocket.Domain", "RetailRocket.Domain\RetailRocket.Domain.csproj", "{D05680FD-A267-4E86-8E77-314A5F6DA716}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetailRocket.Infrastructure", "RetailRocket.Infrastructure\RetailRocket.Infrastructure.csproj", "{CB317A3B-B4B9-460C-821D-16DFC85B0ED0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,5 +23,17 @@ Global
 		{3E4536DE-86AC-43DE-B2E9-AA25693B525E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3E4536DE-86AC-43DE-B2E9-AA25693B525E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3E4536DE-86AC-43DE-B2E9-AA25693B525E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D756BE5F-623A-4D7E-98E7-7F4E976BB9E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D756BE5F-623A-4D7E-98E7-7F4E976BB9E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D756BE5F-623A-4D7E-98E7-7F4E976BB9E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D756BE5F-623A-4D7E-98E7-7F4E976BB9E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D05680FD-A267-4E86-8E77-314A5F6DA716}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D05680FD-A267-4E86-8E77-314A5F6DA716}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D05680FD-A267-4E86-8E77-314A5F6DA716}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D05680FD-A267-4E86-8E77-314A5F6DA716}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB317A3B-B4B9-460C-821D-16DFC85B0ED0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB317A3B-B4B9-460C-821D-16DFC85B0ED0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB317A3B-B4B9-460C-821D-16DFC85B0ED0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB317A3B-B4B9-460C-821D-16DFC85B0ED0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

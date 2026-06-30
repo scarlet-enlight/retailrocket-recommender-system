@@ -4,7 +4,7 @@ namespace RetailRocket.Application.DTOs.Response.Shop;
 
 public class CartDto
 {
-    public User? User { get; private set; }
-    public Product? Product { get; private set; }
-    public uint Quantity { get; private set; }
+    public User? User { get; set; }
+    public Product? Product { get; set; }
+    public uint Quantity { get; set; }
 }

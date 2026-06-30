@@ -17,19 +17,23 @@ public class OrderRepository : IOrderRepository
     public async Task<Order?> GetByIdAsync(Guid id) =>
         await _dbContext.Orders
             .Include(o => o.User)
-            .Include(o => o.Total)
             .FirstOrDefaultAsync();
 
     public async Task<IEnumerable<Order>> GetByUserIdAsync(Guid userId) =>
         await _dbContext.Orders
             .Include(o => o.User)
-            .Include(o => o.Total)
             .Where(o => o.UserId == userId)
             .ToListAsync();
 
     public async Task AddAsync(Order order)
     {
         await _dbContext.Orders.AddAsync(order);
+        await _dbContext.SaveChangesAsync();
+    }
+
+    // For total price update only (WIP)
+    public async Task UpdateTotal(decimal total)
+    {
         await _dbContext.SaveChangesAsync();
     }
 

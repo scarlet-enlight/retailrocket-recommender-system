@@ -19,11 +19,11 @@ public class CartService
         await _cartRepository.GetByUserIdAsync(id);
     
     public async Task AddCartAsync(Cart cart) =>
-        await  _cartRepository.AddAsync(cart);
+        await _cartRepository.AddAsync(cart);
     
     public async Task UpdateCartAsync(Cart cart) =>
-        await  _cartRepository.UpdateAsync(cart);
+        await _cartRepository.UpdateAsync(cart);
 
-    public async Task RemoveCartAsync(Guid id) =>
+    public async Task DeleteCartAsync(Guid id) =>
         await _cartRepository.DeleteAsync(id);
 }

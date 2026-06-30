@@ -7,4 +7,12 @@ public class Order
     public User? User { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public decimal Total { get; private set; }
+
+    public Order(User? user, decimal total)
+    {
+        User = user;
+        Total = total;
+    }
+    
+    // needs updating in terms of total price
 }

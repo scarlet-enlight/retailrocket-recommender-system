@@ -27,8 +27,4 @@
       <ProjectReference Include="..\RetailRocket.Infrastructure\RetailRocket.Infrastructure.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Controllers\ML\" />
-    </ItemGroup>
-
 </Project>

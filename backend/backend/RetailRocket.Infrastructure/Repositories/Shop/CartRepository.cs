@@ -18,14 +18,12 @@ public class CartRepository : ICartRepository
         await  _dbContext.Carts
             .Include(c => c.User)
             .Include(c => c.Product)
-            .Include(c => c.Quantity)
             .FirstOrDefaultAsync(c => c.CartId == id);
     
     public async Task<IEnumerable<Cart>> GetByUserIdAsync(Guid id) =>
         await  _dbContext.Carts
-            .Include(c => c.CartId)
+            .Include(c => c.User)
             .Include(c => c.Product)
-            .Include(c => c.Quantity)
             .Where(c => c.UserId == id)
             .ToListAsync();
 

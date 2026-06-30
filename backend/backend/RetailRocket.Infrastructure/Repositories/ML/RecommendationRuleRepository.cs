@@ -18,28 +18,18 @@ public class RecommendationRuleRepository : IRecommendationRuleRepository
         await _dbContext.RecommendationRules
             .Include(rr => rr.IfItem)
             .Include(rr => rr.ThenItem)
-            .Include(rr => rr.Support)
-            .Include(rr => rr.Lift)
-            .Include(rr => rr.Confidence)
-            .Include(rr => rr.CreatedAt)
             .FirstOrDefaultAsync(rr => rr.RecommendationRuleId == id);
 
     public async Task<IEnumerable<RecommendationRule>> GetAllAsync() =>
         await _dbContext.RecommendationRules
             .Include(rr => rr.IfItem)
             .Include(rr => rr.ThenItem)
-            .Include(rr => rr.Support)
-            .Include(rr => rr.Lift)
-            .Include(rr => rr.Confidence)
             .ToListAsync();
     
     public async Task<IEnumerable<RecommendationRule>> GetByIfItemIdAsync(Guid ifItemId) =>
         await _dbContext.RecommendationRules
             .Include(rr => rr.IfItem)
             .Include(rr => rr.ThenItem)
-            .Include(rr => rr.Support)
-            .Include(rr => rr.Lift)
-            .Include(rr => rr.Confidence)
             .Where(rr => rr.IfItemId == ifItemId)
             .ToListAsync();
     
@@ -47,9 +37,6 @@ public class RecommendationRuleRepository : IRecommendationRuleRepository
         await _dbContext.RecommendationRules
             .Include(rr => rr.IfItem)
             .Include(rr => rr.ThenItem)
-            .Include(rr => rr.Support)
-            .Include(rr => rr.Lift)
-            .Include(rr => rr.Confidence)
             .Where(rr => rr.ThenItemId == thenItemId)
             .ToListAsync();
 

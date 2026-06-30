@@ -16,9 +16,6 @@ public class UserRepository : IUserRepository
     
     public async Task<IEnumerable<User>> GetAllAsync() => 
         await _dbContext.Users
-            .Include(u => u.Username)
-            .Include(u => u.Email)
-            .Include(u => u.CreatedAt)
             .ToListAsync();
     
     public async Task<User?> GetByIdAsync(Guid id) => 

@@ -22,34 +22,34 @@ public class CartController : ControllerBase
         if (cart is null) return NotFound();
         return Ok(new CartDto
         {
-            User = cart.User,
-            Product = cart.Product,
+            UserId = cart.UserId,
+            ProductId = cart.ProductId,
             Quantity = cart.Quantity
         });
     }
 
-    [HttpGet("{by-user}")]
+    [HttpGet("by-user/{userId}")]
     public async Task<IActionResult> GetAllByUser(Guid userId)
     {
         var carts = await _cartService.GetCartsByUserAsync(userId);
         var result = carts.Select(c => new CartDto
         {
-            User = c.User,
-            Product = c.Product,
+            UserId = c.UserId,
+            ProductId = c.ProductId,
             Quantity = c.Quantity
         });
         return Ok(result);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(Guid id, [FromBody] CartDto dto)
+    public async Task<IActionResult> Create([FromBody] CreateCartDto dto)
     {
-        var cart = new Cart(dto.User, dto.Product, dto.Quantity);
+        var cart = new Cart(dto.UserId, dto.ProductId, dto.Quantity);
         await _cartService.AddCartAsync(cart);
         return CreatedAtAction(nameof(GetById), new { id = cart.CartId }, new CartDto
         {
-            User = cart.User,
-            Product = cart.Product,
+            UserId = cart.UserId,
+            ProductId = cart.ProductId,
             Quantity = cart.Quantity
         });
     }
@@ -59,7 +59,7 @@ public class CartController : ControllerBase
     {
         var cart = await _cartService.GetCartAsync(id);
         if (cart is null) return NotFound();
-        cart.UpdateProduct(dto.Product);
+        cart.UpdateProduct(dto.ProductId);
         cart.UpdateQuantity(dto.Quantity);
         await _cartService.UpdateCartAsync(cart);
         return NoContent();

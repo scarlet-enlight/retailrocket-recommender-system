@@ -43,7 +43,7 @@ public class UserController : ControllerBase
         });
     }
 
-    [HttpGet("{by-username}")]
+    [HttpGet("by-username")]
     public async Task<IActionResult> GetByUsername([FromQuery] string username)
     {
         var user = await _userService.GetUserByUsernameAsync(username);
@@ -57,7 +57,7 @@ public class UserController : ControllerBase
         });
     }
     
-    [HttpGet("{by-email}")]
+    [HttpGet("by-email")]
     public async Task<IActionResult> GetByEmail([FromQuery] string email)
     {
         var user = await _userService.GetUserByEmailAsync(email);

@@ -4,15 +4,17 @@ public class Order
 {
     public Guid OrderId { get; }
     public Guid UserId { get; private set; }
-    public User? User { get; private set; }
-    public DateTime CreatedAt { get; private set; }
+    public User? User { get; set; }
+    public DateTime CreatedAt { get; set; }
     public decimal Total { get; private set; }
 
-    public Order(User? user, decimal total)
+    public Order(Guid userId, decimal total)
     {
-        User = user;
+        UserId = userId;
         Total = total;
     }
+    
+    public void UpdateTotal(decimal total) => Total = total;
     
     // needs updating in terms of total price
 }

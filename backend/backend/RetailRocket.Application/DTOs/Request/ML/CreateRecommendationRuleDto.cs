@@ -1,12 +1,10 @@
-﻿using RetailRocket.Domain.Entities.Historical;
-
-namespace RetailRocket.Application.DTOs.Request.ML;
+﻿namespace RetailRocket.Application.DTOs.Request.ML;
 
 public class CreateRecommendationRuleDto
 {
-    public Item? IfItem { get; private set; }
-    public Item? ThenItem { get; private set; }
-    public float Support { get; private set; }
-    public float Confidence { get; private set; }
-    public float Lift { get; private set; }
+    public Guid IfItemId { get; set; }
+    public Guid ThenItemId { get; set; }
+    public double Support { get; set; }
+    public double Confidence { get; set; }
+    public double Lift { get; set; }
 }

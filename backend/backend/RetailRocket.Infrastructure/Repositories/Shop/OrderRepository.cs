@@ -17,7 +17,7 @@ public class OrderRepository : IOrderRepository
     public async Task<Order?> GetByIdAsync(Guid id) =>
         await _dbContext.Orders
             .Include(o => o.User)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(o => o.OrderId == id);
 
     public async Task<IEnumerable<Order>> GetByUserIdAsync(Guid userId) =>
         await _dbContext.Orders
@@ -30,10 +30,14 @@ public class OrderRepository : IOrderRepository
         await _dbContext.Orders.AddAsync(order);
         await _dbContext.SaveChangesAsync();
     }
-
+    
     // For total price update only (WIP)
-    public async Task UpdateTotal(decimal total)
+    public async Task UpdateTotal(Guid id, decimal total)
     {
+        var order = await GetByIdAsync(id);
+        if (order is null) return;
+        order.UpdateTotal(total);
+        _dbContext.Orders.Update(order);
         await _dbContext.SaveChangesAsync();
     }
 

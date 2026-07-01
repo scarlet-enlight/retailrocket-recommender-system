@@ -5,27 +5,27 @@ namespace RetailRocket.Domain.Entities.ML;
 public class RecommendationRule
 {
     public Guid RecommendationRuleId { get; }
-    public Guid IfItemId { get; }
-    public Item? IfItem { get; private set; }
-    public Guid ThenItemId { get; }
-    public Item? ThenItem { get; private set; }
-    public float Support { get; private set; }
-    public float Confidence { get; private set; }
-    public float Lift { get; private set; }
+    public Guid IfItemId { get; private set; }
+    public Item? IfItem { get; set; }
+    public Guid ThenItemId { get; private set;  }
+    public Item? ThenItem { get; set; }
+    public double Support { get; private set; }
+    public double Confidence { get; private set; }
+    public double Lift { get; private set; }
     public DateTime CreatedAt { get; }
 
-    public RecommendationRule(Item? ifItem, Item? thenItem, float? support, float? confidence, float? lift)
+    public RecommendationRule(Guid ifItemId, Guid thenItemId, double? support, double? confidence, double? lift)
     {
-        IfItem = ifItem;
-        ThenItem = thenItem;
+        IfItemId = ifItemId;
+        ThenItemId = thenItemId;
         Support = support.GetValueOrDefault();
         Confidence = confidence.GetValueOrDefault();
         Lift = lift.GetValueOrDefault();
     }
 
-    public void UpdateRequiredItem(Item? item) =>  IfItem = item;
-    public void UpdateTargetItem(Item? item) =>  ThenItem = item;
-    public void UpdateSupportValue(float? support) =>  Support = support.GetValueOrDefault();
-    public void UpdateConfidenceValue(float? confidence) =>  Confidence = confidence.GetValueOrDefault();
-    public void UpdateLiftValue(float? lift) =>  Lift = lift.GetValueOrDefault();
+    public void UpdateRequiredItem(Guid itemId) =>  IfItemId = itemId;
+    public void UpdateTargetItem(Guid itemId) =>  ThenItemId = itemId;
+    public void UpdateSupportValue(double? support) =>  Support = support.GetValueOrDefault();
+    public void UpdateConfidenceValue(double? confidence) =>  Confidence = confidence.GetValueOrDefault();
+    public void UpdateLiftValue(double? lift) =>  Lift = lift.GetValueOrDefault();
 }

@@ -12,7 +12,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasKey(u => u.UserId);
         builder.Property(u => u.Username).HasMaxLength(100).IsRequired();
         builder.Property(u => u.Email).HasMaxLength(200).IsRequired();
-        builder.Property(u => u.Password).HasMaxLength(255).IsRequired();
+        builder.Property(u => u.PasswordHash).HasMaxLength(255).IsRequired();
         builder.Property(u => u.CreatedAt).HasDefaultValueSql("NOW()");
     }
 }

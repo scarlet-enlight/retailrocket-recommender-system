@@ -23,43 +23,43 @@ public class OrderController : ControllerBase
         return Ok(new OrderDto
         {
             OrderId =  order.OrderId,
-            User = order.User,
+            UserId = order.UserId,
             CreatedAt = order.CreatedAt,
             Total = order.Total
         });
     }
     
-    [HttpGet("{by-user}")]
+    [HttpGet("by-user/{userId}")]
     public async Task<IActionResult> GetAllByUser(Guid userId)
     {
         var orders = await _orderService.GetOrdersByUserAsync(userId);
         var result = orders.Select(o => new OrderDto
         {
             OrderId = o.OrderId,
-            User = o.User,
+            UserId = o.UserId,
             CreatedAt = o.CreatedAt,
             Total = o.Total
         });
         return Ok(result);
     }
 
-    [HttpPost("{id}")]
-    public async Task<IActionResult> Create(Guid id, [FromBody] CreateOrderDto dto)
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CreateOrderDto dto)
     {
-        var order = new Order(dto.User, dto.Total);
+        var order = new Order(dto.UserId, dto.Total);
         await _orderService.AddOrderAsync(order);
         return CreatedAtAction(nameof(GetById), new {id = order.OrderId },  new OrderDto
         {
             OrderId = order.OrderId,
-            User = order.User,
+            UserId = order.UserId,
             CreatedAt = order.CreatedAt,
             Total = order.Total
         });
     }
 
     // WIP
-    [HttpPut("{by-user}/{id}/price")]
-    public async Task<IActionResult> UpdateTotalPrice([FromForm] decimal total)
+    [HttpPut("by-user/{userId}/price")]
+    public async Task<IActionResult> UpdateTotalPrice(Guid id, [FromBody] decimal total)
     {
         return NoContent();
     }

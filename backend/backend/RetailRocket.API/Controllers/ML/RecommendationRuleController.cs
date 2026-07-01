@@ -21,8 +21,8 @@ public class RecommendationRuleController : ControllerBase
         var recommendationRules = await _recommendationRuleService.GetAllRecommendationRulesAsync();
         var result = recommendationRules.Select(rr => new RecommendationRuleDto
         {
-            IfItem = rr.IfItem,
-            ThenItem = rr.ThenItem,
+            IfItemId = rr.IfItemId,
+            ThenItemId = rr.ThenItemId,
             Support = rr.Support,
             Confidence = rr.Confidence,
             Lift = rr.Lift
@@ -37,22 +37,22 @@ public class RecommendationRuleController : ControllerBase
         if (recommendationRule is null) return NotFound();
         return Ok( new RecommendationRuleDto
         {
-            IfItem = recommendationRule.IfItem,
-            ThenItem = recommendationRule.ThenItem,
+            IfItemId = recommendationRule.IfItemId,
+            ThenItemId = recommendationRule.ThenItemId,
             Support = recommendationRule.Support,
             Confidence = recommendationRule.Confidence,
             Lift = recommendationRule.Lift
         });
     }
 
-    [HttpGet("{by-required-item}")]
+    [HttpGet("by-required-item/{reqItemId}")]
     public async Task<IActionResult> GetByRequiredItem(Guid reqItemId)
     {
         var recommendationRules = await _recommendationRuleService.GetRecommendationRulesByRequiredItemAsync(reqItemId);
         var result = recommendationRules.Select(rr => new RecommendationRuleDto
         {
-            IfItem = rr.IfItem,
-            ThenItem = rr.ThenItem,
+            IfItemId = rr.IfItemId,
+            ThenItemId = rr.ThenItemId,
             Support = rr.Support,
             Confidence = rr.Confidence,
             Lift = rr.Lift
@@ -61,14 +61,14 @@ public class RecommendationRuleController : ControllerBase
         return Ok(result);
     }
     
-    [HttpGet("{by-required-item}")]
+    [HttpGet("by-result-item/{resItemId}")]
     public async Task<IActionResult> GetByResultItem(Guid resItemId)
     {
         var recommendationRules = await _recommendationRuleService.GetRecommendationRulesByResultItemAsync(resItemId);
         var result = recommendationRules.Select(rr => new RecommendationRuleDto
         {
-            IfItem = rr.IfItem,
-            ThenItem = rr.ThenItem,
+            IfItemId = rr.IfItemId,
+            ThenItemId = rr.ThenItemId,
             Support = rr.Support,
             Confidence = rr.Confidence,
             Lift = rr.Lift
@@ -77,15 +77,15 @@ public class RecommendationRuleController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost("{id}")]
+    [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateRecommendationRuleDto dto)
     {
-        var recommendationRule = new RecommendationRule(dto.IfItem, dto.ThenItem, dto.Support, dto.Confidence, dto.Lift);
+        var recommendationRule = new RecommendationRule(dto.IfItemId, dto.ThenItemId, dto.Support, dto.Confidence, dto.Lift);
         await _recommendationRuleService.AddRecommendationRuleAsync(recommendationRule);
         return CreatedAtAction(nameof(GetById), new { id = recommendationRule.RecommendationRuleId }, new RecommendationRuleDto
         {
-            IfItem = recommendationRule.IfItem,
-            ThenItem = recommendationRule.ThenItem,
+            IfItemId = recommendationRule.IfItemId,
+            ThenItemId = recommendationRule.ThenItemId,
             Support = recommendationRule.Support,
             Confidence = recommendationRule.Confidence,
             Lift = recommendationRule.Lift
@@ -96,8 +96,8 @@ public class RecommendationRuleController : ControllerBase
     {
         var recommendationRule = await _recommendationRuleService.GetRecommendationRuleAsync(id);
         if (recommendationRule is null) return NotFound();
-        recommendationRule.UpdateRequiredItem(dto.IfItem);
-        recommendationRule.UpdateTargetItem(dto.ThenItem);
+        recommendationRule.UpdateRequiredItem(dto.IfItemId);
+        recommendationRule.UpdateTargetItem(dto.ThenItemId);
         recommendationRule.UpdateSupportValue(dto.Support);
         recommendationRule.UpdateConfidenceValue(dto.Confidence);
         recommendationRule.UpdateLiftValue(dto.Lift);

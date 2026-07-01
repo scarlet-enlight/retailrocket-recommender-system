@@ -22,10 +22,10 @@ public class ProductController : ControllerBase
         var result = products.Select(p => new ProductDto
         {
             ProductId = p.ProductId,
-            Item = p.Item,
+            ItemId = p.ItemId,
             Name = p.Name,
             Price = p.Price,
-            Category = p.Category
+            CategoryId = p.CategoryId
         });
         return Ok(result);
     }
@@ -38,14 +38,14 @@ public class ProductController : ControllerBase
         return Ok(new ProductDto
         {
             ProductId = product.ProductId,
-            Item = product.Item,
+            ItemId = product.ItemId,
             Name = product.Name,
             Price = product.Price,
-            Category = product.Category
+            CategoryId = product.CategoryId
         });
     }
 
-    [HttpGet("{by-name}")]
+    [HttpGet("by-name")]
     public async Task<IActionResult> GetByName([FromQuery] string name)
     {
         var product = await _productService.GetProductByNameAsync(name);
@@ -53,25 +53,25 @@ public class ProductController : ControllerBase
         return Ok(new ProductDto
         {
             ProductId = product.ProductId,
-            Item = product.Item,
+            ItemId = product.ItemId,
             Name = product.Name,
             Price = product.Price,
-            Category = product.Category
+            CategoryId = product.CategoryId
         }); 
     }
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateProductDto dto)
     {
-        var product = new Product(dto.Item, dto.Name, dto.Price, dto.Category);
+        var product = new Product(dto.ItemId, dto.Name, dto.Price, dto.CategoryId);
         await _productService.CreateProductAsync(product);
         return  CreatedAtAction(nameof(GetById), new { id = product.ProductId }, new ProductDto
         {
             ProductId = product.ProductId,
-            Item = product.Item,
+            ItemId = product.ItemId,
             Name = product.Name,
             Price = product.Price,
-            Category = product.Category
+            CategoryId = product.CategoryId
         });
     }
 
@@ -80,10 +80,10 @@ public class ProductController : ControllerBase
     {
         var product = await _productService.GetProductAsync(id);
         if (product is null) return NotFound();
-        product.UpdateItem(dto.Item);
+        product.UpdateItem(dto.ItemId);
         product.UpdateName(dto.Name);
         product.UpdatePrice(dto.Price);
-        product.UpdateCategory(dto.Category);
+        product.UpdateCategory(dto.CategoryId);
         await _productService.UpdateProductAsync(product);
         return NoContent();
     }

@@ -3,7 +3,7 @@ using RetailRocket.Application.Interfaces.Shop;
 using RetailRocket.Domain.Entities.Shop;
 using RetailRocket.Infrastructure.Persistence;
 
-namespace RetailRocket.Infrastructure.Repositories;
+namespace RetailRocket.Infrastructure.Repositories.Shop;
 
 public class UserRepository : IUserRepository
 {

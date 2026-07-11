@@ -10,5 +10,6 @@ public class VisitorConfiguration : IEntityTypeConfiguration<Visitor>
     {
         builder.ToTable("visitors", "historical");
         builder.HasKey(t => t.VisitorId);
+        builder.Property(t => t.VisitorId).ValueGeneratedOnAdd();
     }
 }

@@ -14,7 +14,7 @@ public class RecommendationRuleRepository : IRecommendationRuleRepository
         _dbContext = context;
     }
 
-    public async Task<RecommendationRule?> GetByIdAsync(Guid id) =>
+    public async Task<RecommendationRule?> GetByIdAsync(int id) =>
         await _dbContext.RecommendationRules
             .Include(rr => rr.IfItem)
             .Include(rr => rr.ThenItem)
@@ -26,14 +26,14 @@ public class RecommendationRuleRepository : IRecommendationRuleRepository
             .Include(rr => rr.ThenItem)
             .ToListAsync();
     
-    public async Task<IEnumerable<RecommendationRule>> GetByIfItemIdAsync(Guid ifItemId) =>
+    public async Task<IEnumerable<RecommendationRule>> GetByIfItemIdAsync(int ifItemId) =>
         await _dbContext.RecommendationRules
             .Include(rr => rr.IfItem)
             .Include(rr => rr.ThenItem)
             .Where(rr => rr.IfItemId == ifItemId)
             .ToListAsync();
     
-    public async Task<IEnumerable<RecommendationRule>> GetByThenItemIdAsync(Guid thenItemId) =>
+    public async Task<IEnumerable<RecommendationRule>> GetByThenItemIdAsync(int thenItemId) =>
         await _dbContext.RecommendationRules
             .Include(rr => rr.IfItem)
             .Include(rr => rr.ThenItem)
@@ -52,7 +52,7 @@ public class RecommendationRuleRepository : IRecommendationRuleRepository
         return _dbContext.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(Guid id)
+    public async Task DeleteAsync(int id)
     {
         var recommendationRule = await GetByIdAsync(id);
         if (recommendationRule is null) return;

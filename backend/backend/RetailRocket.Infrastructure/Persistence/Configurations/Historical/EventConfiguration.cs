@@ -10,9 +10,10 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
     {
         builder.ToTable("events", "historical");
         builder.HasKey(e => e.EventId);
+        builder.Property(e => e.EventId).ValueGeneratedOnAdd();
         builder.HasOne(e => e.Visitor).WithMany().HasForeignKey(e => e.VisitorId);
         builder.HasOne(e => e.Item).WithMany().HasForeignKey(e => e.ItemId);
-        builder.Property(e => e.EventId).IsRequired();
+        builder.Property(e => e.EventType).HasMaxLength(20).HasConversion<string>();
         builder.Property(e => e.Timestamp).IsRequired();
     }
 }

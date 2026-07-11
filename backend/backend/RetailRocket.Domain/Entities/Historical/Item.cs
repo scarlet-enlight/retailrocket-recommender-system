@@ -2,8 +2,14 @@
 
 public class Item
 {
-    public Guid ItemId { get; }
-    public Guid CategoryId { get; private set; }
+    public int ItemId { get; }
+    public int CategoryId { get; private set; }
     public Category? Category { get; private set; }
     public bool IsAvailable { get; private set;  }
+
+    public Item(int categoryId, bool isAvailable)
+    {
+        CategoryId = categoryId;
+        IsAvailable = isAvailable;
+    }
 }

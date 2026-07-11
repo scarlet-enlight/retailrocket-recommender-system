@@ -15,7 +15,7 @@ public class UserService
     public async Task<IEnumerable<User>> GetAllUsersAsync() =>
         await _userRepository.GetAllAsync();
 
-    public async Task<User?> GetUserAsync(Guid id) =>
+    public async Task<User?> GetUserAsync(int id) =>
         await _userRepository.GetByIdAsync(id);
     
     public async Task<User?> GetUserByUsernameAsync(string username) =>
@@ -30,6 +30,6 @@ public class UserService
     public async Task UpdateUserAsync(User user) =>
         await _userRepository.UpdateAsync(user);
     
-    public async Task DeleteUserAsync(Guid id) =>
+    public async Task DeleteUserAsync(int id) =>
         await _userRepository.DeleteAsync(id);
 }

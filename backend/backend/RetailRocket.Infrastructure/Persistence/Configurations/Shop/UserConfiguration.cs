@@ -10,6 +10,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
     {
         builder.ToTable("users", "shop");
         builder.HasKey(u => u.UserId);
+        builder.Property(u => u.UserId).ValueGeneratedOnAdd();
         builder.Property(u => u.Username).HasMaxLength(100).IsRequired();
         builder.Property(u => u.Email).HasMaxLength(200).IsRequired();
         builder.Property(u => u.PasswordHash).HasMaxLength(255).IsRequired();

@@ -10,6 +10,7 @@ public class CartConfiguration : IEntityTypeConfiguration<Cart>
     {
         builder.ToTable("carts", "shop");
         builder.HasKey(u => u.CartId);
+        builder.Property(u => u.CartId).ValueGeneratedOnAdd();
         builder.HasOne(u => u.User).WithMany().HasForeignKey(u => u.UserId);
         builder.HasOne(u => u.Product).WithMany().HasForeignKey(u => u.ProductId);
         builder.Property(u => u.Quantity).HasDefaultValue(1);

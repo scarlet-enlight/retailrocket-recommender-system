@@ -2,8 +2,8 @@
 
 namespace RetailRocket.Application.Interfaces.Shop;
 
-public interface IOrderRepository :  IRepository<Order, Guid>
+public interface IOrderRepository :  IRepository<Order, int>
 {
-    Task<IEnumerable<Order>> GetByUserIdAsync(Guid userId);
-    Task UpdateTotal(Guid id, decimal total);
+    Task<IEnumerable<Order>> GetByUserIdAsync(int userId);
+    Task UpdateTotal(int id, decimal total);
 }

@@ -2,7 +2,7 @@
 
 namespace RetailRocket.Application.Interfaces.Shop;
 
-public interface IUserRepository : IRepository<User,  Guid>
+public interface IUserRepository : IRepository<User,  int>
 {
     Task<IEnumerable<User>> GetAllAsync();
     Task<User?> GetByUsernameAsync(string username);

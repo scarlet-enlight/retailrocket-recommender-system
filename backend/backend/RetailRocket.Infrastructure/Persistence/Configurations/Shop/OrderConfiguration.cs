@@ -10,6 +10,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
     {
         builder.ToTable("orders", "shop");
         builder.HasKey(o => o.OrderId);
+        builder.Property(o => o.OrderId).ValueGeneratedOnAdd();
         builder.HasOne(o => o.User).WithMany().HasForeignKey(o => o.UserId);
         builder.Property(u => u.CreatedAt).HasDefaultValueSql("NOW()");
         builder.Property(u => u.Total).HasColumnType("decimal(10,2)");

@@ -13,13 +13,13 @@ public class RecommendationRuleService
     public async Task<IEnumerable<RecommendationRule>> GetAllRecommendationRulesAsync() =>
         await _recommendationRuleRepository.GetAllAsync();
 
-    public async Task<RecommendationRule?> GetRecommendationRuleAsync(Guid id) =>
+    public async Task<RecommendationRule?> GetRecommendationRuleAsync(int id) =>
         await _recommendationRuleRepository.GetByIdAsync(id);
     
-    public async Task<IEnumerable<RecommendationRule>> GetRecommendationRulesByRequiredItemAsync(Guid id) =>
+    public async Task<IEnumerable<RecommendationRule>> GetRecommendationRulesByRequiredItemAsync(int id) =>
         await _recommendationRuleRepository.GetByIfItemIdAsync(id);
     
-    public async Task<IEnumerable<RecommendationRule>> GetRecommendationRulesByResultItemAsync(Guid id) =>
+    public async Task<IEnumerable<RecommendationRule>> GetRecommendationRulesByResultItemAsync(int id) =>
         await _recommendationRuleRepository.GetByThenItemIdAsync(id);
     
     public async Task AddRecommendationRuleAsync(RecommendationRule recommendationRule) => 
@@ -28,6 +28,6 @@ public class RecommendationRuleService
     public async Task UpdateRecommendationRuleAsync(RecommendationRule recommendationRule) =>
         await _recommendationRuleRepository.UpdateAsync(recommendationRule);
     
-    public async Task DeleteRecommendationRuleAsync(Guid id) =>
+    public async Task DeleteRecommendationRuleAsync(int id) =>
         await _recommendationRuleRepository.DeleteAsync(id);
 }

@@ -14,12 +14,12 @@ public class OrderRepository : IOrderRepository
         _dbContext = dbContext;
     }
 
-    public async Task<Order?> GetByIdAsync(Guid id) =>
+    public async Task<Order?> GetByIdAsync(int id) =>
         await _dbContext.Orders
             .Include(o => o.User)
             .FirstOrDefaultAsync(o => o.OrderId == id);
 
-    public async Task<IEnumerable<Order>> GetByUserIdAsync(Guid userId) =>
+    public async Task<IEnumerable<Order>> GetByUserIdAsync(int userId) =>
         await _dbContext.Orders
             .Include(o => o.User)
             .Where(o => o.UserId == userId)
@@ -32,7 +32,7 @@ public class OrderRepository : IOrderRepository
     }
     
     // For total price update only (WIP)
-    public async Task UpdateTotal(Guid id, decimal total)
+    public async Task UpdateTotal(int id, decimal total)
     {
         var order = await GetByIdAsync(id);
         if (order is null) return;
@@ -41,7 +41,7 @@ public class OrderRepository : IOrderRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(Guid id)
+    public async Task DeleteAsync(int id)
     {
         var order = await GetByIdAsync(id);
         if (order is null) return;

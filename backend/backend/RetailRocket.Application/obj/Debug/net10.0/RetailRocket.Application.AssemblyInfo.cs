@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RetailRocket.Application")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fb636afbeb4b53558dc831fe175c8e90144de753")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+15d52d047f0df11a41cea10dfca8d57ebe776705")]
 [assembly: System.Reflection.AssemblyProductAttribute("RetailRocket.Application")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RetailRocket.Application")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

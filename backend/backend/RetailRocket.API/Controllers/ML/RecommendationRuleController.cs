@@ -45,6 +45,7 @@ public class RecommendationRuleController : ControllerBase
         });
     }
 
+    // WIP: Refactor get by req/resItem to get all recRules
     [HttpGet("by-required-item/{reqItemId}")]
     public async Task<IActionResult> GetByRequiredItem(int reqItemId)
     {

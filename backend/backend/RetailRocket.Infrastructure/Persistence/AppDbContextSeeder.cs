@@ -102,9 +102,9 @@ public class AppDbContextSeeder
 
         var transactionItems = new List<TransactionItem> 
         {
-            new TransactionItem(transactionIds[0], transactionIds[1]),
-            new TransactionItem(transactionIds[2], transactionIds[0]),
-            new TransactionItem(transactionIds[2], transactionIds[1]),
+            new TransactionItem(transactionIds[0], itemIds[1]),
+            new TransactionItem(transactionIds[2], itemIds[0]),
+            new TransactionItem(transactionIds[2], itemIds[1]),
         };
         
         await context.TransactionItems.AddRangeAsync(transactionItems);

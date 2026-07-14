@@ -224,3 +224,20 @@ __marimo__/
 # Data
 data/**/*
 !data/**/.gitkeep
+
+# Build output and binaries
+backend/**/obj/
+[Bb]in/
+[Oo]bj/
+
+# Cache and Temporary files
+*.[Cc]ache
+**/.cache
+*.log
+
+# NuGet packages and dependencies
+*.[Nn]uget.[Ii]nfo
+**/[Pp]ackages/*
+
+# Secrets and sensitive data
+appsettings*.json

@@ -13,7 +13,7 @@ public class RecommendationRuleService
     public async Task<IEnumerable<RecommendationRule>> GetAllRecommendationRulesAsync() =>
         await _recommendationRuleRepository.GetAllAsync();
 
-    public async Task<RecommendationRule?> GetRecommendationRuleAsync(int id) =>
+    public async Task<RecommendationRule?> GetRecommendationRuleAsync(Guid id) =>
         await _recommendationRuleRepository.GetByIdAsync(id);
     
     public async Task<IEnumerable<RecommendationRule>> GetRecommendationRulesByRequiredItemAsync(int id) =>
@@ -28,6 +28,6 @@ public class RecommendationRuleService
     public async Task UpdateRecommendationRuleAsync(RecommendationRule recommendationRule) =>
         await _recommendationRuleRepository.UpdateAsync(recommendationRule);
     
-    public async Task DeleteRecommendationRuleAsync(int id) =>
+    public async Task DeleteRecommendationRuleAsync(Guid id) =>
         await _recommendationRuleRepository.DeleteAsync(id);
 }

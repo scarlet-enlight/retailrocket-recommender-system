@@ -14,7 +14,7 @@ public class RecommendationRuleRepository : IRecommendationRuleRepository
         _dbContext = context;
     }
 
-    public async Task<RecommendationRule?> GetByIdAsync(int id) =>
+    public async Task<RecommendationRule?> GetByIdAsync(Guid id) =>
         await _dbContext.RecommendationRules
             .Include(rr => rr.IfItem)
             .Include(rr => rr.ThenItem)
@@ -52,7 +52,7 @@ public class RecommendationRuleRepository : IRecommendationRuleRepository
         return _dbContext.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task DeleteAsync(Guid id)
     {
         var recommendationRule = await GetByIdAsync(id);
         if (recommendationRule is null) return;

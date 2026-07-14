@@ -20,7 +20,7 @@ public class ProductRepository : IProductRepository
             .Include(p => p.Category)
             .ToListAsync();
     
-    public async Task<Product?> GetByIdAsync(int id) => 
+    public async Task<Product?> GetByIdAsync(Guid id) => 
         await _dbContext.Products
             .Include(p => p.Item)
             .Include(p => p.Category)
@@ -44,7 +44,7 @@ public class ProductRepository : IProductRepository
         await _dbContext.SaveChangesAsync();
     }
     
-    public async Task DeleteAsync(int id)
+    public async Task DeleteAsync(Guid id)
     {
         var product = await GetByIdAsync(id);
         if (product is null) return;

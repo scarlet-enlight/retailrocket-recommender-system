@@ -31,7 +31,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetById(Guid id)
     {
         var product = await _productService.GetProductAsync(id);
         if (product is null) return NotFound();
@@ -76,7 +76,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] CreateProductDto dto)
+    public async Task<IActionResult> Update(Guid id, [FromBody] CreateProductDto dto)
     {
         var product = await _productService.GetProductAsync(id);
         if (product is null) return NotFound();
@@ -89,7 +89,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(Guid id)
     {
         var product = await _productService.GetProductAsync(id);
         if (product is null) return NotFound();

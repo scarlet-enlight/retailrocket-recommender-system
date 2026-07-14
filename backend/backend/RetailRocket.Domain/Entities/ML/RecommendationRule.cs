@@ -4,7 +4,7 @@ namespace RetailRocket.Domain.Entities.ML;
 
 public class RecommendationRule
 {
-    public int RecommendationRuleId { get; }
+    public Guid RecommendationRuleId { get; }
     public int IfItemId { get; private set; }
     public Item? IfItem { get; set; }
     public int ThenItemId { get; private set;  }
@@ -14,13 +14,13 @@ public class RecommendationRule
     public double Lift { get; private set; }
     public DateTime CreatedAt { get; }
 
-    public RecommendationRule(int ifItemId, int thenItemId, double support, double confidence, double lift)
+    public RecommendationRule(int ifItemId, int thenItemId, double? support, double? confidence, double? lift)
     {
         IfItemId = ifItemId;
         ThenItemId = thenItemId;
-        Support = support;
-        Confidence = confidence;
-        Lift = lift;
+        Support = support.GetValueOrDefault();
+        Confidence = confidence.GetValueOrDefault();
+        Lift = lift.GetValueOrDefault();
     }
 
     public void UpdateRequiredItem(int itemId) =>  IfItemId = itemId;

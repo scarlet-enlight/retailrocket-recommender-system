@@ -2,15 +2,15 @@
 
 public class Cart
 {
-    public int CartId { get; }
-    public int UserId { get; private set; }
+    public Guid CartId { get; }
+    public Guid UserId { get; private set; }
     public User? User { get; set; }
-    public int ProductId { get; private set; }
+    public Guid ProductId { get; private set; }
     public Product? Product { get; set; }
     public uint Quantity { get; private set; }
     public DateTime AddedAt { get; }
 
-    public Cart(int userId, int productId, uint quantity)
+    public Cart(Guid userId, Guid productId, uint quantity)
     {
         UserId = userId;
         ProductId = productId;
@@ -18,6 +18,6 @@ public class Cart
     }
 
     // not sure about updating those values
-    public void UpdateProduct(int productId) => ProductId = productId;
+    public void UpdateProduct(Guid productId) => ProductId = productId;
     public void UpdateQuantity(uint quantity) => Quantity = quantity;
 }

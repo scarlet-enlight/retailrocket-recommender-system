@@ -18,7 +18,7 @@ public class UserRepository : IUserRepository
         await _dbContext.Users
             .ToListAsync();
     
-    public async Task<User?> GetByIdAsync(int id) => 
+    public async Task<User?> GetByIdAsync(Guid id) => 
         await _dbContext.Users
             .FirstOrDefaultAsync(u => u.UserId == id);
     
@@ -43,7 +43,7 @@ public class UserRepository : IUserRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task DeleteAsync(Guid id)
     {
         var user = await GetByIdAsync(id);
         if (user is null) return;

@@ -15,7 +15,7 @@ public class ProductService
     public async Task<IEnumerable<Product>> GetAllProductsAsync() => 
         await _productRepository.GetAllAsync();
     
-    public async Task<Product?> GetProductAsync(int id) => 
+    public async Task<Product?> GetProductAsync(Guid id) => 
         await _productRepository.GetByIdAsync(id);
     
     public async Task<Product?> GetProductByNameAsync(string productName) =>
@@ -27,6 +27,6 @@ public class ProductService
     public async Task UpdateProductAsync(Product product) =>
         await _productRepository.UpdateAsync(product);
     
-    public async Task DeleteProductAsync(int id) =>
+    public async Task DeleteProductAsync(Guid id) =>
         await _productRepository.DeleteAsync(id);
 }

@@ -16,7 +16,7 @@ public class CartController : ControllerBase
         _cartService = cartService;
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetById(Guid id)
     {
         var cart = await _cartService.GetCartAsync(id);
         if (cart is null) return NotFound();
@@ -29,7 +29,7 @@ public class CartController : ControllerBase
     }
 
     [HttpGet("by-user/{userId}")]
-    public async Task<IActionResult> GetAllByUser(int userId)
+    public async Task<IActionResult> GetAllByUser(Guid userId)
     {
         var carts = await _cartService.GetCartsByUserAsync(userId);
         var result = carts.Select(c => new CartDto
@@ -55,7 +55,7 @@ public class CartController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] CreateCartDto dto)
+    public async Task<IActionResult> Update(Guid id, [FromBody] CreateCartDto dto)
     {
         var cart = await _cartService.GetCartAsync(id);
         if (cart is null) return NotFound();
@@ -66,7 +66,7 @@ public class CartController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(Guid id)
     {
         var cart = await _cartService.GetCartAsync(id);
         if (cart is null) return NotFound();

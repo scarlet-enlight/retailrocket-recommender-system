@@ -184,13 +184,13 @@ public class AppDbContextSeeder
         if (context.OrderItems.Any()) return;
         
         var orderIds = context.Orders.Select(o => o.OrderId).ToList();
-        var itemIds = context.Items.Select(i => i.ItemId).ToList();
+        var productIds = context.Products.Select(i => i.ProductId).ToList();
 
         var orderItems = new List<OrderItem>
         {
-            new OrderItem(orderIds[0], itemIds[1], 6, 657.22m),
-            new OrderItem(orderIds[1], itemIds[2], 128, 42069.67m),
-            new OrderItem(orderIds[2], itemIds[0], 1, 59.99m)
+            new OrderItem(orderIds[0], productIds[1], 6, 657.22m),
+            new OrderItem(orderIds[1], productIds[2], 128, 42069.67m),
+            new OrderItem(orderIds[2], productIds[0], 1, 59.99m)
         };
         
         await context.OrderItems.AddRangeAsync(orderItems);

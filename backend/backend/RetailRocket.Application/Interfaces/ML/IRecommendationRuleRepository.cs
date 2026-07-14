@@ -2,7 +2,7 @@
 
 namespace RetailRocket.Application.Interfaces.ML;
 
-public interface IRecommendationRuleRepository : IRepository<RecommendationRule, int>
+public interface IRecommendationRuleRepository : IRepository<RecommendationRule, Guid>
 {
     Task<IEnumerable<RecommendationRule>> GetAllAsync();
     Task<IEnumerable<RecommendationRule>> GetByIfItemIdAsync(int itemId);

@@ -2,8 +2,8 @@
 
 namespace RetailRocket.Application.Interfaces.Shop;
 
-public interface ICartRepository : IRepository<Cart, int>
+public interface ICartRepository : IRepository<Cart, Guid>
 {
-    Task<IEnumerable<Cart>> GetByUserIdAsync(int userId);
+    Task<IEnumerable<Cart>> GetByUserIdAsync(Guid userId);
     Task UpdateAsync(Cart cart);
 }

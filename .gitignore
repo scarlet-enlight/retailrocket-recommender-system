@@ -240,4 +240,4 @@ backend/**/obj/
 **/[Pp]ackages/*
 
 # Secrets and sensitive data
-appsettings*.json
+#appsettings*.json

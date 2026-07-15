@@ -3,7 +3,7 @@ namespace RetailRocket.Domain.Entities.Shop;
 
 public class Product
 {
-    public int ProductId { get; }
+    public Guid ProductId { get; }
     public int ItemId { get; private set; }
     public Item? Item { get; set; }
     public string? Name { get; private set; }
@@ -18,7 +18,7 @@ public class Product
         Price = price;
         CategoryId = categoryId;
     }
-
+    
     public void UpdateItem(int itemId) => ItemId = itemId;
     public void UpdateName(string? name) => Name = name;
     public void UpdatePrice(decimal? price) => Price = price;

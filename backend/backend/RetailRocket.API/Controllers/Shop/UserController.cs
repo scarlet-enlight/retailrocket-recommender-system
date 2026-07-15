@@ -31,7 +31,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetById(Guid id)
     {
         var user = await _userService.GetUserAsync(id);
         if (user is null) return NotFound();
@@ -98,7 +98,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] CreateUserDto dto)
+    public async Task<IActionResult> Update(Guid id, [FromBody] CreateUserDto dto)
     {
         var user = await _userService.GetUserAsync(id);
         if (user is null) return NotFound();
@@ -109,7 +109,7 @@ public class UserController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(Guid id)
     {
         var user = await _userService.GetUserAsync(id);
         if (user is null) return NotFound();

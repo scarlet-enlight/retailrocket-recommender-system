@@ -12,10 +12,10 @@ public class CartService
         _cartRepository = cartRepository;
     }
 
-    public async Task<Cart?> GetCartAsync(int id) =>
+    public async Task<Cart?> GetCartAsync(Guid id) =>
         await _cartRepository.GetByIdAsync(id);
     
-    public async Task<IEnumerable<Cart>> GetCartsByUserAsync(int id) =>
+    public async Task<IEnumerable<Cart>> GetCartsByUserAsync(Guid id) =>
         await _cartRepository.GetByUserIdAsync(id);
     
     public async Task AddCartAsync(Cart cart) =>
@@ -24,6 +24,6 @@ public class CartService
     public async Task UpdateCartAsync(Cart cart) =>
         await _cartRepository.UpdateAsync(cart);
 
-    public async Task DeleteCartAsync(int id) =>
+    public async Task DeleteCartAsync(Guid id) =>
         await _cartRepository.DeleteAsync(id);
 }

@@ -4,7 +4,7 @@ namespace RetailRocket.Domain.Entities.ML;
 
 public class RecommendationRule
 {
-    public int RecommendationRuleId { get; }
+    public Guid RecommendationRuleId { get; }
     public int IfItemId { get; private set; }
     public Item? IfItem { get; set; }
     public int ThenItemId { get; private set;  }

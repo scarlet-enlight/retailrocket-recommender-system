@@ -14,13 +14,13 @@ public class CartRepository : ICartRepository
         _dbContext = dbContext;
     }
 
-    public async Task<Cart?> GetByIdAsync(int id) => 
+    public async Task<Cart?> GetByIdAsync(Guid id) => 
         await  _dbContext.Carts
             .Include(c => c.User)
             .Include(c => c.Product)
             .FirstOrDefaultAsync(c => c.CartId == id);
     
-    public async Task<IEnumerable<Cart>> GetByUserIdAsync(int id) =>
+    public async Task<IEnumerable<Cart>> GetByUserIdAsync(Guid id) =>
         await  _dbContext.Carts
             .Include(c => c.User)
             .Include(c => c.Product)
@@ -39,7 +39,7 @@ public class CartRepository : ICartRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task DeleteAsync(Guid id)
     {
         var cart = await GetByIdAsync(id);
         if (cart is null) return;

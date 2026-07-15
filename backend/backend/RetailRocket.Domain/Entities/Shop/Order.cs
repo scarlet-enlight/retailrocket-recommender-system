@@ -2,13 +2,13 @@
 
 public class Order
 {
-    public int OrderId { get; }
-    public int UserId { get; private set; }
+    public Guid OrderId { get; }
+    public Guid UserId { get; private set; }
     public User? User { get; set; }
     public DateTime CreatedAt { get; set; }
     public decimal Total { get; private set; }
 
-    public Order(int userId, decimal total)
+    public Order(Guid userId, decimal total)
     {
         UserId = userId;
         Total = total;

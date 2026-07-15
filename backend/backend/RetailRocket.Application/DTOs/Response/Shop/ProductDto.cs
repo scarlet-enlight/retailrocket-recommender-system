@@ -2,7 +2,7 @@
 
 public class ProductDto
 {
-    public int ProductId { get; set; }
+    public Guid ProductId { get; set; }
     public int ItemId { get; set; }
     public string? Name { get; set; }
     public decimal? Price { get; set; }

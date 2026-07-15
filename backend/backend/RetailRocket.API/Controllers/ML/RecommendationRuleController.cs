@@ -31,7 +31,7 @@ public class RecommendationRuleController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetById(Guid id)
     {
         var recommendationRule = await _recommendationRuleService.GetRecommendationRuleAsync(id);
         if (recommendationRule is null) return NotFound();
@@ -93,7 +93,7 @@ public class RecommendationRuleController : ControllerBase
         });
     }
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] CreateRecommendationRuleDto dto)
+    public async Task<IActionResult> Update(Guid id, [FromBody] CreateRecommendationRuleDto dto)
     {
         var recommendationRule = await _recommendationRuleService.GetRecommendationRuleAsync(id);
         if (recommendationRule is null) return NotFound();
@@ -107,7 +107,7 @@ public class RecommendationRuleController : ControllerBase
     }
     
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(Guid id)
     {
         var recommendationRule = await _recommendationRuleService.GetRecommendationRuleAsync(id);
         if (recommendationRule is null) return NotFound();

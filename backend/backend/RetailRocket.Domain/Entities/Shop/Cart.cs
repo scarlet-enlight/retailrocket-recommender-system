@@ -4,9 +4,9 @@ public class Cart
 {
     public Guid CartId { get; }
     public Guid UserId { get; private set; }
-    public User? User { get; set; }
+    public User User { get; set; }
     public Guid ProductId { get; private set; }
-    public Product? Product { get; set; }
+    public Product Product { get; set; }
     public uint Quantity { get; private set; }
     public DateTime AddedAt { get; }
 

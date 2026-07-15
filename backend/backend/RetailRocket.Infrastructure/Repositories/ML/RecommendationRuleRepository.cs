@@ -26,14 +26,14 @@ public class RecommendationRuleRepository : IRecommendationRuleRepository
             .Include(rr => rr.ThenItem)
             .ToListAsync();
     
-    public async Task<IEnumerable<RecommendationRule>> GetByIfItemIdAsync(Guid ifItemId) =>
+    public async Task<IEnumerable<RecommendationRule>> GetByIfItemIdAsync(int ifItemId) =>
         await _dbContext.RecommendationRules
             .Include(rr => rr.IfItem)
             .Include(rr => rr.ThenItem)
             .Where(rr => rr.IfItemId == ifItemId)
             .ToListAsync();
     
-    public async Task<IEnumerable<RecommendationRule>> GetByThenItemIdAsync(Guid thenItemId) =>
+    public async Task<IEnumerable<RecommendationRule>> GetByThenItemIdAsync(int thenItemId) =>
         await _dbContext.RecommendationRules
             .Include(rr => rr.IfItem)
             .Include(rr => rr.ThenItem)

@@ -10,6 +10,7 @@ public class TransactionConfiguration : IEntityTypeConfiguration<Transaction>
     {
         builder.ToTable("transactions", "historical");
         builder.HasKey(t => t.TransactionId);
+        builder.Property(t => t.TransactionId).ValueGeneratedOnAdd();
         builder.HasOne(t => t.Visitor).WithMany().HasForeignKey(t => t.VisitorId);
         builder.Property(t => t.Timestamp).IsRequired();
     }

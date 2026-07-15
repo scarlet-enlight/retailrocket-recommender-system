@@ -46,7 +46,7 @@ public class RecommendationRuleController : ControllerBase
     }
 
     [HttpGet("by-required-item/{reqItemId}")]
-    public async Task<IActionResult> GetByRequiredItem(Guid reqItemId)
+    public async Task<IActionResult> GetByRequiredItem(int reqItemId)
     {
         var recommendationRules = await _recommendationRuleService.GetRecommendationRulesByRequiredItemAsync(reqItemId);
         var result = recommendationRules.Select(rr => new RecommendationRuleDto
@@ -62,7 +62,7 @@ public class RecommendationRuleController : ControllerBase
     }
     
     [HttpGet("by-result-item/{resItemId}")]
-    public async Task<IActionResult> GetByResultItem(Guid resItemId)
+    public async Task<IActionResult> GetByResultItem(int resItemId)
     {
         var recommendationRules = await _recommendationRuleService.GetRecommendationRulesByResultItemAsync(resItemId);
         var result = recommendationRules.Select(rr => new RecommendationRuleDto

@@ -10,6 +10,7 @@ public class RecommendationRuleConfiguration : IEntityTypeConfiguration<Recommen
     {
         builder.ToTable("recommendation_rules", "ml");
         builder.HasKey(rr => rr.RecommendationRuleId);
+        builder.Property(rr => rr.RecommendationRuleId).ValueGeneratedOnAdd();
         builder.HasOne(rr => rr.IfItem).WithMany().HasForeignKey(rr => rr.IfItemId);
         builder.HasOne(rr => rr.ThenItem).WithMany().HasForeignKey(rr => rr.ThenItemId);
         builder.Property(rr => rr.Support);

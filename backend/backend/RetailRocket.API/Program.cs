@@ -4,7 +4,6 @@ using RetailRocket.Application.Interfaces.Shop;
 using RetailRocket.Application.Services.ML;
 using RetailRocket.Application.Services.Shop;
 using RetailRocket.Infrastructure.Persistence;
-using RetailRocket.Infrastructure.Repositories;
 using RetailRocket.Infrastructure.Repositories.ML;
 using RetailRocket.Infrastructure.Repositories.Shop;
 
@@ -38,6 +37,15 @@ builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<RecommendationRuleService>();
 
 var app = builder.Build();
+
+// Seed database with example entities
+// Mustn't go into production
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await context.Database.MigrateAsync();
+    await AppDbContextSeeder.SeedAsync(context);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

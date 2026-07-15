@@ -16,10 +16,10 @@ public class RecommendationRuleService
     public async Task<RecommendationRule?> GetRecommendationRuleAsync(Guid id) =>
         await _recommendationRuleRepository.GetByIdAsync(id);
     
-    public async Task<IEnumerable<RecommendationRule>> GetRecommendationRulesByRequiredItemAsync(Guid id) =>
+    public async Task<IEnumerable<RecommendationRule>> GetRecommendationRulesByRequiredItemAsync(int id) =>
         await _recommendationRuleRepository.GetByIfItemIdAsync(id);
     
-    public async Task<IEnumerable<RecommendationRule>> GetRecommendationRulesByResultItemAsync(Guid id) =>
+    public async Task<IEnumerable<RecommendationRule>> GetRecommendationRulesByResultItemAsync(int id) =>
         await _recommendationRuleRepository.GetByThenItemIdAsync(id);
     
     public async Task AddRecommendationRuleAsync(RecommendationRule recommendationRule) => 

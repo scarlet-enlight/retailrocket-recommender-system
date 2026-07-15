@@ -8,4 +8,12 @@ public class OrderItem
     public Product? Product { get; private set; }
     public uint Quantity { get; private set; }
     public decimal Price { get; private set; }
+
+    public OrderItem(Guid orderId, Guid productId, uint quantity, decimal price)
+    {
+        OrderId = orderId;
+        ProductId = productId;
+        Quantity = quantity;
+        Price = price;
+    }
 }

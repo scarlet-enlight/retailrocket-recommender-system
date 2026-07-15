@@ -23,7 +23,6 @@ public class OrderController : ControllerBase
         return Ok(new OrderDto
         {
             OrderId =  order.OrderId,
-            UserId = order.UserId,
             CreatedAt = order.CreatedAt,
             Total = order.Total
         });
@@ -36,7 +35,6 @@ public class OrderController : ControllerBase
         var result = orders.Select(o => new OrderDto
         {
             OrderId = o.OrderId,
-            UserId = o.UserId,
             CreatedAt = o.CreatedAt,
             Total = o.Total
         });
@@ -51,7 +49,6 @@ public class OrderController : ControllerBase
         return CreatedAtAction(nameof(GetById), new {id = order.OrderId },  new OrderDto
         {
             OrderId = order.OrderId,
-            UserId = order.UserId,
             CreatedAt = order.CreatedAt,
             Total = order.Total
         });

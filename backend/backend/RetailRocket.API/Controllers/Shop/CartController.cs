@@ -22,8 +22,9 @@ public class CartController : ControllerBase
         if (cart is null) return NotFound();
         return Ok(new CartDto
         {
-            UserId = cart.UserId,
-            ProductId = cart.ProductId,
+            CartId = cart.CartId,
+            ProductName = cart.Product.Name,
+            ProductPrice =  cart.Product.Price,
             Quantity = cart.Quantity
         });
     }
@@ -34,8 +35,9 @@ public class CartController : ControllerBase
         var carts = await _cartService.GetCartsByUserAsync(userId);
         var result = carts.Select(c => new CartDto
         {
-            UserId = c.UserId,
-            ProductId = c.ProductId,
+            CartId = c.CartId,
+            ProductName = c.Product.Name,
+            ProductPrice = c.Product.Price,
             Quantity = c.Quantity
         });
         return Ok(result);
@@ -48,8 +50,9 @@ public class CartController : ControllerBase
         await _cartService.AddCartAsync(cart);
         return CreatedAtAction(nameof(GetById), new { id = cart.CartId }, new CartDto
         {
-            UserId = cart.UserId,
-            ProductId = cart.ProductId,
+            CartId = cart.CartId,
+            ProductName = cart.Product.Name,
+            ProductPrice =  cart.Product.Price,
             Quantity = cart.Quantity
         });
     }

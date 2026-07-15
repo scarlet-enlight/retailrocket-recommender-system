@@ -22,10 +22,10 @@ public class ProductController : ControllerBase
         var result = products.Select(p => new ProductDto
         {
             ProductId = p.ProductId,
-            ItemId = p.ItemId,
             Name = p.Name,
             Price = p.Price,
-            CategoryId = p.CategoryId
+            CategoryName = p.Category.Name,
+            IsAvailable = p.Item.IsAvailable
         });
         return Ok(result);
     }
@@ -38,10 +38,10 @@ public class ProductController : ControllerBase
         return Ok(new ProductDto
         {
             ProductId = product.ProductId,
-            ItemId = product.ItemId,
             Name = product.Name,
             Price = product.Price,
-            CategoryId = product.CategoryId
+            CategoryName = product.Category.Name,
+            IsAvailable = product.Item.IsAvailable
         });
     }
 
@@ -53,10 +53,10 @@ public class ProductController : ControllerBase
         return Ok(new ProductDto
         {
             ProductId = product.ProductId,
-            ItemId = product.ItemId,
             Name = product.Name,
             Price = product.Price,
-            CategoryId = product.CategoryId
+            CategoryName = product.Category.Name,
+            IsAvailable = product.Item.IsAvailable
         }); 
     }
 
@@ -68,10 +68,10 @@ public class ProductController : ControllerBase
         return  CreatedAtAction(nameof(GetById), new { id = product.ProductId }, new ProductDto
         {
             ProductId = product.ProductId,
-            ItemId = product.ItemId,
             Name = product.Name,
             Price = product.Price,
-            CategoryId = product.CategoryId
+            CategoryName = product.Category.Name,
+            IsAvailable = product.Item.IsAvailable
         });
     }
 

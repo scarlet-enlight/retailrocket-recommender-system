@@ -18,7 +18,7 @@ public class Product
         Price = price;
         CategoryId = categoryId;
     }
-
+    
     public void UpdateItem(int itemId) => ItemId = itemId;
     public void UpdateName(string? name) => Name = name;
     public void UpdatePrice(decimal? price) => Price = price;

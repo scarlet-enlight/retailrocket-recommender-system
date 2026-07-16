@@ -2,6 +2,7 @@
 using RetailRocket.Application.DTOs.Request.Shop;
 using RetailRocket.Application.DTOs.Response.Shop;
 using RetailRocket.Application.Services.Shop;
+using RetailRocket.Application.Services.Security;
 using RetailRocket.Domain.Entities.Shop;
 
 namespace RetailRocket.API.Controllers.Shop;
@@ -74,8 +75,19 @@ public class UserController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateUserDto dto)
     {
-        var user = new User(dto.Username, dto.Email, dto.Password);
+        if (dto.Username is null || dto.Email is null || dto.Password is null)
+            return BadRequest("Username, email and password are required.");
+        
+        var existingUser = await _userService.GetUserByUsernameAsync(dto.Username);
+        if (existingUser is not null) return Conflict("Username already exists.");
+        
+        var existingEmail = await _userService.GetUserByEmailAsync(dto.Email);
+        if (existingEmail is not null) return Conflict("Email already exists.");
+        
+        var hash = PasswordHasher.Hash(dto.Password);
+        var user = new User(dto.Username, dto.Email, hash);
         await _userService.AddUserAsync(user);
+        
         return CreatedAtAction(nameof(GetById), new { id = user.UserId }, new UserDto
         {
             UserId = user.UserId,

@@ -1,6 +1,6 @@
 ﻿namespace RetailRocket.Application.DTOs.Request.Shop;
 
-public class CreateProductDto
+public record ProductRequestDto
 {
     public int ItemId { get; set; }
     public string? Name { get; set; }

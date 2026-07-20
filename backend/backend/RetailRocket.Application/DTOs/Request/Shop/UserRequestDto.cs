@@ -1,6 +1,6 @@
 ﻿namespace RetailRocket.Application.DTOs.Request.Shop;
 
-public class CreateUserDto
+public record UserRequestDto
 {
     public string? Username { get; set; }
     public string? Email { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace RetailRocket.Application.DTOs.Response.Shop;
 
-public class UserDto
+public record UserResponseDto
 {
     public Guid UserId { get; set;  }
     public string? Username { get; set; }

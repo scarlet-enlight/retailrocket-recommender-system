@@ -1,6 +1,6 @@
 ﻿namespace RetailRocket.Application.DTOs.Response.Historical;
 
-public class ItemDto
+public record ItemResponseDto
 {
     public int ItemId { get; set; }
     public bool IsAvailable { get; set; }

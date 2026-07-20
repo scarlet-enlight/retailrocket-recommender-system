@@ -1,6 +1,6 @@
 ﻿namespace RetailRocket.Application.DTOs.Request.ML;
 
-public class CreateRecommendationRuleDto
+public record RecommendationRuleRequestDto
 {
     public int IfItemId { get; set; }
     public int ThenItemId { get; set; }

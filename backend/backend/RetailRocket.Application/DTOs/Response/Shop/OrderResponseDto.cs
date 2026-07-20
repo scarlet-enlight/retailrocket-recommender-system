@@ -1,6 +1,6 @@
 ﻿namespace RetailRocket.Application.DTOs.Response.Shop;
 
-public class OrderDto
+public record OrderResponseDto
 {
     public Guid OrderId { get; set; }
     public DateTime CreatedAt { get; set; }

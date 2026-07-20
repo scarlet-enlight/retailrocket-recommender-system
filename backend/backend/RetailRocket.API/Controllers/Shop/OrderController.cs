@@ -20,10 +20,9 @@ public class OrderController : ControllerBase
     {
         var order = await _orderService.GetOrderAsync(id);
         if (order is null) return NotFound();
-        return Ok(new OrderDto
+        return Ok(new OrderResponseDto
         {
             OrderId =  order.OrderId,
-            UserId = order.UserId,
             CreatedAt = order.CreatedAt,
             Total = order.Total
         });
@@ -33,10 +32,9 @@ public class OrderController : ControllerBase
     public async Task<IActionResult> GetAllByUser(Guid userId)
     {
         var orders = await _orderService.GetOrdersByUserAsync(userId);
-        var result = orders.Select(o => new OrderDto
+        var result = orders.Select(o => new OrderResponseDto
         {
             OrderId = o.OrderId,
-            UserId = o.UserId,
             CreatedAt = o.CreatedAt,
             Total = o.Total
         });
@@ -44,14 +42,13 @@ public class OrderController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateOrderDto dto)
+    public async Task<IActionResult> Create([FromBody] OrderRequestDto requestDto)
     {
-        var order = new Order(dto.UserId, dto.Total);
+        var order = new Order(requestDto.UserId, requestDto.Total);
         await _orderService.AddOrderAsync(order);
-        return CreatedAtAction(nameof(GetById), new {id = order.OrderId },  new OrderDto
+        return CreatedAtAction(nameof(GetById), new {id = order.OrderId },  new OrderResponseDto
         {
             OrderId = order.OrderId,
-            UserId = order.UserId,
             CreatedAt = order.CreatedAt,
             Total = order.Total
         });

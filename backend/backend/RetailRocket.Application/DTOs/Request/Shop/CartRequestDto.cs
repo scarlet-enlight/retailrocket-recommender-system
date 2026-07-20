@@ -1,6 +1,6 @@
 ﻿namespace RetailRocket.Application.DTOs.Request.Shop;
 
-public class CreateCartDto
+public record CartRequestDto
 {
     public Guid UserId { get; set; }
     public Guid ProductId { get; set; }

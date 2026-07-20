@@ -10,7 +10,7 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
     {
         builder.ToTable("products", "shop");
         builder.HasKey(p => p.ProductId);
-        builder.Property(p => p.ProductId).ValueGeneratedOnAdd();
+        builder.Property(p => p.ProductId).HasColumnType("uuid").ValueGeneratedOnAdd();
         builder.HasOne(p => p.Item).WithMany().HasForeignKey(p => p.ItemId);
         builder.Property(p => p.Name).HasMaxLength(200);
         builder.Property(p => p.Price).HasColumnType("decimal(10,2)");

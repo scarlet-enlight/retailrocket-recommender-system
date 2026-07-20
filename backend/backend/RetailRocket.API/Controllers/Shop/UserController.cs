@@ -20,7 +20,7 @@ public class UserController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         var users = await _userService.GetAllUsersAsync();
-        var result = users.Select(u => new UserDto
+        var result = users.Select(u => new UserResponseDto
         {
             UserId = u.UserId,
             Username = u.Username,
@@ -35,7 +35,7 @@ public class UserController : ControllerBase
     {
         var user = await _userService.GetUserAsync(id);
         if (user is null) return NotFound();
-        return Ok(new UserDto
+        return Ok(new UserResponseDto
         {
             UserId = user.UserId,
             Username = user.Username,
@@ -49,7 +49,7 @@ public class UserController : ControllerBase
     {
         var user = await _userService.GetUserByUsernameAsync(username);
         if (user is null) return NotFound();
-        return Ok(new UserDto
+        return Ok(new UserResponseDto
         {
             UserId = user.UserId,
             Username = user.Username,
@@ -63,7 +63,7 @@ public class UserController : ControllerBase
     {
         var user = await _userService.GetUserByEmailAsync(email);
         if (user is null) return NotFound();
-        return Ok(new UserDto
+        return Ok(new UserResponseDto
         {
             UserId = user.UserId,
             Username = user.Username,
@@ -73,22 +73,22 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateUserDto dto)
+    public async Task<IActionResult> Create([FromBody] UserRequestDto requestDto)
     {
-        if (dto.Username is null || dto.Email is null || dto.Password is null)
+        if (requestDto.Username is null || requestDto.Email is null || requestDto.Password is null)
             return BadRequest("Username, email and password are required.");
         
-        var existingUser = await _userService.GetUserByUsernameAsync(dto.Username);
+        var existingUser = await _userService.GetUserByUsernameAsync(requestDto.Username);
         if (existingUser is not null) return Conflict("Username already exists.");
         
-        var existingEmail = await _userService.GetUserByEmailAsync(dto.Email);
+        var existingEmail = await _userService.GetUserByEmailAsync(requestDto.Email);
         if (existingEmail is not null) return Conflict("Email already exists.");
         
-        var hash = PasswordHasher.Hash(dto.Password);
-        var user = new User(dto.Username, dto.Email, hash);
+        var hash = PasswordHasher.Hash(requestDto.Password);
+        var user = new User(requestDto.Username, requestDto.Email, hash);
         await _userService.AddUserAsync(user);
         
-        return CreatedAtAction(nameof(GetById), new { id = user.UserId }, new UserDto
+        return CreatedAtAction(nameof(GetById), new { id = user.UserId }, new UserResponseDto
         {
             UserId = user.UserId,
             Username = user.Username,
@@ -98,12 +98,12 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] CreateUserDto dto)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UserRequestDto requestDto)
     {
         var user = await _userService.GetUserAsync(id);
         if (user is null) return NotFound();
-        user.UpdateUsername(dto.Username);
-        user.UpdateEmail(dto.Email);
+        user.UpdateUsername(requestDto.Username);
+        user.UpdateEmail(requestDto.Email);
         await _userService.UpdateUserAsync(user);
         return NoContent();
     }

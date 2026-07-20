@@ -1,8 +1,7 @@
-﻿namespace RetailRocket.Application.DTOs.Response.Shop;
+﻿namespace RetailRocket.Application.DTOs.Request.Shop;
 
-public class ProductDto
+public record ProductRequestDto
 {
-    public Guid ProductId { get; set; }
     public int ItemId { get; set; }
     public string? Name { get; set; }
     public decimal? Price { get; set; }

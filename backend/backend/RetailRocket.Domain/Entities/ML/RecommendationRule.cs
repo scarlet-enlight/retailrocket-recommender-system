@@ -6,9 +6,9 @@ public class RecommendationRule
 {
     public Guid RecommendationRuleId { get; }
     public int IfItemId { get; private set; }
-    public Item? IfItem { get; set; }
+    public Item IfItem { get; set; }
     public int ThenItemId { get; private set;  }
-    public Item? ThenItem { get; set; }
+    public Item ThenItem { get; set; }
     public double Support { get; private set; }
     public double Confidence { get; private set; }
     public double Lift { get; private set; }

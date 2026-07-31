@@ -71,4 +71,3 @@ Create a feature branch for your work: `feature/your-feature-name`.
 Open a **Pull Request (PR)** to merge into `main`. At least one team member must review it.
 
 Keep code and comments strictly in **English**.
- 

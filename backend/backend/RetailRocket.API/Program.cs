@@ -1,6 +1,10 @@
+using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using RetailRocket.Application.Interfaces.ML;
 using RetailRocket.Application.Interfaces.Shop;
+using RetailRocket.Application.Services.JWT;
 using RetailRocket.Application.Services.ML;
 using RetailRocket.Application.Services.Shop;
 using RetailRocket.Infrastructure.Persistence;
@@ -36,6 +40,23 @@ builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<RecommendationRuleService>();
 
+// JWT Authentification
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        };
+    });
+builder.Services.AddScoped<JwtTokenService>();
 // CORS Policy
 builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigin", policy =>

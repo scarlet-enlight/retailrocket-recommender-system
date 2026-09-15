@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using RetailRocket.Application.DTOs.Request.Shop;
 using RetailRocket.Application.DTOs.Response.Shop;
 using RetailRocket.Application.Services.Shop;
 using RetailRocket.Application.Services.Security;
+using RetailRocket.Application.Services.JWT;
 using RetailRocket.Domain.Entities.Shop;
 
 namespace RetailRocket.API.Controllers.Shop;
@@ -14,7 +16,12 @@ public class UserController : ControllerBase
     private readonly UserService _userService;
     
     public UserController(UserService userService) =>
+    private readonly JwtTokenService _tokenService;
+    public UserController(UserService userService, JwtTokenService tokenService, IMapper mapper)
+    {
         _userService = userService;
+        _tokenService = tokenService;
+    }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -97,6 +104,27 @@ public class UserController : ControllerBase
         });
     }
 
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
+    {
+        if (dto.Email is null || dto.Password is null)
+            return BadRequest("Email and password are required.");
+
+        var user = await _userService.GetUserByEmailAsync(dto.Email);
+        if (user is null || !PasswordHasherService.Verify(user.PasswordHash!, dto.Password))
+            return Unauthorized("Invalid credentials");
+
+        var token = _tokenService.GenerateToken(user);
+
+        return Ok(new
+        {
+            token,
+            expiresIn = 30,
+            userId = user.UserId,
+            username = user.Username
+        });
+    }
+    
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UserRequestDto requestDto)
     {

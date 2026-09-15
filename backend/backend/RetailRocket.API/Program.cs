@@ -91,8 +91,11 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+// End appliances
+app.UseHttpsRedirection();
+app.UseCors("AllowSpecificOrigin");
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.UseHttpsRedirection();
 
 app.Run();

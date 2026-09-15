@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using RetailRocket.API.Mapping;
 using RetailRocket.Application.DTOs.Request.Shop;
 using RetailRocket.Application.DTOs.Response.Shop;
@@ -13,25 +14,19 @@ namespace RetailRocket.API.Controllers.Shop;
 public class ProductController : ControllerBase
 {
     private readonly ProductService _productService;
-    
-    public ProductController(ProductService productService) =>
+    private readonly IMapper _mapper;
+
+    public ProductController(ProductService productService, IMapper mapper)
+    {
         _productService = productService;
+        _mapper = mapper;
+    }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
         var products = await _productService.GetAllProductsAsync();
-        var result = products.Select(p => new ProductResponseDto
-        {
-            ProductId = p.ProductId,
-            Item = new ItemShortDto {
-                ItemId = p.ItemId,
-                Category = DtoMapping.MapCategory(p.Item.Category),
-                IsAvailable = p.Item.IsAvailable,
-            },
-            Name = p.Name,
-            Price = p.Price,
-        });
+        var result = _mapper.Map<IEnumerable<ProductResponseDto>>(products);
         return Ok(result);
     }
 
@@ -40,17 +35,7 @@ public class ProductController : ControllerBase
     {
         var product = await _productService.GetProductAsync(id);
         if (product is null) return NotFound();
-        return Ok(new ProductResponseDto
-        {
-            ProductId = product.ProductId,
-            Item = new ItemShortDto {
-                ItemId = product.ItemId,
-                Category = DtoMapping.MapCategory(product.Item.Category),
-                IsAvailable = product.Item.IsAvailable,
-            },
-            Name = product.Name,
-            Price = product.Price,
-        });
+        return Ok(_mapper.Map<ProductResponseDto>(product));
     }
 
     [HttpGet("by-name")]
@@ -58,17 +43,7 @@ public class ProductController : ControllerBase
     {
         var product = await _productService.GetProductByNameAsync(name);
         if (product is null) return NotFound();
-        return Ok(new ProductResponseDto
-        {
-            ProductId = product.ProductId,
-            Item = new ItemShortDto {
-                ItemId = product.ItemId,
-                Category = DtoMapping.MapCategory(product.Item.Category),
-                IsAvailable = product.Item.IsAvailable,
-            },
-            Name = product.Name,
-            Price = product.Price,
-        }); 
+        return Ok(_mapper.Map<ProductResponseDto>(product)); 
     }
 
     [HttpPost]

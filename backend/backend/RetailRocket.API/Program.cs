@@ -7,6 +7,9 @@ using RetailRocket.Application.Interfaces.Shop;
 using RetailRocket.Application.Services.JWT;
 using RetailRocket.Application.Services.ML;
 using RetailRocket.Application.Services.Shop;
+using RetailRocket.Application.Mappings.ML;
+using RetailRocket.Application.Mappings.Shop;
+using RetailRocket.Application.Mappings.Short;
 using RetailRocket.Infrastructure.Persistence;
 using RetailRocket.Infrastructure.Repositories.ML;
 using RetailRocket.Infrastructure.Repositories.Shop;
@@ -57,6 +60,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 builder.Services.AddScoped<JwtTokenService>();
+
+// AutoMapper Configurations
+builder.Services.AddAutoMapper(typeof(RecommendationRuleMappingProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(CartMappingProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(OrderMappingProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(ProductMappingProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(UserMappingProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(CategoryShortMappingProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(ItemShortMappingProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(ProductShortMappingProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(UserShortMappingProfile).Assembly);
+
 // CORS Policy
 builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigin", policy =>

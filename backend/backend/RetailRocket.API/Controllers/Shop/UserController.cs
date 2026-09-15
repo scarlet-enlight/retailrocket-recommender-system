@@ -29,13 +29,7 @@ public class UserController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         var users = await _userService.GetAllUsersAsync();
-        var result = users.Select(u => new UserResponseDto
-        {
-            UserId = u.UserId,
-            Username = u.Username,
-            Email = u.Email,
-            CreatedAt = u.CreatedAt
-        });
+        var result = _mapper.Map<IEnumerable<UserResponseDto>>(users);
         return Ok(result);
     }
 
@@ -44,13 +38,7 @@ public class UserController : ControllerBase
     {
         var user = await _userService.GetUserAsync(id);
         if (user is null) return NotFound();
-        return Ok(new UserResponseDto
-        {
-            UserId = user.UserId,
-            Username = user.Username,
-            Email = user.Email,
-            CreatedAt = user.CreatedAt
-        });
+        return Ok(_mapper.Map<UserResponseDto>(user));
     }
 
     [HttpGet("by-username")]
@@ -58,13 +46,7 @@ public class UserController : ControllerBase
     {
         var user = await _userService.GetUserByUsernameAsync(username);
         if (user is null) return NotFound();
-        return Ok(new UserResponseDto
-        {
-            UserId = user.UserId,
-            Username = user.Username,
-            Email = user.Email,
-            CreatedAt = user.CreatedAt
-        });
+        return Ok(_mapper.Map<UserResponseDto>(user));
     }
     
     [HttpGet("by-email")]
@@ -72,13 +54,7 @@ public class UserController : ControllerBase
     {
         var user = await _userService.GetUserByEmailAsync(email);
         if (user is null) return NotFound();
-        return Ok(new UserResponseDto
-        {
-            UserId = user.UserId,
-            Username = user.Username,
-            Email = user.Email,
-            CreatedAt = user.CreatedAt
-        });
+        return Ok(_mapper.Map<UserResponseDto>(user));
     }
 
     [HttpPost]

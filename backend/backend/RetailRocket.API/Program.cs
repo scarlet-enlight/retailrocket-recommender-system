@@ -36,6 +36,21 @@ builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<RecommendationRuleService>();
 
+// CORS Policy
+builder.Services.AddCors(options =>
+    options.AddPolicy("AllowSpecificOrigin", policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:7228",
+                "https://localhost:6086",
+                "http://localhost:5173",
+                "https://localhost:5173")
+            .WithMethods("GET", "POST", "PUT", "DELETE")
+            .AllowAnyHeader();
+    })
+    );
+
 var app = builder.Build();
 
 // Seed database with example entities

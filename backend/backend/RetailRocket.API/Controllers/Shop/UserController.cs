@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RetailRocket.Application.DTOs.Request.Shop;
 using RetailRocket.Application.DTOs.Response.Shop;
@@ -14,13 +15,14 @@ namespace RetailRocket.API.Controllers.Shop;
 public class UserController : ControllerBase
 {
     private readonly UserService _userService;
-    
-    public UserController(UserService userService) =>
     private readonly JwtTokenService _tokenService;
+    private readonly IMapper _mapper;
+
     public UserController(UserService userService, JwtTokenService tokenService, IMapper mapper)
     {
         _userService = userService;
         _tokenService = tokenService;
+        _mapper = mapper;
     }
 
     [HttpGet]
@@ -104,6 +106,7 @@ public class UserController : ControllerBase
         });
     }
 
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
     {
@@ -125,6 +128,7 @@ public class UserController : ControllerBase
         });
     }
     
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UserRequestDto requestDto)
     {

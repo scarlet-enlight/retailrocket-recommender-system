@@ -2,7 +2,7 @@
 
 namespace RetailRocket.Application.Services.Security;
 
-public class PasswordHasher
+public class PasswordHasherService
 {
     public static string Hash(string password) => 
         Argon2.Hash(password);

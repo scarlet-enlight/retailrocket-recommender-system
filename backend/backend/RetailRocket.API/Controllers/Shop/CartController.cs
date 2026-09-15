@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using RetailRocket.Application.DTOs.Request.Shop;
 using RetailRocket.Application.DTOs.Response.Shop;
 using RetailRocket.Application.DTOs.Short.Shop;
@@ -13,6 +14,8 @@ namespace RetailRocket.API.Controllers.Shop;
 public class CartController : ControllerBase
 {
     private readonly CartService _cartService;
+    private readonly UserService _userService;
+    private readonly IMapper _mapper;
 
     public CartController(CartService cartService, UserService userService, IMapper mapper)
     {
@@ -21,7 +24,7 @@ public class CartController : ControllerBase
         _mapper = mapper;
     }
 
-
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     {
@@ -30,6 +33,7 @@ public class CartController : ControllerBase
         return Ok(_mapper.Map<CartResponseDto>(cart));
     }
 
+    [Authorize]
     [HttpGet("by-user/{userId}")]
     public async Task<IActionResult> GetAllByUser(Guid userId)
     {
@@ -38,6 +42,7 @@ public class CartController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CartRequestDto requestDto)
     {
@@ -60,6 +65,7 @@ public class CartController : ControllerBase
         });
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] CartRequestDto requestDto)
     {
@@ -71,6 +77,7 @@ public class CartController : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {

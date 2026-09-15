@@ -25,6 +25,7 @@ public class UserController : ControllerBase
         _mapper = mapper;
     }
 
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -33,6 +34,7 @@ public class UserController : ControllerBase
         return Ok(result);
     }
 
+    [AllowAnonymous]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     {
@@ -41,6 +43,7 @@ public class UserController : ControllerBase
         return Ok(_mapper.Map<UserResponseDto>(user));
     }
 
+    [AllowAnonymous]
     [HttpGet("by-username")]
     public async Task<IActionResult> GetByUsername([FromQuery] string username)
     {
@@ -49,6 +52,7 @@ public class UserController : ControllerBase
         return Ok(_mapper.Map<UserResponseDto>(user));
     }
     
+    [AllowAnonymous]
     [HttpGet("by-email")]
     public async Task<IActionResult> GetByEmail([FromQuery] string email)
     {
@@ -57,6 +61,7 @@ public class UserController : ControllerBase
         return Ok(_mapper.Map<UserResponseDto>(user));
     }
 
+    [AllowAnonymous]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] UserRequestDto requestDto)
     {
@@ -69,7 +74,7 @@ public class UserController : ControllerBase
         var existingEmail = await _userService.GetUserByEmailAsync(requestDto.Email);
         if (existingEmail is not null) return Conflict("Email already exists.");
         
-        var hash = PasswordHasher.Hash(requestDto.Password);
+        var hash = PasswordHasherService.Hash(requestDto.Password);
         var user = new User(requestDto.Username, requestDto.Email, hash);
         await _userService.AddUserAsync(user);
         
@@ -116,6 +121,7 @@ public class UserController : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RetailRocket.API.Mapping;
 using RetailRocket.Application.DTOs.Request.Shop;
@@ -22,6 +23,7 @@ public class ProductController : ControllerBase
         _mapper = mapper;
     }
 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -30,6 +32,7 @@ public class ProductController : ControllerBase
         return Ok(result);
     }
 
+    [AllowAnonymous]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     {
@@ -38,6 +41,7 @@ public class ProductController : ControllerBase
         return Ok(_mapper.Map<ProductResponseDto>(product));
     }
 
+    [AllowAnonymous]
     [HttpGet("by-name")]
     public async Task<IActionResult> GetByName([FromQuery] string name)
     {
@@ -46,6 +50,7 @@ public class ProductController : ControllerBase
         return Ok(_mapper.Map<ProductResponseDto>(product)); 
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] ProductRequestDto requestDto)
     {
@@ -64,6 +69,7 @@ public class ProductController : ControllerBase
         });
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] ProductRequestDto requestDto)
     {
@@ -77,6 +83,7 @@ public class ProductController : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {

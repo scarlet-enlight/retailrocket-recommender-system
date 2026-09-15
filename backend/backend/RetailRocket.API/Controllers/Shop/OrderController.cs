@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using RetailRocket.Application.DTOs.Request.Shop;
 using RetailRocket.Application.DTOs.Response.Shop;
 using RetailRocket.Application.Services.Shop;
@@ -17,10 +18,10 @@ public class OrderController : ControllerBase
     public OrderController(OrderService orderService, IMapper mapper)
     {
         _orderService = orderService;
-
         _mapper = mapper;
     }
     
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     {
@@ -29,6 +30,7 @@ public class OrderController : ControllerBase
         return Ok(_mapper.Map<OrderResponseDto>(order));
     }
     
+    [Authorize]
     [HttpGet("by-user/{userId}")]
     public async Task<IActionResult> GetAllByUser(Guid userId)
     {
@@ -37,6 +39,7 @@ public class OrderController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] OrderRequestDto requestDto)
     {
@@ -51,12 +54,14 @@ public class OrderController : ControllerBase
     }
 
     // WIP
+    [Authorize]
     [HttpPut("by-user/{userId}/price")]
     public async Task<IActionResult> UpdateTotalPrice(Guid id, [FromBody] decimal total)
     {
         return NoContent();
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {

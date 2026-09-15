@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RetailRocket.API.Mapping;
 using RetailRocket.Application.DTOs.Request.ML;
@@ -22,6 +23,7 @@ public class RecommendationRuleController : ControllerBase
         _mapper = mapper;
     }
 
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -30,6 +32,7 @@ public class RecommendationRuleController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     {
@@ -39,6 +42,7 @@ public class RecommendationRuleController : ControllerBase
     }
 
     // WIP: Refactor get by req/resItem to get all recRules
+    [Authorize]
     [HttpGet("by-required-item/{reqItemId}")]
     public async Task<IActionResult> GetByRequiredItem(int reqItemId)
     {
@@ -47,6 +51,7 @@ public class RecommendationRuleController : ControllerBase
         return Ok(result);
     }
     
+    [Authorize]
     [HttpGet("by-result-item/{resItemId}")]
     public async Task<IActionResult> GetByResultItem(int resItemId)
     {
@@ -55,6 +60,7 @@ public class RecommendationRuleController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] RecommendationRuleRequestDto requestDto)
     {
@@ -80,6 +86,8 @@ public class RecommendationRuleController : ControllerBase
             Lift = recommendationRule.Lift
         });
     }
+    
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] RecommendationRuleRequestDto requestDto)
     {
@@ -94,6 +102,7 @@ public class RecommendationRuleController : ControllerBase
         return NoContent();
     }
     
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {

@@ -14,3 +14,4 @@
 - [ ] I have tested my changes locally (Run 'docker compose up' and ensure it works)
 - [ ] I have updated the database schemas in `init.sql` (Only if you added/changed tables)
 - [ ] This PR does not break existing functionality (Everything else still works fine)
+- [ ] I have linked this PR to an Issue (e.g., "Closes #12")

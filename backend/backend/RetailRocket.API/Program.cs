@@ -1,8 +1,15 @@
+using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using RetailRocket.Application.Interfaces.ML;
 using RetailRocket.Application.Interfaces.Shop;
+using RetailRocket.Application.Services.JWT;
 using RetailRocket.Application.Services.ML;
 using RetailRocket.Application.Services.Shop;
+using RetailRocket.Application.Mappings.ML;
+using RetailRocket.Application.Mappings.Shop;
+using RetailRocket.Application.Mappings.Short;
 using RetailRocket.Infrastructure.Persistence;
 using RetailRocket.Infrastructure.Repositories.ML;
 using RetailRocket.Infrastructure.Repositories.Shop;
@@ -36,6 +43,50 @@ builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<RecommendationRuleService>();
 
+// JWT Authentification
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        };
+    });
+builder.Services.AddScoped<JwtTokenService>();
+
+// AutoMapper Configurations
+builder.Services.AddAutoMapper(typeof(RecommendationRuleMappingProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(CartMappingProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(OrderMappingProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(ProductMappingProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(UserMappingProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(CategoryShortMappingProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(ItemShortMappingProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(ProductShortMappingProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(UserShortMappingProfile).Assembly);
+
+// CORS Policy
+builder.Services.AddCors(options =>
+    options.AddPolicy("AllowSpecificOrigin", policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:7228",
+                "https://localhost:6086",
+                "http://localhost:5173",
+                "https://localhost:5173")
+            .WithMethods("GET", "POST", "PUT", "DELETE")
+            .AllowAnyHeader();
+    })
+    );
+
 var app = builder.Build();
 
 // Seed database with example entities
@@ -55,6 +106,11 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+// End appliances
 app.UseHttpsRedirection();
+app.UseCors("AllowSpecificOrigin");
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
 
 app.Run();

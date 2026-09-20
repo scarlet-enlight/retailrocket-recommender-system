@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RetailRocket.API.Mapping;
 using RetailRocket.Application.DTOs.Request.ML;
 using RetailRocket.Application.DTOs.Response.ML;
@@ -13,113 +15,52 @@ namespace RetailRocket.API.Controllers.ML;
 public class RecommendationRuleController : ControllerBase
 {
     private readonly RecommendationRuleService _recommendationRuleService;
-    
-    public RecommendationRuleController(RecommendationRuleService recommendationRuleService) =>
-        _recommendationRuleService = recommendationRuleService;
+    private readonly IMapper _mapper;
 
+    public RecommendationRuleController(RecommendationRuleService recommendationRuleService, IMapper mapper)
+    {
+        _recommendationRuleService = recommendationRuleService;
+        _mapper = mapper;
+    }
+
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
         var recommendationRules = await _recommendationRuleService.GetAllRecommendationRulesAsync();
-        var result = recommendationRules.Select(rr => new RecommendationRuleResponseDto
-        {
-            IfItem = new ItemShortDto
-            {
-                ItemId = rr.IfItemId,
-                Category = DtoMapping.MapCategory(rr.IfItem.Category),
-                IsAvailable = rr.IfItem.IsAvailable
-            },
-            ThenItem = new ItemShortDto
-            {
-                ItemId = rr.ThenItemId,
-                Category = DtoMapping.MapCategory(rr.ThenItem.Category),
-                IsAvailable = rr.ThenItem.IsAvailable
-            },
-            Support = rr.Support,
-            Confidence = rr.Confidence,
-            Lift = rr.Lift
-        });
+        var result = _mapper.Map<IEnumerable<RecommendationRuleResponseDto>>(recommendationRules);
         return Ok(result);
     }
 
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     {
         var recommendationRule = await _recommendationRuleService.GetRecommendationRuleAsync(id);
         if (recommendationRule is null) return NotFound();
-        return Ok( new RecommendationRuleResponseDto
-        {
-            IfItem = new ItemShortDto
-            {
-                ItemId = recommendationRule.IfItemId,
-                Category = DtoMapping.MapCategory(recommendationRule.IfItem.Category),
-                IsAvailable = recommendationRule.IfItem.IsAvailable
-            },
-            ThenItem = new ItemShortDto
-            {
-                ItemId = recommendationRule.ThenItemId,
-                Category = DtoMapping.MapCategory(recommendationRule.ThenItem.Category),
-                IsAvailable = recommendationRule.ThenItem.IsAvailable
-            },
-            Support = recommendationRule.Support,
-            Confidence = recommendationRule.Confidence,
-            Lift = recommendationRule.Lift
-        });
+        return Ok(_mapper.Map<RecommendationRuleResponseDto>(recommendationRule));
     }
 
     // WIP: Refactor get by req/resItem to get all recRules
+    [Authorize]
     [HttpGet("by-required-item/{reqItemId}")]
     public async Task<IActionResult> GetByRequiredItem(int reqItemId)
     {
         var recommendationRules = await _recommendationRuleService.GetRecommendationRulesByRequiredItemAsync(reqItemId);
-        var result = recommendationRules.Select(rr => new RecommendationRuleResponseDto
-        {
-            IfItem = new ItemShortDto
-            {
-                ItemId = rr.IfItemId,
-                Category = DtoMapping.MapCategory(rr.IfItem.Category),
-                IsAvailable = rr.IfItem.IsAvailable
-            },
-            ThenItem = new ItemShortDto
-            {
-                ItemId = rr.ThenItemId,
-                Category = DtoMapping.MapCategory(rr.ThenItem.Category),
-                IsAvailable = rr.ThenItem.IsAvailable
-            },
-            Support = rr.Support,
-            Confidence = rr.Confidence,
-            Lift = rr.Lift
-            
-        });
+        var result = _mapper.Map<IEnumerable<RecommendationRuleResponseDto>>(recommendationRules);
         return Ok(result);
     }
     
+    [Authorize]
     [HttpGet("by-result-item/{resItemId}")]
     public async Task<IActionResult> GetByResultItem(int resItemId)
     {
         var recommendationRules = await _recommendationRuleService.GetRecommendationRulesByResultItemAsync(resItemId);
-        var result = recommendationRules.Select(rr => new RecommendationRuleResponseDto
-        {
-            IfItem = new ItemShortDto
-            {
-                ItemId = rr.IfItemId,
-                Category = DtoMapping.MapCategory(rr.ThenItem.Category),
-                IsAvailable = rr.IfItem.IsAvailable
-            },
-            ThenItem = new ItemShortDto
-            {
-                ItemId = rr.ThenItemId,
-                Category = DtoMapping.MapCategory(rr.ThenItem.Category),
-                IsAvailable = rr.ThenItem.IsAvailable
-            },
-            Support = rr.Support,
-            Confidence = rr.Confidence,
-            Lift = rr.Lift
-            
-        });
+        var result = _mapper.Map<IEnumerable<RecommendationRuleResponseDto>>(recommendationRules);
         return Ok(result);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] RecommendationRuleRequestDto requestDto)
     {
@@ -145,6 +86,8 @@ public class RecommendationRuleController : ControllerBase
             Lift = recommendationRule.Lift
         });
     }
+    
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] RecommendationRuleRequestDto requestDto)
     {
@@ -159,6 +102,7 @@ public class RecommendationRuleController : ControllerBase
         return NoContent();
     }
     
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {

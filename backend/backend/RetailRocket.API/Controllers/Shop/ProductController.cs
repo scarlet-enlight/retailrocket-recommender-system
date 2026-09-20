@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RetailRocket.API.Mapping;
 using RetailRocket.Application.DTOs.Request.Shop;
 using RetailRocket.Application.DTOs.Response.Shop;
@@ -13,64 +15,42 @@ namespace RetailRocket.API.Controllers.Shop;
 public class ProductController : ControllerBase
 {
     private readonly ProductService _productService;
-    
-    public ProductController(ProductService productService) =>
-        _productService = productService;
+    private readonly IMapper _mapper;
 
+    public ProductController(ProductService productService, IMapper mapper)
+    {
+        _productService = productService;
+        _mapper = mapper;
+    }
+
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
         var products = await _productService.GetAllProductsAsync();
-        var result = products.Select(p => new ProductResponseDto
-        {
-            ProductId = p.ProductId,
-            Item = new ItemShortDto {
-                ItemId = p.ItemId,
-                Category = DtoMapping.MapCategory(p.Item.Category),
-                IsAvailable = p.Item.IsAvailable,
-            },
-            Name = p.Name,
-            Price = p.Price,
-        });
+        var result = _mapper.Map<IEnumerable<ProductResponseDto>>(products);
         return Ok(result);
     }
 
+    [AllowAnonymous]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     {
         var product = await _productService.GetProductAsync(id);
         if (product is null) return NotFound();
-        return Ok(new ProductResponseDto
-        {
-            ProductId = product.ProductId,
-            Item = new ItemShortDto {
-                ItemId = product.ItemId,
-                Category = DtoMapping.MapCategory(product.Item.Category),
-                IsAvailable = product.Item.IsAvailable,
-            },
-            Name = product.Name,
-            Price = product.Price,
-        });
+        return Ok(_mapper.Map<ProductResponseDto>(product));
     }
 
+    [AllowAnonymous]
     [HttpGet("by-name")]
     public async Task<IActionResult> GetByName([FromQuery] string name)
     {
         var product = await _productService.GetProductByNameAsync(name);
         if (product is null) return NotFound();
-        return Ok(new ProductResponseDto
-        {
-            ProductId = product.ProductId,
-            Item = new ItemShortDto {
-                ItemId = product.ItemId,
-                Category = DtoMapping.MapCategory(product.Item.Category),
-                IsAvailable = product.Item.IsAvailable,
-            },
-            Name = product.Name,
-            Price = product.Price,
-        }); 
+        return Ok(_mapper.Map<ProductResponseDto>(product)); 
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] ProductRequestDto requestDto)
     {
@@ -89,6 +69,7 @@ public class ProductController : ControllerBase
         });
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] ProductRequestDto requestDto)
     {
@@ -102,6 +83,7 @@ public class ProductController : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {

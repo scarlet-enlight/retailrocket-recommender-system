@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using RetailRocket.Application.DTOs.Request.Shop;
 using RetailRocket.Application.DTOs.Response.Shop;
 using RetailRocket.Application.Services.Shop;
+using RetailRocket.Application.Services.JWT;
 using RetailRocket.Domain.Entities.Shop;
 
 namespace RetailRocket.API.Controllers.Shop;
@@ -27,7 +28,8 @@ public class OrderController : ControllerBase
     public async Task<IActionResult> GetById(Guid id)
     {
         var order = await _orderService.GetOrderAsync(id);
-        if (order is null) return NotFound();
+        if (order is null) 
+            throw new KeyNotFoundException("Order not found.");
         return Ok(_mapper.Map<OrderResponseDto>(order));
     }
     
@@ -68,7 +70,8 @@ public class OrderController : ControllerBase
     public async Task<IActionResult> Delete(Guid id)
     {
         var order = await _orderService.GetOrderAsync(id);
-        if (order is null) return NotFound();
+        if (order is null)
+            throw new KeyNotFoundException("Order not found.");
         await _orderService.DeleteOrderAsync(id);
         return NoContent();
     }

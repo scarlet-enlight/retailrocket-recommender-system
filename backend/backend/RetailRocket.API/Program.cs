@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using RetailRocket.API.Middleware;
 using RetailRocket.Application.Interfaces.ML;
 using RetailRocket.Application.Interfaces.Shop;
 using RetailRocket.Application.Services.JWT;
@@ -88,6 +89,9 @@ builder.Services.AddCors(options =>
     );
 
 var app = builder.Build();
+
+// Add exception handler for web errors
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // Seed database with example entities
 // Mustn't go into production

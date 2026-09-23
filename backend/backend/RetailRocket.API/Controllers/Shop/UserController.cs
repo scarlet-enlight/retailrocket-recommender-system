@@ -39,7 +39,8 @@ public class UserController : ControllerBase
     public async Task<IActionResult> GetById(Guid id)
     {
         var user = await _userService.GetUserAsync(id);
-        if (user is null) return NotFound();
+        if (user is null)
+            throw new KeyNotFoundException("User not found.");
         return Ok(_mapper.Map<UserResponseDto>(user));
     }
 
@@ -48,7 +49,8 @@ public class UserController : ControllerBase
     public async Task<IActionResult> GetByUsername([FromQuery] string username)
     {
         var user = await _userService.GetUserByUsernameAsync(username);
-        if (user is null) return NotFound();
+        if (user is null)
+            throw new KeyNotFoundException($"User {username} not found.");
         return Ok(_mapper.Map<UserResponseDto>(user));
     }
     
@@ -57,7 +59,8 @@ public class UserController : ControllerBase
     public async Task<IActionResult> GetByEmail([FromQuery] string email)
     {
         var user = await _userService.GetUserByEmailAsync(email);
-        if (user is null) return NotFound();
+        if (user is null) 
+            throw new KeyNotFoundException("User not found.");
         return Ok(_mapper.Map<UserResponseDto>(user));
     }
 
@@ -92,11 +95,11 @@ public class UserController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
     {
         if (dto.Email is null || dto.Password is null)
-            return BadRequest("Email and password are required.");
+            throw new ArgumentException("Email and password are required.");
 
         var user = await _userService.GetUserByEmailAsync(dto.Email);
         if (user is null || !PasswordHasherService.Verify(user.PasswordHash!, dto.Password))
-            return Unauthorized("Invalid credentials");
+            throw new UnauthorizedAccessException("Invalid credentials.");
 
         var token = _tokenService.GenerateToken(user);
 
@@ -114,7 +117,8 @@ public class UserController : ControllerBase
     public async Task<IActionResult> Update(Guid id, [FromBody] UserRequestDto requestDto)
     {
         var user = await _userService.GetUserAsync(id);
-        if (user is null) return NotFound();
+        if (user is null)
+            throw new KeyNotFoundException("User not found.");
         user.UpdateUsername(requestDto.Username);
         user.UpdateEmail(requestDto.Email);
         await _userService.UpdateUserAsync(user);
@@ -126,7 +130,8 @@ public class UserController : ControllerBase
     public async Task<IActionResult> Delete(Guid id)
     {
         var user = await _userService.GetUserAsync(id);
-        if (user is null) return NotFound();
+        if (user is null) 
+            throw new KeyNotFoundException("User not found.");
         await _userService.DeleteUserAsync(id);
         return NoContent();
     }

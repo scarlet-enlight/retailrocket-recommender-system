@@ -15,13 +15,11 @@ namespace RetailRocket.API.Controllers.Shop;
 public class CartController : ControllerBase
 {
     private readonly CartService _cartService;
-    private readonly UserService _userService;
     private readonly IMapper _mapper;
 
-    public CartController(CartService cartService, UserService userService, IMapper mapper)
+    public CartController(CartService cartService, IMapper mapper)
     {
         _cartService = cartService;
-        _userService = userService;
         _mapper = mapper;
     }
 
@@ -30,7 +28,8 @@ public class CartController : ControllerBase
     public async Task<IActionResult> GetById(Guid id)
     {
         var cart = await _cartService.GetCartAsync(id);
-        if (cart is null) return NotFound();
+        if (cart is null)
+            throw new KeyNotFoundException("Cart not found.");
         return Ok(_mapper.Map<CartResponseDto>(cart));
     }
 
@@ -72,7 +71,8 @@ public class CartController : ControllerBase
     public async Task<IActionResult> Update(Guid id, [FromBody] CartRequestDto requestDto)
     {
         var cart = await _cartService.GetCartAsync(id);
-        if (cart is null) return NotFound();
+        if (cart is null) 
+            throw new KeyNotFoundException("Cart not found.");
         cart.UpdateProduct(requestDto.ProductId);
         cart.UpdateQuantity(requestDto.Quantity);
         await _cartService.UpdateCartAsync(cart);
@@ -84,7 +84,8 @@ public class CartController : ControllerBase
     public async Task<IActionResult> Delete(Guid id)
     {
         var cart = await _cartService.GetCartAsync(id);
-        if (cart is null) return NotFound();
+        if (cart is null)
+            throw new KeyNotFoundException("Cart not found.");
         await _cartService.DeleteCartAsync(id);
         return NoContent();
     }

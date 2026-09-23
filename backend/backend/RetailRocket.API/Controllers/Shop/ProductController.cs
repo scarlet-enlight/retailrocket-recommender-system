@@ -59,13 +59,10 @@ public class ProductController : ControllerBase
         return  CreatedAtAction(nameof(GetById), new { id = product.ProductId }, new ProductResponseDto
         {
             ProductId = product.ProductId,
-            Item = new ItemShortDto {
-                ItemId = product.ItemId,
-                Category = DtoMapping.MapCategory(product.Item.Category),
-                IsAvailable = product.Item.IsAvailable,
-            },
             Name = product.Name,
             Price = product.Price,
+            Category = DtoMapping.MapCategory(product.Item.Category),
+            IsAvailable = product.Item?.IsAvailable ?? false
         });
     }
 

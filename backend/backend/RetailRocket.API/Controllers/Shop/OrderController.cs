@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Security.Claims;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using RetailRocket.Application.DTOs.Request.Shop;
@@ -43,7 +44,8 @@ public class OrderController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] OrderRequestDto requestDto)
     {
-        var order = new Order(requestDto.UserId, requestDto.Total);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var order = new Order(userId, 500);
         await _orderService.AddOrderAsync(order);
         return CreatedAtAction(nameof(GetById), new {id = order.OrderId },  new OrderResponseDto
         {

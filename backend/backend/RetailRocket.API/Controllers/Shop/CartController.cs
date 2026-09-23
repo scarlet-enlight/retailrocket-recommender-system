@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using RetailRocket.Application.DTOs.Request.Shop;
@@ -46,7 +47,8 @@ public class CartController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CartRequestDto requestDto)
     {
-        var cart = new Cart(requestDto.UserId, requestDto.ProductId, requestDto.Quantity);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var cart = new Cart(userId, requestDto.ProductId, requestDto.Quantity);
         await _cartService.AddCartAsync(cart);
         return CreatedAtAction(nameof(GetById), new { id = cart.CartId }, new CartResponseDto
         {

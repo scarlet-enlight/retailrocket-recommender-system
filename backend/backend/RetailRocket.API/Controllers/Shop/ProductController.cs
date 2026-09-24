@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using RetailRocket.API.Mapping;
 using RetailRocket.Application.DTOs.Request.Shop;
 using RetailRocket.Application.DTOs.Response.Shop;
-using RetailRocket.Application.DTOs.Short.Historical;
 using RetailRocket.Application.Services.Shop;
 using RetailRocket.Domain.Entities.Shop;
 
@@ -37,7 +36,8 @@ public class ProductController : ControllerBase
     public async Task<IActionResult> GetById(Guid id)
     {
         var product = await _productService.GetProductAsync(id);
-        if (product is null) return NotFound();
+        if (product is null) 
+            throw new KeyNotFoundException("Product not found.");
         return Ok(_mapper.Map<ProductResponseDto>(product));
     }
 
@@ -46,7 +46,8 @@ public class ProductController : ControllerBase
     public async Task<IActionResult> GetByName([FromQuery] string name)
     {
         var product = await _productService.GetProductByNameAsync(name);
-        if (product is null) return NotFound();
+        if (product is null)
+            throw new KeyNotFoundException($"Product {name} not found.");
         return Ok(_mapper.Map<ProductResponseDto>(product)); 
     }
 
@@ -59,13 +60,10 @@ public class ProductController : ControllerBase
         return  CreatedAtAction(nameof(GetById), new { id = product.ProductId }, new ProductResponseDto
         {
             ProductId = product.ProductId,
-            Item = new ItemShortDto {
-                ItemId = product.ItemId,
-                Category = DtoMapping.MapCategory(product.Item.Category),
-                IsAvailable = product.Item.IsAvailable,
-            },
             Name = product.Name,
             Price = product.Price,
+            Category = DtoMapping.MapCategory(product.Item.Category),
+            IsAvailable = product.Item?.IsAvailable ?? false
         });
     }
 
@@ -74,7 +72,8 @@ public class ProductController : ControllerBase
     public async Task<IActionResult> Update(Guid id, [FromBody] ProductRequestDto requestDto)
     {
         var product = await _productService.GetProductAsync(id);
-        if (product is null) return NotFound();
+        if (product is null)
+            throw new KeyNotFoundException("Product not found.");
         product.UpdateItem(requestDto.ItemId);
         product.UpdateName(requestDto.Name);
         product.UpdatePrice(requestDto.Price);
@@ -88,7 +87,8 @@ public class ProductController : ControllerBase
     public async Task<IActionResult> Delete(Guid id)
     {
         var product = await _productService.GetProductAsync(id);
-        if (product is null) return NotFound();
+        if (product is null)
+            throw new KeyNotFoundException("Product not found.");
         await _productService.DeleteProductAsync(id);
         return NoContent();
     }

@@ -1,9 +1,11 @@
-﻿using AutoMapper;
+﻿using System.Security.Claims;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using RetailRocket.Application.DTOs.Request.Shop;
 using RetailRocket.Application.DTOs.Response.Shop;
 using RetailRocket.Application.Services.Shop;
+using RetailRocket.Application.Services.JWT;
 using RetailRocket.Domain.Entities.Shop;
 
 namespace RetailRocket.API.Controllers.Shop;
@@ -26,7 +28,8 @@ public class OrderController : ControllerBase
     public async Task<IActionResult> GetById(Guid id)
     {
         var order = await _orderService.GetOrderAsync(id);
-        if (order is null) return NotFound();
+        if (order is null) 
+            throw new KeyNotFoundException("Order not found.");
         return Ok(_mapper.Map<OrderResponseDto>(order));
     }
     
@@ -43,7 +46,8 @@ public class OrderController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] OrderRequestDto requestDto)
     {
-        var order = new Order(requestDto.UserId, requestDto.Total);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var order = new Order(userId, 500);
         await _orderService.AddOrderAsync(order);
         return CreatedAtAction(nameof(GetById), new {id = order.OrderId },  new OrderResponseDto
         {
@@ -66,7 +70,8 @@ public class OrderController : ControllerBase
     public async Task<IActionResult> Delete(Guid id)
     {
         var order = await _orderService.GetOrderAsync(id);
-        if (order is null) return NotFound();
+        if (order is null)
+            throw new KeyNotFoundException("Order not found.");
         await _orderService.DeleteOrderAsync(id);
         return NoContent();
     }

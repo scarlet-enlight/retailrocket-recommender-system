@@ -10,8 +10,10 @@ public class ProductMappingProfile : Profile
     public ProductMappingProfile()
     {
         CreateMap<Product, ProductResponseDto>()
-            .ForMember(dest => dest.Item, 
-                opt => opt.MapFrom(src => src.Item));
+            .ForMember(dest => dest.IsAvailable,
+                opt => opt.MapFrom(src =>  src.Item != null && src.Item.IsAvailable))
+            .ForMember(dest => dest.Category,
+                opt => opt.MapFrom(src => src.Item != null ? src.Category.Name : null));
 
         var itemShort = new ItemShortMappingProfile();
         var categoryShort = new CategoryShortMappingProfile();

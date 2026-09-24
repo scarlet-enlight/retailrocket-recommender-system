@@ -1,7 +1,7 @@
-﻿using RetailRocket.Domain.Entities.Enums;
-using RetailRocket.Domain.Entities.Historical;
+﻿using RetailRocket.Domain.Entities.Historical;
 using RetailRocket.Domain.Entities.ML;
 using RetailRocket.Domain.Entities.Shop;
+using RetailRocket.Application.Services.Security;
 
 namespace RetailRocket.Infrastructure.Persistence;
 
@@ -221,9 +221,9 @@ public class AppDbContextSeeder
 
         var users = new List<User>
         {
-            new("bułka", "bułka@retailrocket.pl", "bg93349fru893"),
-            new("nugat", "nugat@retailrocket.pl", "bg93349fru893"),
-            new("krowodrza", "krowodrza@retailrocket.pl", "bg93349fru893")
+            new("bułka", "bułka@retailrocket.pl", PasswordHasherService.Hash("KubaZjadłMasło")),
+            new("nugat", "nugat@retailrocket.pl", PasswordHasherService.Hash("KluskiŚląskie2137!")),
+            new("krowodrza", "krowodrza@retailrocket.pl", PasswordHasherService.Hash("Xx_P0l1b00d4,P0l1b00d4_xX"))
         };
         
         await context.Users.AddRangeAsync(users);

@@ -6,6 +6,7 @@ using RetailRocket.Application.DTOs.Request.Shop;
 using RetailRocket.Application.DTOs.Response.Shop;
 using RetailRocket.Application.Services.Shop;
 using RetailRocket.Domain.Entities.Shop;
+using RetailRocket.Domain.Exceptions;
 
 namespace RetailRocket.API.Controllers.Shop;
 
@@ -37,7 +38,7 @@ public class ProductController : ControllerBase
     {
         var product = await _productService.GetProductAsync(id);
         if (product is null) 
-            throw new KeyNotFoundException("Product not found.");
+            throw new NotFoundException("Product not found.");
         return Ok(_mapper.Map<ProductResponseDto>(product));
     }
 
@@ -47,7 +48,7 @@ public class ProductController : ControllerBase
     {
         var product = await _productService.GetProductByNameAsync(name);
         if (product is null)
-            throw new KeyNotFoundException($"Product {name} not found.");
+            throw new NotFoundException($"Product {name} not found.");
         return Ok(_mapper.Map<ProductResponseDto>(product)); 
     }
 
@@ -73,7 +74,7 @@ public class ProductController : ControllerBase
     {
         var product = await _productService.GetProductAsync(id);
         if (product is null)
-            throw new KeyNotFoundException("Product not found.");
+            throw new NotFoundException("Product not found.");
         product.UpdateItem(requestDto.ItemId);
         product.UpdateName(requestDto.Name);
         product.UpdatePrice(requestDto.Price);
@@ -88,7 +89,7 @@ public class ProductController : ControllerBase
     {
         var product = await _productService.GetProductAsync(id);
         if (product is null)
-            throw new KeyNotFoundException("Product not found.");
+            throw new NotFoundException("Product not found.");
         await _productService.DeleteProductAsync(id);
         return NoContent();
     }

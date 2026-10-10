@@ -7,6 +7,7 @@ using RetailRocket.Application.Services.Shop;
 using RetailRocket.Application.Services.Security;
 using RetailRocket.Application.Services.JWT;
 using RetailRocket.Domain.Entities.Shop;
+using RetailRocket.Domain.Exceptions;
 
 namespace RetailRocket.API.Controllers.Shop;
 
@@ -40,7 +41,7 @@ public class UserController : ControllerBase
     {
         var user = await _userService.GetUserAsync(id);
         if (user is null)
-            throw new KeyNotFoundException("User not found.");
+            throw new NotFoundException("User not found.");
         return Ok(_mapper.Map<UserResponseDto>(user));
     }
 
@@ -50,7 +51,7 @@ public class UserController : ControllerBase
     {
         var user = await _userService.GetUserByUsernameAsync(username);
         if (user is null)
-            throw new KeyNotFoundException($"User {username} not found.");
+            throw new NotFoundException($"User {username} not found.");
         return Ok(_mapper.Map<UserResponseDto>(user));
     }
     
@@ -60,7 +61,7 @@ public class UserController : ControllerBase
     {
         var user = await _userService.GetUserByEmailAsync(email);
         if (user is null) 
-            throw new KeyNotFoundException("User not found.");
+            throw new NotFoundException("User not found.");
         return Ok(_mapper.Map<UserResponseDto>(user));
     }
 
@@ -99,7 +100,7 @@ public class UserController : ControllerBase
 
         var user = await _userService.GetUserByEmailAsync(dto.Email);
         if (user is null || !PasswordHasherService.Verify(user.PasswordHash!, dto.Password))
-            throw new UnauthorizedAccessException("Invalid credentials.");
+            throw new AuthenticationException("Invalid credentials.");
 
         var token = _tokenService.GenerateToken(user);
 
@@ -118,6 +119,7 @@ public class UserController : ControllerBase
     {
         var user = await _userService.GetUserAsync(id);
         if (user is null)
+            throw new NotFoundException("User not found.");
             throw new KeyNotFoundException("User not found.");
         user.UpdateUsername(requestDto.Username);
         user.UpdateEmail(requestDto.Email);
@@ -131,7 +133,7 @@ public class UserController : ControllerBase
     {
         var user = await _userService.GetUserAsync(id);
         if (user is null) 
-            throw new KeyNotFoundException("User not found.");
+            throw new NotFoundException("User not found.");
         await _userService.DeleteUserAsync(id);
         return NoContent();
     }

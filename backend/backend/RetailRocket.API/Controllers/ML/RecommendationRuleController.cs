@@ -7,6 +7,7 @@ using RetailRocket.Application.DTOs.Response.ML;
 using RetailRocket.Application.DTOs.Short.Historical;
 using RetailRocket.Application.Services.ML;
 using RetailRocket.Domain.Entities.ML;
+using RetailRocket.Domain.Exceptions;
 
 namespace RetailRocket.API.Controllers.ML;
 
@@ -107,7 +108,8 @@ public class RecommendationRuleController : ControllerBase
     public async Task<IActionResult> Delete(Guid id)
     {
         var recommendationRule = await _recommendationRuleService.GetRecommendationRuleAsync(id);
-        if (recommendationRule is null) return NotFound();
+        if (recommendationRule is null) 
+            throw new NotFoundException("Recommendation Rule not found.");
         await _recommendationRuleService.DeleteRecommendationRuleAsync(id);
         return NoContent();
     }

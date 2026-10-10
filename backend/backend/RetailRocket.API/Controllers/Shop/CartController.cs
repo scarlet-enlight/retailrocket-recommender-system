@@ -7,6 +7,7 @@ using RetailRocket.Application.DTOs.Response.Shop;
 using RetailRocket.Application.DTOs.Short.Shop;
 using RetailRocket.Application.Services.Shop;
 using RetailRocket.Domain.Entities.Shop;
+using RetailRocket.Domain.Exceptions;
 
 namespace RetailRocket.API.Controllers.Shop;
 
@@ -29,7 +30,7 @@ public class CartController : ControllerBase
     {
         var cart = await _cartService.GetCartAsync(id);
         if (cart is null)
-            throw new KeyNotFoundException("Cart not found.");
+            throw new NotFoundException("Cart not found.");
         return Ok(_mapper.Map<CartResponseDto>(cart));
     }
 
@@ -72,7 +73,7 @@ public class CartController : ControllerBase
     {
         var cart = await _cartService.GetCartAsync(id);
         if (cart is null) 
-            throw new KeyNotFoundException("Cart not found.");
+            throw new NotFoundException("Cart not found.");
         cart.UpdateProduct(requestDto.ProductId);
         cart.UpdateQuantity(requestDto.Quantity);
         await _cartService.UpdateCartAsync(cart);
@@ -85,7 +86,7 @@ public class CartController : ControllerBase
     {
         var cart = await _cartService.GetCartAsync(id);
         if (cart is null)
-            throw new KeyNotFoundException("Cart not found.");
+            throw new NotFoundException("Cart not found.");
         await _cartService.DeleteCartAsync(id);
         return NoContent();
     }

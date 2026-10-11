@@ -1,6 +1,6 @@
-﻿namespace RetailRocket.Application.DTOs.Request.Shop;
+﻿namespace RetailRocket.Application.DTOs.Request.Shop.Products;
 
-public record ProductRequestDto
+public record ProductCreateRequestDto
 {
     public int ItemId { get; set; }
     public string? Name { get; set; }

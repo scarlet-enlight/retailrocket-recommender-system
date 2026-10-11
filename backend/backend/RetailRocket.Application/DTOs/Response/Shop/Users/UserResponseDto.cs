@@ -1,4 +1,4 @@
-﻿namespace RetailRocket.Application.DTOs.Response.Shop;
+﻿namespace RetailRocket.Application.DTOs.Response.Shop.Users;
 
 public record UserResponseDto
 {

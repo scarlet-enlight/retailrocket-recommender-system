@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using RetailRocket.Application.DTOs.Response.Shop;
+using RetailRocket.Application.DTOs.Response.Shop.Products;
 using RetailRocket.Application.Mappings.Short;
 using RetailRocket.Domain.Entities.Shop;
 

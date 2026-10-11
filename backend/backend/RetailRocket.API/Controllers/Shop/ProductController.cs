@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RetailRocket.API.Mapping;
-using RetailRocket.Application.DTOs.Request.Shop;
-using RetailRocket.Application.DTOs.Response.Shop;
+using RetailRocket.Application.DTOs.Request.Shop.Products;
+using RetailRocket.Application.DTOs.Response.Shop.Products;
 using RetailRocket.Application.Services.Shop;
 using RetailRocket.Domain.Entities.Shop;
 using RetailRocket.Domain.Exceptions;

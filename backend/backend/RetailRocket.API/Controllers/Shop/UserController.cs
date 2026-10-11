@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RetailRocket.Application.DTOs.Request.Shop;
-using RetailRocket.Application.DTOs.Response.Shop;
+using RetailRocket.Application.DTOs.Request.Shop.Users;
+using RetailRocket.Application.DTOs.Response.Shop.Users;
 using RetailRocket.Application.Services.Shop;
 using RetailRocket.Application.Services.Security;
 using RetailRocket.Application.Services.JWT;

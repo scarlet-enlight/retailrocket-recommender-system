@@ -2,8 +2,8 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using RetailRocket.Application.DTOs.Request.Shop;
-using RetailRocket.Application.DTOs.Response.Shop;
+using RetailRocket.Application.DTOs.Request.Shop.Carts;
+using RetailRocket.Application.DTOs.Response.Shop.Carts;
 using RetailRocket.Application.DTOs.Short.Shop;
 using RetailRocket.Application.Services.Shop;
 using RetailRocket.Domain.Entities.Shop;

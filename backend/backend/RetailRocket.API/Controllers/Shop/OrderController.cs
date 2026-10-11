@@ -2,8 +2,8 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using RetailRocket.Application.DTOs.Request.Shop;
-using RetailRocket.Application.DTOs.Response.Shop;
+using RetailRocket.Application.DTOs.Request.Shop.Orders;
+using RetailRocket.Application.DTOs.Response.Shop.Orders;
 using RetailRocket.Application.Services.Shop;
 using RetailRocket.Domain.Entities.Shop;
 using RetailRocket.Domain.Exceptions;

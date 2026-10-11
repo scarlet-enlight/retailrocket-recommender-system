@@ -123,6 +123,40 @@ public class UserController : ControllerBase
         });
     }
     
+    // WIP: insert here sending email when password is forgotten
+    
+    [Authorize]
+    [HttpPost("auth/password")]
+    public async Task<IActionResult> ChangePassword(Guid id, [FromBody] PasswordChangeRequestDto passwordRequestDto)
+    {
+        if (id == Guid.Empty)
+            throw new ValidationException("User ID is required.");
+        
+        var user = await _userService.GetUserAsync(id);
+        if (user is null)
+            throw new NotFoundException("User not found.");
+
+        if (string.IsNullOrWhiteSpace(passwordRequestDto.OldPassword) ||
+            string.IsNullOrWhiteSpace(passwordRequestDto.NewPassword) ||
+            string.IsNullOrWhiteSpace(passwordRequestDto.RepeatPassword))
+            throw new ValidationException("Old password and new passwords are required.");
+        
+        if (passwordRequestDto.NewPassword == passwordRequestDto.RepeatPassword)
+            throw new ValidationException("New passwords must be the same.");
+        
+        // WIP: insert here check of old passwords history with new one
+        
+        var hash = PasswordHasherService.Hash(passwordRequestDto.NewPassword);
+        if (!PasswordHasherService.Verify(hash, passwordRequestDto.NewPassword))
+            throw new UnauthorizedAccessException("Something wrong has occured during changing this account's password. Please try again.");
+
+        user.UpdatePassword(hash);
+        await _userService.UpdateUserAsync(user);
+        return NoContent();
+    }
+    
+    // WIP: insert here password resetting when sent request via email
+    
     [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UserUpdateRequestDto updateRequestDto)

@@ -13,7 +13,7 @@ using RetailRocket.Infrastructure.Persistence;
 namespace RetailRocket.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260709205040_InitialCreate")]
+    [Migration("20261010190727_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -149,11 +149,9 @@ namespace RetailRocket.Infrastructure.Migrations
 
             modelBuilder.Entity("RetailRocket.Domain.Entities.ML.RecommendationRule", b =>
                 {
-                    b.Property<int>("RecommendationRuleId")
+                    b.Property<Guid>("RecommendationRuleId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("RecommendationRuleId"));
+                        .HasColumnType("uuid");
 
                     b.Property<double>("Confidence")
                         .HasColumnType("double precision");
@@ -184,27 +182,25 @@ namespace RetailRocket.Infrastructure.Migrations
 
             modelBuilder.Entity("RetailRocket.Domain.Entities.Shop.Cart", b =>
                 {
-                    b.Property<int>("CartId")
+                    b.Property<Guid>("CartId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CartId"));
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("AddedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("NOW()");
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
 
                     b.Property<long>("Quantity")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasDefaultValue(1L);
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("CartId");
 
@@ -217,11 +213,9 @@ namespace RetailRocket.Infrastructure.Migrations
 
             modelBuilder.Entity("RetailRocket.Domain.Entities.Shop.Order", b =>
                 {
-                    b.Property<int>("OrderId")
+                    b.Property<Guid>("OrderId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OrderId"));
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -231,8 +225,8 @@ namespace RetailRocket.Infrastructure.Migrations
                     b.Property<decimal>("Total")
                         .HasColumnType("decimal(10,2)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("OrderId");
 
@@ -243,11 +237,11 @@ namespace RetailRocket.Infrastructure.Migrations
 
             modelBuilder.Entity("RetailRocket.Domain.Entities.Shop.OrderItem", b =>
                 {
-                    b.Property<int>("OrderId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid");
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(10,2)");
@@ -264,11 +258,9 @@ namespace RetailRocket.Infrastructure.Migrations
 
             modelBuilder.Entity("RetailRocket.Domain.Entities.Shop.Product", b =>
                 {
-                    b.Property<int>("ProductId")
+                    b.Property<Guid>("ProductId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ProductId"));
+                        .HasColumnType("uuid");
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("integer");
@@ -294,11 +286,9 @@ namespace RetailRocket.Infrastructure.Migrations
 
             modelBuilder.Entity("RetailRocket.Domain.Entities.Shop.User", b =>
                 {
-                    b.Property<int>("UserId")
+                    b.Property<Guid>("UserId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UserId"));
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()

@@ -63,15 +63,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddScoped<JwtTokenService>();
 
 // AutoMapper Configurations
-builder.Services.AddAutoMapper(typeof(RecommendationRuleMappingProfile).Assembly);
-builder.Services.AddAutoMapper(typeof(CartMappingProfile).Assembly);
-builder.Services.AddAutoMapper(typeof(OrderMappingProfile).Assembly);
-builder.Services.AddAutoMapper(typeof(ProductMappingProfile).Assembly);
-builder.Services.AddAutoMapper(typeof(UserMappingProfile).Assembly);
-builder.Services.AddAutoMapper(typeof(CategoryShortMappingProfile).Assembly);
-builder.Services.AddAutoMapper(typeof(ItemShortMappingProfile).Assembly);
-builder.Services.AddAutoMapper(typeof(ProductShortMappingProfile).Assembly);
-builder.Services.AddAutoMapper(typeof(UserShortMappingProfile).Assembly);
+builder.Services.AddAutoMapper(cfg => { cfg.AddMaps(typeof(RecommendationRuleMappingProfile).Assembly); });
+builder.Services.AddAutoMapper(cfg => { cfg.AddMaps(typeof(CartMappingProfile).Assembly); });
+builder.Services.AddAutoMapper(cfg => { cfg.AddMaps(typeof(OrderMappingProfile).Assembly); });
+builder.Services.AddAutoMapper(cfg => { cfg.AddMaps(typeof(ProductMappingProfile).Assembly); });
+builder.Services.AddAutoMapper(cfg => { cfg.AddMaps(typeof(UserMappingProfile).Assembly); });
+builder.Services.AddAutoMapper(cfg => { cfg.AddMaps(typeof(CategoryShortMappingProfile).Assembly); });
+builder.Services.AddAutoMapper(cfg => { cfg.AddMaps(typeof(ItemShortMappingProfile).Assembly); });
+builder.Services.AddAutoMapper(cfg => { cfg.AddMaps(typeof(ProductShortMappingProfile).Assembly); });
+builder.Services.AddAutoMapper(cfg => { cfg.AddMaps(typeof(UserShortMappingProfile).Assembly); });
 
 // CORS Policy
 builder.Services.AddCors(options =>

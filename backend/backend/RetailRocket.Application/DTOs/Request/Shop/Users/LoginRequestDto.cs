@@ -1,4 +1,4 @@
-﻿namespace RetailRocket.Application.DTOs.Request.Shop;
+﻿namespace RetailRocket.Application.DTOs.Request.Shop.Users;
 
 public record LoginRequestDto
 {

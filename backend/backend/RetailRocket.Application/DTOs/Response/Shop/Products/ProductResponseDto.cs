@@ -1,6 +1,6 @@
 ﻿using RetailRocket.Application.DTOs.Short.Historical;
 
-namespace RetailRocket.Application.DTOs.Response.Shop;
+namespace RetailRocket.Application.DTOs.Response.Shop.Products;
 
 public record ProductResponseDto
 {

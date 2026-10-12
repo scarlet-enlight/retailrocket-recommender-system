@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RetailRocket.API.Mapping;
-using RetailRocket.Application.DTOs.Request.Shop;
-using RetailRocket.Application.DTOs.Response.Shop;
+using RetailRocket.Application.DTOs.Request.Shop.Products;
+using RetailRocket.Application.DTOs.Response.Shop.Products;
 using RetailRocket.Application.Services.Shop;
 using RetailRocket.Domain.Entities.Shop;
+using RetailRocket.Domain.Exceptions;
 
 namespace RetailRocket.API.Controllers.Shop;
 
@@ -35,49 +35,64 @@ public class ProductController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     {
+        if (id == Guid.Empty)
+            throw new ValidationException("Product ID is required.");
+        
         var product = await _productService.GetProductAsync(id);
         if (product is null) 
-            throw new KeyNotFoundException("Product not found.");
+            throw new NotFoundException("Product not found.");
         return Ok(_mapper.Map<ProductResponseDto>(product));
     }
 
     [AllowAnonymous]
-    [HttpGet("by-name")]
+    [HttpGet("name")]
     public async Task<IActionResult> GetByName([FromQuery] string name)
     {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ValidationException("Product's name is required.");
+        
         var product = await _productService.GetProductByNameAsync(name);
         if (product is null)
-            throw new KeyNotFoundException($"Product {name} not found.");
+            throw new NotFoundException($"Product {name} not found.");
         return Ok(_mapper.Map<ProductResponseDto>(product)); 
     }
 
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] ProductRequestDto requestDto)
+    public async Task<IActionResult> Create([FromBody] ProductCreateRequestDto createRequestDto)
     {
-        var product = new Product(requestDto.ItemId, requestDto.Name, requestDto.Price, requestDto.CategoryId);
+        if (string.IsNullOrWhiteSpace(createRequestDto.Name) || createRequestDto.ItemId == 0 || createRequestDto.CategoryId == 0)
+            throw new ValidationException("Product's name, item and category are required.");
+        
+        if (createRequestDto.Price <= 0)
+            throw new ValidationException("Price must be greater than zero.");
+        
+        var product = new Product(createRequestDto.ItemId, createRequestDto.Name, createRequestDto.Price, createRequestDto.CategoryId);
         await _productService.CreateProductAsync(product);
-        return  CreatedAtAction(nameof(GetById), new { id = product.ProductId }, new ProductResponseDto
-        {
-            ProductId = product.ProductId,
-            Name = product.Name,
-            Price = product.Price,
-            Category = DtoMapping.MapCategory(product.Item.Category),
-            IsAvailable = product.Item?.IsAvailable ?? false
-        });
+        
+        var created = _productService.GetProductAsync(product.ProductId);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id },
+            _mapper.Map<ProductResponseDto>(created));
     }
 
     [Authorize]
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] ProductRequestDto requestDto)
+    public async Task<IActionResult> Update(Guid id, [FromBody] ProductUpdateRequestDto updateRequestDto)
     {
+        if (id == Guid.Empty)
+                    throw new ValidationException("Product ID is required.");
+        
         var product = await _productService.GetProductAsync(id);
         if (product is null)
-            throw new KeyNotFoundException("Product not found.");
-        product.UpdateItem(requestDto.ItemId);
-        product.UpdateName(requestDto.Name);
-        product.UpdatePrice(requestDto.Price);
-        product.UpdateCategory(requestDto.CategoryId);
+            throw new NotFoundException("Product not found.");
+        
+        if (updateRequestDto.Name != product.Name && string.IsNullOrWhiteSpace(updateRequestDto.Name))
+            product.UpdateName(updateRequestDto.Name);
+        if (updateRequestDto.Price != product.Price && updateRequestDto.Price <= 0)
+            product.UpdatePrice(updateRequestDto.Price);
+        if (updateRequestDto.CategoryId <= 0) 
+            product.UpdateCategory(updateRequestDto.CategoryId);
+        
         await _productService.UpdateProductAsync(product);
         return NoContent();
     }
@@ -86,9 +101,12 @@ public class ProductController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
+        if (id == Guid.Empty)
+            throw new ValidationException("Product ID is required.");
+        
         var product = await _productService.GetProductAsync(id);
         if (product is null)
-            throw new KeyNotFoundException("Product not found.");
+            throw new NotFoundException("Product not found.");
         await _productService.DeleteProductAsync(id);
         return NoContent();
     }

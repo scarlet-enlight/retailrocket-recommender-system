@@ -2,11 +2,11 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using RetailRocket.Application.DTOs.Request.Shop;
-using RetailRocket.Application.DTOs.Response.Shop;
+using RetailRocket.Application.DTOs.Request.Shop.Orders;
+using RetailRocket.Application.DTOs.Response.Shop.Orders;
 using RetailRocket.Application.Services.Shop;
-using RetailRocket.Application.Services.JWT;
 using RetailRocket.Domain.Entities.Shop;
+using RetailRocket.Domain.Exceptions;
 
 namespace RetailRocket.API.Controllers.Shop;
 
@@ -27,39 +27,45 @@ public class OrderController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     {
+        if (id == Guid.Empty)
+            throw new ValidationException("Order ID is required.");
+        
         var order = await _orderService.GetOrderAsync(id);
         if (order is null) 
-            throw new KeyNotFoundException("Order not found.");
+            throw new NotFoundException("Order not found.");
         return Ok(_mapper.Map<OrderResponseDto>(order));
     }
     
     [Authorize]
-    [HttpGet("by-user/{userId}")]
+    [HttpGet("user/{userId}")]
     public async Task<IActionResult> GetAllByUser(Guid userId)
     {
+        if (userId == Guid.Empty)
+            throw new ValidationException("User ID is required.");
+        
         var orders = await _orderService.GetOrdersByUserAsync(userId);
         var result = _mapper.Map<IEnumerable<OrderResponseDto>>(orders);
         return Ok(result);
     }
 
+    
+    // we still need to think of how to make those orders for proper DTO and endpoint to work
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] OrderRequestDto requestDto)
+    public async Task<IActionResult> Create([FromBody] OrderCreateRequestDto createRequestDto)
     {
         var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var order = new Order(userId, 500);
         await _orderService.AddOrderAsync(order);
-        return CreatedAtAction(nameof(GetById), new {id = order.OrderId },  new OrderResponseDto
-        {
-            OrderId = order.OrderId,
-            CreatedAt = order.CreatedAt,
-            Total = order.Total
-        });
+
+        var created = _orderService.GetOrderAsync(order.OrderId);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id },
+            _mapper.Map<OrderResponseDto>(created));
     }
 
     // WIP
     [Authorize]
-    [HttpPut("by-user/{userId}/price")]
+    [HttpPut("user/{userId}/price")]
     public async Task<IActionResult> UpdateTotalPrice(Guid id, [FromBody] decimal total)
     {
         return NoContent();
@@ -69,9 +75,12 @@ public class OrderController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
+        if (id == Guid.Empty)
+            throw new ValidationException("Order ID is required.");
+        
         var order = await _orderService.GetOrderAsync(id);
         if (order is null)
-            throw new KeyNotFoundException("Order not found.");
+            throw new NotFoundException("Order not found.");
         await _orderService.DeleteOrderAsync(id);
         return NoContent();
     }

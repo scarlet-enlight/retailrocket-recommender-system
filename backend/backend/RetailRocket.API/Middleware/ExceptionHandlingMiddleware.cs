@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Text.Json;
+using RetailRocket.Domain.Exceptions;
 
 namespace RetailRocket.API.Middleware;
 
@@ -18,7 +19,7 @@ public class ExceptionHandlingMiddleware
     {
         try
         {
-            _next(context);
+            await _next(context);
         }
         catch (Exception ex)
         {
@@ -33,20 +34,32 @@ public class ExceptionHandlingMiddleware
 
         var response = exception switch
         {
-            KeyNotFoundException => (
+            ValidationException => ( // 400 for no/bad data
+                StatusCode: HttpStatusCode.BadRequest,
+                Message: exception.Message
+            ),
+            AuthenticationException => ( // 401 for non-logged users
+                StatusCode: HttpStatusCode.Unauthorized,
+                Message: exception.Message
+            ),
+            NotFoundException => ( // 404 for entities
                 StatusCode: HttpStatusCode.NotFound,
                 Message: exception.Message
                 ),
-            UnauthorizedAccessException => (
-                StatusCode: HttpStatusCode.Unauthorized,
-                Message: "Unauthorized."
+            ArgumentException => ( // default 400
+                    StatusCode: HttpStatusCode.BadRequest,
+                    Message: exception.Message
                 ),
-            ArgumentException => (
-                StatusCode: HttpStatusCode.BadRequest,
+            UnauthorizedAccessException => ( // default 401
+                    StatusCode: HttpStatusCode.Unauthorized,
+                    Message: exception.Message
+                ),
+            KeyNotFoundException => ( // default 404
+                StatusCode: HttpStatusCode.NotFound,
                 Message: exception.Message
                 ),
             _ => (
-                StatusCode: HttpStatusCode.BadRequest,
+                StatusCode: HttpStatusCode.InternalServerError, // default 500
                 Message: "An unexcepted error has occured."
                 ),
         };

@@ -17,7 +17,7 @@ public class Cart
         Quantity = quantity;
     }
 
-    // not sure about updating those values
+    // not sure about updating those values (needs to update also Product)
     public void UpdateProduct(Guid productId) => ProductId = productId;
     public void UpdateQuantity(uint quantity) => Quantity = quantity;
 }

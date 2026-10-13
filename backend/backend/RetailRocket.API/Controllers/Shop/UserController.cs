@@ -49,7 +49,7 @@ public class UserController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpGet("by-username")]
+    [HttpGet("username")]
     public async Task<IActionResult> GetByUsername([FromQuery] string username)
     {
         if (string.IsNullOrWhiteSpace(username))
@@ -62,7 +62,7 @@ public class UserController : ControllerBase
     }
     
     [AllowAnonymous]
-    [HttpGet("by-email")]
+    [HttpGet("email")]
     public async Task<IActionResult> GetByEmail([FromQuery] string email)
     {
         if (string.IsNullOrWhiteSpace(email))

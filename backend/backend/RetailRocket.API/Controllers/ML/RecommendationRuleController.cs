@@ -47,10 +47,9 @@ public class RecommendationRuleController : ControllerBase
             throw new NotFoundException("Recommendation rule not found.");
         return Ok(_mapper.Map<RecommendationRuleResponseDto>(recommendationRule));
     }
-
-    // WIP: Refactor get by req/resItem to get all recRules
+    
     [Authorize]
-    [HttpGet("by-required-item/{reqItemId}")]
+    [HttpGet("required-item/{reqItemId}")]
     public async Task<IActionResult> GetByRequiredItem(int reqItemId)
     {
         if (reqItemId < 1)
@@ -65,7 +64,7 @@ public class RecommendationRuleController : ControllerBase
     }
     
     [Authorize]
-    [HttpGet("by-result-item/{resItemId}")]
+    [HttpGet("result-item/{resItemId}")]
     public async Task<IActionResult> GetByResultItem(int resItemId)
     {
         if (resItemId < 1)

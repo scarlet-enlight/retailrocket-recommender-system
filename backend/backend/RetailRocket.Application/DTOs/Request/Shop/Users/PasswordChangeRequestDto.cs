@@ -2,7 +2,7 @@
 
 public record PasswordChangeRequestDto()
 {
-    public string OldPassword { get; }
-    public string NewPassword { get; }
-    public string RepeatPassword { get; }
+    public string OldPassword { get; set;  }
+    public string NewPassword { get; set;  }
+    public string RepeatPassword { get; set;  }
 }

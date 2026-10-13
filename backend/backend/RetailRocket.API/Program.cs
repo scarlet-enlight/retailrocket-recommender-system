@@ -98,8 +98,18 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await context.Database.MigrateAsync();
-    await AppDbContextSeeder.SeedAsync(context);
+
+    if (app.Environment.IsDevelopment())
+    {
+        await context.Database.EnsureDeletedAsync();
+        await context.Database.MigrateAsync();
+        await AppDbContextSeeder.SeedAsync(context);
+    }
+    else
+    {
+        await context.Database.MigrateAsync();
+        await AppDbContextSeeder.SeedAsync(context);
+    }
 }
 
 // Configure the HTTP request pipeline.

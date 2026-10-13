@@ -3,5 +3,5 @@
 public record CartUpdateRequestDto
 {
     public Guid ProductId { get; set; }
-    public uint Quantity { get; set; }
+    public int Quantity { get; set; }
 }

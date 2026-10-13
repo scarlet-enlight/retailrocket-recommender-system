@@ -57,10 +57,10 @@ public class CartController : ControllerBase
         if (createRequestDto.ProductId == Guid.Empty)
             throw new ValidationException("A selected product is required.");
         
-        if (createRequestDto.Quantity <= 0)
+        if (createRequestDto.Quantity < 1)
             throw new ValidationException("Quantity of this product must be greater than 0.");
         
-        var cart = new Cart(userId, createRequestDto.ProductId, createRequestDto.Quantity);
+        var cart = new Cart(userId, createRequestDto.ProductId, (uint)createRequestDto.Quantity);
         await _cartService.AddCartAsync(cart);
 
         var created = await _cartService.GetCartAsync(cart.CartId);
@@ -83,6 +83,9 @@ public class CartController : ControllerBase
             cart.UpdateProduct(updateRequestDto.ProductId);
         if (updateRequestDto.Quantity != cart.Quantity && updateRequestDto.Quantity <= 0)
             cart.UpdateQuantity(updateRequestDto.Quantity);
+        if (updateRequestDto.Quantity < 1)
+            throw new ValidationException("Quantity of this product must be greater than 0.");
+        cart.UpdateQuantity((uint)updateRequestDto.Quantity);
         
         await _cartService.UpdateCartAsync(cart);
         return NoContent();

@@ -98,8 +98,8 @@ public class UserController : ControllerBase
         var user = new User(createRequestDto.Username, createRequestDto.Email, hash);
         await _userService.AddUserAsync(user);
 
-        var created = _userService.GetUserAsync(user.UserId);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id },
+        var created = await _userService.GetUserAsync(user.UserId);
+        return CreatedAtAction(nameof(GetById), new { id = created!.UserId },
             _mapper.Map<UserResponseDto>(created));
     }
 

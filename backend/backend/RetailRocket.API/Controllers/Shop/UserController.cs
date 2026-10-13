@@ -84,10 +84,12 @@ public class UserController : ControllerBase
             throw new ValidationException("Username, email and password are required.");
         
         var existingUser = await _userService.GetUserByUsernameAsync(createRequestDto.Username);
-        if (existingUser is not null) throw new ValidationException("Username already exists.");
+        if (existingUser is not null) 
+            throw new ValidationException("Username already exists.");
         
         var existingEmail = await _userService.GetUserByEmailAsync(createRequestDto.Email);
-        if (existingEmail is not null) throw new ValidationException("Email already exists.");
+        if (existingEmail is not null) 
+            throw new ValidationException("Email already exists.");
         
         var hash = PasswordHasherService.Hash(createRequestDto.Password);
         if (!PasswordHasherService.Verify(hash, createRequestDto.Password))
@@ -109,7 +111,7 @@ public class UserController : ControllerBase
             throw new ValidationException("Email and password are required.");
 
         var user = await _userService.GetUserByEmailAsync(dto.Email);
-        if (user is null || !PasswordHasherService.Verify(user.PasswordHash!, dto.Password))
+        if (user is null || !PasswordHasherService.Verify(user.PasswordHash, dto.Password))
             throw new AuthenticationException("Invalid credentials.");
 
         var token = _tokenService.GenerateToken(user);
@@ -141,7 +143,7 @@ public class UserController : ControllerBase
             string.IsNullOrWhiteSpace(passwordRequestDto.RepeatPassword))
             throw new ValidationException("Old password and new passwords are required.");
         
-        if (passwordRequestDto.NewPassword == passwordRequestDto.RepeatPassword)
+        if (passwordRequestDto.NewPassword != passwordRequestDto.RepeatPassword)
             throw new ValidationException("New passwords must be the same.");
         
         // WIP: insert here check of old passwords history with new one
@@ -167,10 +169,13 @@ public class UserController : ControllerBase
         var user = await _userService.GetUserAsync(id);
         if (user is null)
             throw new NotFoundException("User not found.");
+
+        if (updateRequestDto.Username == user.Username)
+            throw new ValidationException("You cannot change your username.");
         
-        if (updateRequestDto.Username != user.Username && !string.IsNullOrWhiteSpace(updateRequestDto.Username)) 
+        if (!string.IsNullOrWhiteSpace(updateRequestDto.Username)) 
             user.UpdateUsername(updateRequestDto.Username);
-        if (updateRequestDto.Email != user.Email && !string.IsNullOrWhiteSpace(updateRequestDto.Email))
+        if (!string.IsNullOrWhiteSpace(updateRequestDto.Email))
             user.UpdateEmail(updateRequestDto.Email);
         
         await _userService.UpdateUserAsync(user);

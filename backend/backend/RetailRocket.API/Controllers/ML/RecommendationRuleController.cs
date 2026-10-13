@@ -43,7 +43,8 @@ public class RecommendationRuleController : ControllerBase
             throw new ValidationException("Recommendation Rule ID is required.");
         
         var recommendationRule = await _recommendationRuleService.GetRecommendationRuleAsync(id);
-        if (recommendationRule is null) return NotFound();
+        if (recommendationRule is null)
+            throw new NotFoundException("Recommendation rule not found.");
         return Ok(_mapper.Map<RecommendationRuleResponseDto>(recommendationRule));
     }
 
@@ -52,32 +53,38 @@ public class RecommendationRuleController : ControllerBase
     [HttpGet("by-required-item/{reqItemId}")]
     public async Task<IActionResult> GetByRequiredItem(int reqItemId)
     {
-        if (reqItemId == 0)
-            throw new ValidationException("Required Item ID is required.");
+        if (reqItemId < 1)
+            throw new ValidationException("Target Item ID must be greater than 0.");
+        
+        // necessary service to find if such id exists
         
         var recommendationRules = await _recommendationRuleService.GetRecommendationRulesByRequiredItemAsync(reqItemId);
-        var result = _mapper.Map<IEnumerable<RecommendationRuleResponseDto>>(recommendationRules);
-        return Ok(result);
+        if (recommendationRules is null)
+            throw new NotFoundException("No recommendation rules were found for this required item.");
+        return Ok(_mapper.Map<IEnumerable<RecommendationRuleResponseDto>>(recommendationRules));
     }
     
     [Authorize]
     [HttpGet("by-result-item/{resItemId}")]
     public async Task<IActionResult> GetByResultItem(int resItemId)
     {
-        if (resItemId == 0)
-            throw new ValidationException("Required Item ID is required.");
+        if (resItemId < 1)
+            throw new ValidationException("Target Item ID must be greater than 0.");
+        
+        // necessary service to find if such id exists
         
         var recommendationRules = await _recommendationRuleService.GetRecommendationRulesByResultItemAsync(resItemId);
-        var result = _mapper.Map<IEnumerable<RecommendationRuleResponseDto>>(recommendationRules);
-        return Ok(result);
+        if (recommendationRules is null)
+            throw new NotFoundException("No recommendation rules were found for this target item.");
+        return Ok(_mapper.Map<IEnumerable<RecommendationRuleResponseDto>>(recommendationRules));
     }
 
     [Authorize]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] RecommendationRuleCreateRequestDto createRequestDto)
     {
-        if (createRequestDto.IfItemId <= 0 || createRequestDto.ThenItemId <= 0)
-            throw new ValidationException("Recommendation Rule Items are required.");
+        if (createRequestDto.IfItemId < 1 || createRequestDto.ThenItemId < 1)
+            throw new ValidationException("Recommendation Rule Items must be greater than 0.");
 
         if (!IsProvided(createRequestDto.Support) || !IsProvided(createRequestDto.Confidence) || !IsProvided(createRequestDto.Lift))
             throw new ValidationException("Support, Confidence and Lift values are required.");
@@ -97,7 +104,7 @@ public class RecommendationRuleController : ControllerBase
         var created =
             await _recommendationRuleService.GetRecommendationRuleAsync(recommendationRule.RecommendationRuleId);
         return CreatedAtAction(nameof(GetById), new { id = created!.RecommendationRuleId },
-            _mapper.Map<RecommendationRuleResponseDto>(created));
+            _mapper.Map<RecommendationRuleResponseDto>(created)); 
     }
     
     [Authorize]
@@ -110,12 +117,14 @@ public class RecommendationRuleController : ControllerBase
         var recommendationRule = await _recommendationRuleService.GetRecommendationRuleAsync(id);
         if (recommendationRule is null)
             throw new NotFoundException("Recommendation Rule not found.");
-        
-        if (updateRequestDto.IfItemId > 0 && updateRequestDto.IfItemId != recommendationRule.IfItemId)
-            recommendationRule.UpdateRequiredItem(updateRequestDto.IfItemId);
 
-        if (updateRequestDto.ThenItemId > 0 && updateRequestDto.ThenItemId != recommendationRule.ThenItemId)
-            recommendationRule.UpdateTargetItem(updateRequestDto.ThenItemId);
+        if (updateRequestDto.IfItemId < 1)
+            throw new ValidationException("Required Item's ID must be greater than 0.");
+        if (updateRequestDto.ThenItemId < 1)
+            throw new ValidationException("Target Item's ID must be greater than 0.");
+        
+        recommendationRule.UpdateRequiredItem(updateRequestDto.IfItemId);
+        recommendationRule.UpdateTargetItem(updateRequestDto.ThenItemId);
 
         if (IsProvided(updateRequestDto.Support))
         {

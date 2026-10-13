@@ -61,11 +61,15 @@ public class ProductController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] ProductCreateRequestDto createRequestDto)
     {
-        if (string.IsNullOrWhiteSpace(createRequestDto.Name) || createRequestDto.ItemId == 0 || createRequestDto.CategoryId == 0)
-            throw new ValidationException("Product's name, item and category are required.");
-        
+        // we need to create new services for items and categories if we want to keep in check product entities checks
+        if (createRequestDto.ItemId < 1)
+            throw new ValidationException("Item ID must be greater than zero.");
+        if (string.IsNullOrWhiteSpace(createRequestDto.Name))
+            throw new ValidationException("Product's name is required.");
         if (createRequestDto.Price <= 0)
             throw new ValidationException("Price must be greater than zero.");
+        if (createRequestDto.CategoryId < 1)
+            throw new ValidationException("Category ID must be greater than zero.");
         
         var product = new Product(createRequestDto.ItemId, createRequestDto.Name, createRequestDto.Price, createRequestDto.CategoryId);
         await _productService.CreateProductAsync(product);
@@ -80,18 +84,25 @@ public class ProductController : ControllerBase
     public async Task<IActionResult> Update(Guid id, [FromBody] ProductUpdateRequestDto updateRequestDto)
     {
         if (id == Guid.Empty)
-                    throw new ValidationException("Product ID is required.");
+            throw new ValidationException("Product ID is required.");
         
         var product = await _productService.GetProductAsync(id);
         if (product is null)
             throw new NotFoundException("Product not found.");
         
-        if (updateRequestDto.Name != product.Name && string.IsNullOrWhiteSpace(updateRequestDto.Name))
-            product.UpdateName(updateRequestDto.Name);
-        if (updateRequestDto.Price != product.Price && updateRequestDto.Price <= 0)
-            product.UpdatePrice(updateRequestDto.Price);
-        if (updateRequestDto.CategoryId <= 0) 
-            product.UpdateCategory(updateRequestDto.CategoryId);
+        // we need to create new services for items and categories if we want to keep in check product entities checks
+        if (updateRequestDto.ItemId < 1)
+            throw new ValidationException("Item ID must be greater than zero.");
+        product.UpdateItem(updateRequestDto.ItemId);
+        if (string.IsNullOrWhiteSpace(updateRequestDto.Name))
+            throw new ValidationException("Product's name is required.");
+        product.UpdateName(updateRequestDto.Name);
+        if (updateRequestDto.Price <= 0)
+            throw new ValidationException("Price must be greater than zero.");
+        product.UpdatePrice(updateRequestDto.Price);
+        if (updateRequestDto.CategoryId < 1)
+            throw new ValidationException("Category ID must be greater than zero.");
+        product.UpdateCategory(updateRequestDto.CategoryId);
         
         await _productService.UpdateProductAsync(product);
         return NoContent();

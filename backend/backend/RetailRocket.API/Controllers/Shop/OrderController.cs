@@ -44,8 +44,9 @@ public class OrderController : ControllerBase
             throw new ValidationException("User ID is required.");
         
         var orders = await _orderService.GetOrdersByUserAsync(userId);
-        var result = _mapper.Map<IEnumerable<OrderResponseDto>>(orders);
-        return Ok(result);
+        if (orders is null)
+            throw new NotFoundException("User does not have any orders.");
+        return Ok(_mapper.Map<IEnumerable<OrderResponseDto>>(orders));
     }
 
     

@@ -15,11 +15,13 @@ namespace RetailRocket.API.Controllers.Shop;
 public class OrderController : ControllerBase
 {
     private readonly OrderService _orderService;
+    private readonly UserService _userService;
     private readonly IMapper _mapper;
 
-    public OrderController(OrderService orderService, IMapper mapper)
+    public OrderController(OrderService orderService, UserService userService, IMapper mapper)
     {
         _orderService = orderService;
+        _userService = userService;
         _mapper = mapper;
     }
     
@@ -42,6 +44,10 @@ public class OrderController : ControllerBase
     {
         if (userId == Guid.Empty)
             throw new ValidationException("User ID is required.");
+        
+        var user = await _userService.GetUserAsync(userId);
+        if (user is null)
+            throw new NotFoundException("User not found.");
         
         var orders = await _orderService.GetOrdersByUserAsync(userId);
         if (orders is null)

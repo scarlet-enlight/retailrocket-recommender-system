@@ -15,11 +15,15 @@ namespace RetailRocket.API.Controllers.Shop;
 public class CartController : ControllerBase
 {
     private readonly CartService _cartService;
+    private readonly UserService _userService;
+    private readonly ProductService _productService;
     private readonly IMapper _mapper;
 
-    public CartController(CartService cartService, IMapper mapper)
+    public CartController(CartService cartService, UserService userService, ProductService productService, IMapper mapper)
     {
         _cartService = cartService;
+        _userService = userService;
+        _productService = productService;
         _mapper = mapper;
     }
 
@@ -42,6 +46,10 @@ public class CartController : ControllerBase
     {
         if (userId == Guid.Empty)
             throw new ValidationException("User ID is required.");
+        
+        var user = await _userService.GetUserAsync(userId);
+        if (user is null)
+            throw new NotFoundException("User not found.");
         
         var carts = await _cartService.GetCartsByUserAsync(userId);
         if (carts is null)

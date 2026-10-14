@@ -15,11 +15,15 @@ namespace RetailRocket.API.Controllers.Shop;
 public class CartController : ControllerBase
 {
     private readonly CartService _cartService;
+    private readonly UserService _userService;
+    private readonly ProductService _productService;
     private readonly IMapper _mapper;
 
-    public CartController(CartService cartService, IMapper mapper)
+    public CartController(CartService cartService, UserService userService, ProductService productService, IMapper mapper)
     {
         _cartService = cartService;
+        _userService = userService;
+        _productService = productService;
         _mapper = mapper;
     }
 
@@ -43,24 +47,33 @@ public class CartController : ControllerBase
         if (userId == Guid.Empty)
             throw new ValidationException("User ID is required.");
         
+        var user = await _userService.GetUserAsync(userId);
+        if (user is null)
+            throw new NotFoundException("User not found.");
+        
         var carts = await _cartService.GetCartsByUserAsync(userId);
-        var result = _mapper.Map<IEnumerable<CartResponseDto>>(carts);
-        return Ok(result);
+        if (carts is null)
+            throw new NotFoundException("User does not have any carts.");
+        
+        return Ok(_mapper.Map<IEnumerable<CartResponseDto>>(carts));
     }
 
     [Authorize]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CartCreateRequestDto createRequestDto)
     {
-        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userIdClaim is null)
+            throw new AuthenticationException("You must be logged in order to add new carts.");
+        var userId = Guid.Parse(userIdClaim);
 
         if (createRequestDto.ProductId == Guid.Empty)
             throw new ValidationException("A selected product is required.");
         
-        if (createRequestDto.Quantity <= 0)
+        if (createRequestDto.Quantity < 1)
             throw new ValidationException("Quantity of this product must be greater than 0.");
         
-        var cart = new Cart(userId, createRequestDto.ProductId, createRequestDto.Quantity);
+        var cart = new Cart(userId, createRequestDto.ProductId, (uint)createRequestDto.Quantity);
         await _cartService.AddCartAsync(cart);
 
         var created = await _cartService.GetCartAsync(cart.CartId);
@@ -79,10 +92,14 @@ public class CartController : ControllerBase
         if (cart is null) 
             throw new NotFoundException("Cart not found.");
         
-        if (updateRequestDto.ProductId != cart.ProductId && updateRequestDto.ProductId != Guid.Empty)
-            cart.UpdateProduct(updateRequestDto.ProductId);
-        if (updateRequestDto.Quantity != cart.Quantity && updateRequestDto.Quantity <= 0)
-            cart.UpdateQuantity(updateRequestDto.Quantity);
+        var product = await _productService.GetProductAsync(updateRequestDto.ProductId);
+        if (product is null)
+            throw new NotFoundException("Product not found.");
+        cart.UpdateProduct(updateRequestDto.ProductId);
+        
+        if (updateRequestDto.Quantity < 1)
+            throw new ValidationException("Quantity of this product must be greater than 0.");
+        cart.UpdateQuantity((uint)updateRequestDto.Quantity);
         
         await _cartService.UpdateCartAsync(cart);
         return NoContent();

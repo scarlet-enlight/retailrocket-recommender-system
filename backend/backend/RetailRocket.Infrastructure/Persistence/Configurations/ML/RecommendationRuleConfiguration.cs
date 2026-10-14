@@ -16,6 +16,6 @@ public class RecommendationRuleConfiguration : IEntityTypeConfiguration<Recommen
         builder.Property(rr => rr.Support);
         builder.Property(rr => rr.Confidence);
         builder.Property(rr => rr.Lift);
-        builder.Property(rr => rr.CreatedAt);
+        builder.Property(rr => rr.CreatedAt).HasDefaultValueSql("NOW()");
     }
 }

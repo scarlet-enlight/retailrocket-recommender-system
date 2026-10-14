@@ -15,11 +15,13 @@ namespace RetailRocket.API.Controllers.Shop;
 public class OrderController : ControllerBase
 {
     private readonly OrderService _orderService;
+    private readonly UserService _userService;
     private readonly IMapper _mapper;
 
-    public OrderController(OrderService orderService, IMapper mapper)
+    public OrderController(OrderService orderService, UserService userService, IMapper mapper)
     {
         _orderService = orderService;
+        _userService = userService;
         _mapper = mapper;
     }
     
@@ -43,9 +45,14 @@ public class OrderController : ControllerBase
         if (userId == Guid.Empty)
             throw new ValidationException("User ID is required.");
         
+        var user = await _userService.GetUserAsync(userId);
+        if (user is null)
+            throw new NotFoundException("User not found.");
+        
         var orders = await _orderService.GetOrdersByUserAsync(userId);
-        var result = _mapper.Map<IEnumerable<OrderResponseDto>>(orders);
-        return Ok(result);
+        if (orders is null)
+            throw new NotFoundException("User does not have any orders.");
+        return Ok(_mapper.Map<IEnumerable<OrderResponseDto>>(orders));
     }
 
     
@@ -58,8 +65,8 @@ public class OrderController : ControllerBase
         var order = new Order(userId, 500);
         await _orderService.AddOrderAsync(order);
 
-        var created = _orderService.GetOrderAsync(order.OrderId);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id },
+        var created = await _orderService.GetOrderAsync(order.OrderId);
+        return CreatedAtAction(nameof(GetById), new { id = created!.OrderId },
             _mapper.Map<OrderResponseDto>(created));
     }
 

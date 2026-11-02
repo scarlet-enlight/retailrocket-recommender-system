@@ -67,7 +67,8 @@ def extract_items(path: Path) -> pd.DataFrame | None:
 
     extract_logger.info("Started extracting items...")
 
-    df = pd.read_csv(
+    chunks = []
+    for chunk in pd.read_csv(
         path,
         dtype={
             "timestamp": "int64",
@@ -75,8 +76,11 @@ def extract_items(path: Path) -> pd.DataFrame | None:
             "property": "str",
             "value": "str",
         },
-        header=0,
-    )
+        chunksize=500_000,
+    ):
+        chunks.append(chunk[chunk["property"].isin(["categoryid", "available"])])
+
+    df = pd.concat(chunks, ignore_index=True)
 
     mb = df.memory_usage(deep=True).sum() / 1024**2
     extract_logger.info(f"Extracted {len(df)} rows ({mb:.1f} MB)")
@@ -84,12 +88,26 @@ def extract_items(path: Path) -> pd.DataFrame | None:
     return df
 
 
+def extract_all_items() -> pd.DataFrame | None:
+    parts = [
+        extract_items(ITEM_PROPERTIES_1_PATH),
+        extract_items(ITEM_PROPERTIES_2_PATH),
+    ]
+
+    parts = [p for p in parts if p is not None]
+    if not parts:
+        return None
+
+    combined = pd.concat(parts, ignore_index=True)
+    extract_logger.info(f"Unique items with properties: {combined['itemid'].nunique()}")
+    return combined
+
+
 def extract_all() -> dict[str, pd.DataFrame | None]:
     return {
         "events": extract_events(EVENTS_PATH),
         "categories": extract_categories(CATEGORY_TREE_PATH),
-        "items1": extract_items(ITEM_PROPERTIES_1_PATH),
-        "items2": extract_items(ITEM_PROPERTIES_2_PATH),
+        "items": extract_all_items(),
     }
 
 

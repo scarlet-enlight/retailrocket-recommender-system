@@ -92,3 +92,10 @@ CREATE TABLE ml.recommendation_rules (
     lift           FLOAT NOT NULL,
     created_at     TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+-- Indexes
+CREATE INDEX idx_cart_user_id         ON shop.cart(user_id);
+CREATE INDEX idx_orders_user_id       ON shop.orders(user_id);
+CREATE INDEX idx_products_item_id     ON shop.products(item_id);
+CREATE INDEX idx_products_category_id ON shop.products(category_id);
+CREATE INDEX idx_rules_if_item_id     ON ml.recommendation_rules(if_item_id);

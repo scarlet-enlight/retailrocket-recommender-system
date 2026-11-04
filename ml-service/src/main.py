@@ -37,9 +37,7 @@ RULES_DF: pd.DataFrame = pd.DataFrame(
 RULES_SOURCE: str = "uninitialized"
 
 
-# ---------------------------------------------------------------------------
-# Pydantic Response Schemas
-# ---------------------------------------------------------------------------
+# Pydantic response schemas
 
 class RecommendationRuleSchema(BaseModel):
     rule_id: str
@@ -68,9 +66,7 @@ class TrainResponse(BaseModel):
     exported_to_db: bool
 
 
-# ---------------------------------------------------------------------------
-# Security Dependency for Administrative Endpoints
-# ---------------------------------------------------------------------------
+# Security dependency for administrative endpoints
 
 def verify_internal_api_key(
     x_api_key: str | None = Header(default=None, alias="X-API-Key"),
@@ -91,9 +87,7 @@ def verify_internal_api_key(
         )
 
 
-# ---------------------------------------------------------------------------
-# Rule Loading Logic (PostgreSQL with CSV Fallback)
-# ---------------------------------------------------------------------------
+# Rule loading logic (PostgreSQL with CSV fallback)
 
 def _generate_deterministic_rule_id(if_item_id: int, then_item_id: int) -> str:
     """Generate a deterministic UUID string for a (if_item_id, then_item_id) pair."""
@@ -177,9 +171,7 @@ async def lifespan(_app: FastAPI):
     yield
 
 
-# ---------------------------------------------------------------------------
-# FastAPI Application & Endpoints
-# ---------------------------------------------------------------------------
+# FastAPI application and endpoints
 
 app = FastAPI(
     title="Retailrocket ML Recommendation Service",
@@ -215,6 +207,11 @@ def get_top_rules(limit: int = Query(default=20, ge=1, le=500)):
 
 
 @app.get(
+    "/recommendations/required-item/{item_id}",
+    response_model=ItemRecommendationsResponse,
+    tags=["Recommendations"],
+)
+@app.get(
     "/recommendations/{item_id}",
     response_model=ItemRecommendationsResponse,
     tags=["Recommendations"],
@@ -224,7 +221,7 @@ def get_recommendations_for_item(
     top_k: int = Query(default=5, ge=1, le=50, description="Maximum number of recommended items"),
 ):
     """
-    Return recommended products (then_item_id) for a given viewed or cart item (if_item_id),
+    Return recommended products (then_item_id) for a given required/viewed item (if_item_id),
     ordered by lift and confidence descending.
     """
     if item_id < 1:
@@ -232,6 +229,36 @@ def get_recommendations_for_item(
 
     matched = (
         RULES_DF[RULES_DF["if_item_id"] == item_id]
+        .sort_values(by=["lift", "confidence"], ascending=False)
+        .head(top_k)
+    )
+
+    recommendations = matched.to_dict(orient="records")
+    return ItemRecommendationsResponse(
+        item_id=item_id,
+        count=len(recommendations),
+        recommendations=recommendations,
+    )
+
+
+@app.get(
+    "/recommendations/result-item/{item_id}",
+    response_model=ItemRecommendationsResponse,
+    tags=["Recommendations"],
+)
+def get_recommendations_by_result_item(
+    item_id: int,
+    top_k: int = Query(default=5, ge=1, le=50, description="Maximum number of rules targeting this item"),
+):
+    """
+    Return association rules where the given item is the recommended target (then_item_id),
+    ordered by lift and confidence descending.
+    """
+    if item_id < 1:
+        raise HTTPException(status_code=400, detail="item_id must be a positive integer.")
+
+    matched = (
+        RULES_DF[RULES_DF["then_item_id"] == item_id]
         .sort_values(by=["lift", "confidence"], ascending=False)
         .head(top_k)
     )

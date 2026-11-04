@@ -26,52 +26,11 @@ def save_rules_locally(df_rules: pd.DataFrame) -> None:
     print(f"[Train] Saved {len(df_rules):,} rules locally to: {LOCAL_RULES_CSV_PATH}")
 
 
-def ensure_referenced_items_exist(conn, item_ids: set[int], is_pascal_case: bool) -> None:
-    """
-    Ensure all item IDs referenced by recommendation rules exist in historical.items
-    so foreign key constraints on ml.recommendation_rules are satisfied.
-    """
-    if not item_ids:
-        return
-
-    if is_pascal_case:
-        existing_rows = conn.execute(text('SELECT "ItemId" FROM historical.items')).fetchall()
-        existing_ids = {int(r[0]) for r in existing_rows}
-        missing_ids = sorted(item_ids - existing_ids)
-        if missing_ids:
-            # Ensure at least one default category exists in historical.categories
-            cat_row = conn.execute(text('SELECT "CategoryId" FROM historical.categories LIMIT 1')).fetchone()
-            if cat_row is None:
-                conn.execute(text('INSERT INTO historical.categories ("CategoryId", "Name") VALUES (0, \'Default\')'))
-                default_cat_id = 0
-            else:
-                default_cat_id = int(cat_row[0])
-
-            items_df = pd.DataFrame({
-                "ItemId": missing_ids,
-                "CategoryId": default_cat_id,
-                "IsAvailable": True,
-            })
-            items_df.to_sql("items", conn, schema="historical", if_exists="append", index=False)
-            print(f"[Train] Inserted {len(missing_ids):,} missing item IDs into historical.items.")
-    else:
-        existing_rows = conn.execute(text("SELECT item_id FROM historical.items")).fetchall()
-        existing_ids = {int(r[0]) for r in existing_rows}
-        missing_ids = sorted(item_ids - existing_ids)
-        if missing_ids:
-            items_df = pd.DataFrame({
-                "item_id": missing_ids,
-                "category_id": None,
-                "available": True,
-            })
-            items_df.to_sql("items", conn, schema="historical", if_exists="append", index=False)
-            print(f"[Train] Inserted {len(missing_ids):,} missing item IDs into historical.items.")
-
-
 def save_rules_to_database(df_rules: pd.DataFrame) -> bool:
     """
     Export association rules to the PostgreSQL ml.recommendation_rules table.
     Supports both init.sql (snake_case) and EF Core migration (PascalCase) schemas.
+    Requires historical.items to be pre-populated by the data engineering pipeline.
     """
     try:
         engine = create_engine(DATABASE_URL)
@@ -79,10 +38,6 @@ def save_rules_to_database(df_rules: pd.DataFrame) -> bool:
             inspector = inspect(conn)
             columns = [col["name"] for col in inspector.get_columns("recommendation_rules", schema="ml")]
             is_pascal_case = "IfItemId" in columns
-
-            # Collect all unique item IDs appearing in rules
-            referenced_items = set(df_rules["if_item_id"]).union(set(df_rules["then_item_id"]))
-            ensure_referenced_items_exist(conn, referenced_items, is_pascal_case)
 
             # Clear previous recommendation rules before inserting the newly trained batch
             conn.execute(text("DELETE FROM ml.recommendation_rules"))
@@ -113,7 +68,7 @@ def save_rules_to_database(df_rules: pd.DataFrame) -> bool:
             return True
 
     except SQLAlchemyError as exc:
-        print(f"[Train] Could not connect/write to PostgreSQL (is Docker running?): {exc.__class__.__name__}")
+        print(f"[Train] Could not connect/write to PostgreSQL (is Docker running and historical.items loaded?): {exc.__class__.__name__}")
         print("[Train] Rules are safely stored in the local CSV file and ready for use.")
         return False
 

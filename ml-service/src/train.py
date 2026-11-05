@@ -26,52 +26,25 @@ def save_rules_locally(df_rules: pd.DataFrame) -> None:
     print(f"[Train] Saved {len(df_rules):,} rules locally to: {LOCAL_RULES_CSV_PATH}")
 
 
-def ensure_referenced_items_exist(conn, item_ids: set[int], is_pascal_case: bool) -> None:
+def get_existing_historical_items(conn, is_pascal_case: bool) -> set[int]:
     """
-    Ensure all item IDs referenced by recommendation rules exist in historical.items
-    so foreign key constraints on ml.recommendation_rules are satisfied.
+    Read existing item IDs from historical.items (read-only) to verify that
+    the data engineering load prerequisite has been satisfied before exporting rules.
     """
-    if not item_ids:
-        return
-
-    if is_pascal_case:
-        existing_rows = conn.execute(text('SELECT "ItemId" FROM historical.items')).fetchall()
-        existing_ids = {int(r[0]) for r in existing_rows}
-        missing_ids = sorted(item_ids - existing_ids)
-        if missing_ids:
-            # Ensure at least one default category exists in historical.categories
-            cat_row = conn.execute(text('SELECT "CategoryId" FROM historical.categories LIMIT 1')).fetchone()
-            if cat_row is None:
-                conn.execute(text('INSERT INTO historical.categories ("CategoryId", "Name") VALUES (0, \'Default\')'))
-                default_cat_id = 0
-            else:
-                default_cat_id = int(cat_row[0])
-
-            items_df = pd.DataFrame({
-                "ItemId": missing_ids,
-                "CategoryId": default_cat_id,
-                "IsAvailable": True,
-            })
-            items_df.to_sql("items", conn, schema="historical", if_exists="append", index=False)
-            print(f"[Train] Inserted {len(missing_ids):,} missing item IDs into historical.items.")
-    else:
-        existing_rows = conn.execute(text("SELECT item_id FROM historical.items")).fetchall()
-        existing_ids = {int(r[0]) for r in existing_rows}
-        missing_ids = sorted(item_ids - existing_ids)
-        if missing_ids:
-            items_df = pd.DataFrame({
-                "item_id": missing_ids,
-                "category_id": None,
-                "available": True,
-            })
-            items_df.to_sql("items", conn, schema="historical", if_exists="append", index=False)
-            print(f"[Train] Inserted {len(missing_ids):,} missing item IDs into historical.items.")
+    query = (
+        text('SELECT "ItemId" FROM historical.items')
+        if is_pascal_case
+        else text("SELECT item_id FROM historical.items")
+    )
+    rows = conn.execute(query).fetchall()
+    return {int(row[0]) for row in rows}
 
 
 def save_rules_to_database(df_rules: pd.DataFrame) -> bool:
     """
     Export association rules to the PostgreSQL ml.recommendation_rules table.
     Supports both init.sql (snake_case) and EF Core migration (PascalCase) schemas.
+    Enforces that historical.items is pre-populated by the data engineering pipeline.
     """
     try:
         engine = create_engine(DATABASE_URL)
@@ -80,9 +53,31 @@ def save_rules_to_database(df_rules: pd.DataFrame) -> bool:
             columns = [col["name"] for col in inspector.get_columns("recommendation_rules", schema="ml")]
             is_pascal_case = "IfItemId" in columns
 
-            # Collect all unique item IDs appearing in rules
-            referenced_items = set(df_rules["if_item_id"]).union(set(df_rules["then_item_id"]))
-            ensure_referenced_items_exist(conn, referenced_items, is_pascal_case)
+            # Verify prerequisite: historical.items must be populated by data-pipeline
+            existing_items = get_existing_historical_items(conn, is_pascal_case)
+            if not existing_items:
+                print(
+                    "[Train] Prerequisite not met: historical.items is empty. "
+                    "Please run the data-pipeline load step before exporting rules to PostgreSQL."
+                )
+                return False
+
+            # Filter rules to items present in historical.items to guarantee FK integrity
+            valid_rules = df_rules[
+                df_rules["if_item_id"].isin(existing_items)
+                & df_rules["then_item_id"].isin(existing_items)
+            ].copy()
+
+            if valid_rules.empty:
+                print(
+                    "[Train] Prerequisite not met: mined rule item IDs are not present in historical.items. "
+                    "Please run the full data-pipeline load step first."
+                )
+                return False
+
+            if len(valid_rules) < len(df_rules):
+                skipped = len(df_rules) - len(valid_rules)
+                print(f"[Train] Skipped {skipped:,} rules referencing items not in historical.items.")
 
             # Clear previous recommendation rules before inserting the newly trained batch
             conn.execute(text("DELETE FROM ml.recommendation_rules"))
@@ -90,17 +85,17 @@ def save_rules_to_database(df_rules: pd.DataFrame) -> bool:
             if is_pascal_case:
                 # Match C# Entity Framework Core migration column names
                 export_df = pd.DataFrame({
-                    "RecommendationRuleId": [uuid.uuid4() for _ in range(len(df_rules))],
-                    "IfItemId": df_rules["if_item_id"],
-                    "ThenItemId": df_rules["then_item_id"],
-                    "Support": df_rules["support"],
-                    "Confidence": df_rules["confidence"],
-                    "Lift": df_rules["lift"],
+                    "RecommendationRuleId": [uuid.uuid4() for _ in range(len(valid_rules))],
+                    "IfItemId": valid_rules["if_item_id"],
+                    "ThenItemId": valid_rules["then_item_id"],
+                    "Support": valid_rules["support"],
+                    "Confidence": valid_rules["confidence"],
+                    "Lift": valid_rules["lift"],
                     "CreatedAt": datetime.now(timezone.utc),
                 })
             else:
                 # Match database/init.sql snake_case column names
-                export_df = df_rules[["if_item_id", "then_item_id", "support", "confidence", "lift"]].copy()
+                export_df = valid_rules[["if_item_id", "then_item_id", "support", "confidence", "lift"]].copy()
 
             export_df.to_sql(
                 name="recommendation_rules",

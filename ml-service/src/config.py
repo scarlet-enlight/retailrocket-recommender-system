@@ -34,3 +34,16 @@ DB_PORT = os.getenv("DB_HOST_PORT", "5559")
 DB_NAME = os.getenv("DB_NAME", "retailrocket")
 
 DATABASE_URL = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+
+# FastAPI security & network settings (internal service accessed via ASP.NET backend proxy)
+ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        "ML_ALLOWED_ORIGINS",
+        "http://localhost:7228,https://localhost:6086,http://backend:8080",
+    ).split(",")
+    if origin.strip()
+]
+ML_API_KEY = os.getenv("ML_API_KEY", "")
+ML_HOST = os.getenv("ML_HOST", "127.0.0.1")
+ML_PORT = int(os.getenv("ML_PORT", "8000"))

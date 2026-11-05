@@ -1,13 +1,16 @@
 """
 FastAPI microservice for serving Apriori product recommendations
 and triggering model retraining.
+Designed as an internal service accessed through the ASP.NET Core backend proxy.
 """
 
 from contextlib import asynccontextmanager
 from pathlib import Path
+import secrets
 import sys
+import uuid
 import pandas as pd
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy import create_engine, inspect, text
@@ -16,22 +19,28 @@ from sqlalchemy.exc import SQLAlchemyError
 # Ensure ml-service root is on sys.path when executed directly
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.config import DATABASE_URL, LOCAL_RULES_CSV_PATH
+from src.config import (
+    ALLOWED_ORIGINS,
+    DATABASE_URL,
+    LOCAL_RULES_CSV_PATH,
+    ML_API_KEY,
+    ML_HOST,
+    ML_PORT,
+)
 from src.pipeline import load_baskets, mine_association_rules
 from src.train import save_rules_locally, save_rules_to_database
 
 # Global in-memory cache of association rules for fast inference
 RULES_DF: pd.DataFrame = pd.DataFrame(
-    columns=["if_item_id", "then_item_id", "support", "confidence", "lift"]
+    columns=["rule_id", "if_item_id", "then_item_id", "support", "confidence", "lift"]
 )
 RULES_SOURCE: str = "uninitialized"
 
 
-# ---------------------------------------------------------------------------
-# Pydantic Response Schemas
-# ---------------------------------------------------------------------------
+# Pydantic response schemas
 
 class RecommendationRuleSchema(BaseModel):
+    rule_id: str
     if_item_id: int
     then_item_id: int
     support: float
@@ -57,9 +66,41 @@ class TrainResponse(BaseModel):
     exported_to_db: bool
 
 
-# ---------------------------------------------------------------------------
-# Rule Loading Logic (PostgreSQL with CSV Fallback)
-# ---------------------------------------------------------------------------
+# Security dependency for administrative endpoints
+
+def verify_internal_api_key(
+    x_api_key: str | None = Header(default=None, alias="X-API-Key"),
+) -> None:
+    """
+    Protect administrative endpoints (such as POST /train) with an internal API key.
+    If ML_API_KEY is configured in the environment, requests must supply a matching X-API-Key header.
+    """
+    if not ML_API_KEY:
+        raise HTTPException(
+            status_code=403,
+            detail="Training endpoint is disabled because ML_API_KEY is not configured.",
+        )
+    if not x_api_key or not secrets.compare_digest(x_api_key, ML_API_KEY):
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or missing X-API-Key header.",
+        )
+
+
+# Rule loading logic (PostgreSQL with CSV fallback)
+
+def _generate_deterministic_rule_id(if_item_id: int, then_item_id: int) -> str:
+    """Generate a deterministic UUID string for a (if_item_id, then_item_id) pair."""
+    return str(uuid.uuid5(uuid.NAMESPACE_OID, f"rule:{if_item_id}:{then_item_id}"))
+
+
+def _normalize_rule_id(raw_id: object, if_item_id: int, then_item_id: int) -> str:
+    """Ensure rule_id is always formatted as a valid UUID string."""
+    try:
+        return str(uuid.UUID(str(raw_id)))
+    except (ValueError, TypeError):
+        return _generate_deterministic_rule_id(if_item_id, then_item_id)
+
 
 def refresh_rules_cache() -> None:
     """Load association rules from PostgreSQL, or fall back to local CSV."""
@@ -77,20 +118,26 @@ def refresh_rules_cache() -> None:
 
             if "IfItemId" in columns:
                 query = text(
-                    'SELECT "IfItemId" AS if_item_id, "ThenItemId" AS then_item_id, '
+                    'SELECT CAST("RecommendationRuleId" AS TEXT) AS rule_id, '
+                    '"IfItemId" AS if_item_id, "ThenItemId" AS then_item_id, '
                     '"Support" AS support, "Confidence" AS confidence, "Lift" AS lift '
                     "FROM ml.recommendation_rules "
                     'ORDER BY "Lift" DESC, "Confidence" DESC'
                 )
             else:
                 query = text(
-                    "SELECT if_item_id, then_item_id, support, confidence, lift "
+                    "SELECT CAST(rule_id AS TEXT) AS rule_id, "
+                    "if_item_id, then_item_id, support, confidence, lift "
                     "FROM ml.recommendation_rules "
                     "ORDER BY lift DESC, confidence DESC"
                 )
 
             df_db = pd.read_sql(query, conn)
             if not df_db.empty:
+                df_db["rule_id"] = [
+                    _normalize_rule_id(row.rule_id, int(row.if_item_id), int(row.then_item_id))
+                    for row in df_db.itertuples(index=False)
+                ]
                 RULES_DF = df_db
                 RULES_SOURCE = "postgresql"
                 print(f"[FastAPI] Loaded {len(RULES_DF):,} rules from PostgreSQL.")
@@ -100,12 +147,18 @@ def refresh_rules_cache() -> None:
 
     # 2. Fallback to local CSV file generated by train.py
     if LOCAL_RULES_CSV_PATH.exists():
-        RULES_DF = pd.read_csv(LOCAL_RULES_CSV_PATH)
+        df_csv = pd.read_csv(LOCAL_RULES_CSV_PATH)
+        if "rule_id" not in df_csv.columns:
+            df_csv["rule_id"] = [
+                _generate_deterministic_rule_id(int(row.if_item_id), int(row.then_item_id))
+                for row in df_csv.itertuples(index=False)
+            ]
+        RULES_DF = df_csv[["rule_id", "if_item_id", "then_item_id", "support", "confidence", "lift"]]
         RULES_SOURCE = "local_csv"
         print(f"[FastAPI] Loaded {len(RULES_DF):,} rules from local CSV: {LOCAL_RULES_CSV_PATH}")
     else:
         RULES_DF = pd.DataFrame(
-            columns=["if_item_id", "then_item_id", "support", "confidence", "lift"]
+            columns=["rule_id", "if_item_id", "then_item_id", "support", "confidence", "lift"]
         )
         RULES_SOURCE = "empty"
         print("[FastAPI] Warning: No rules found in PostgreSQL or local CSV.")
@@ -118,22 +171,21 @@ async def lifespan(_app: FastAPI):
     yield
 
 
-# ---------------------------------------------------------------------------
-# FastAPI Application & Endpoints
-# ---------------------------------------------------------------------------
+# FastAPI application and endpoints
 
 app = FastAPI(
     title="Retailrocket ML Recommendation Service",
-    description="Microservice serving Apriori market basket association rules.",
+    description="Internal microservice serving Apriori market basket association rules to the ASP.NET Core backend.",
     version="1.0.0",
     lifespan=lifespan,
 )
 
+# Restrict CORS exclusively to the trusted ASP.NET Core backend origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_methods=["GET", "POST"],
-    allow_headers=["*"],
+    allow_headers=["Content-Type", "X-API-Key", "Authorization"],
 )
 
 
@@ -155,6 +207,11 @@ def get_top_rules(limit: int = Query(default=20, ge=1, le=500)):
 
 
 @app.get(
+    "/recommendations/required-item/{item_id}",
+    response_model=ItemRecommendationsResponse,
+    tags=["Recommendations"],
+)
+@app.get(
     "/recommendations/{item_id}",
     response_model=ItemRecommendationsResponse,
     tags=["Recommendations"],
@@ -164,7 +221,7 @@ def get_recommendations_for_item(
     top_k: int = Query(default=5, ge=1, le=50, description="Maximum number of recommended items"),
 ):
     """
-    Return recommended products (then_item_id) for a given viewed or cart item (if_item_id),
+    Return recommended products (then_item_id) for a given required/viewed item (if_item_id),
     ordered by lift and confidence descending.
     """
     if item_id < 1:
@@ -184,11 +241,47 @@ def get_recommendations_for_item(
     )
 
 
-@app.post("/train", response_model=TrainResponse, tags=["Training"])
+@app.get(
+    "/recommendations/result-item/{item_id}",
+    response_model=ItemRecommendationsResponse,
+    tags=["Recommendations"],
+)
+def get_recommendations_by_result_item(
+    item_id: int,
+    top_k: int = Query(default=5, ge=1, le=50, description="Maximum number of rules targeting this item"),
+):
+    """
+    Return association rules where the given item is the recommended target (then_item_id),
+    ordered by lift and confidence descending.
+    """
+    if item_id < 1:
+        raise HTTPException(status_code=400, detail="item_id must be a positive integer.")
+
+    matched = (
+        RULES_DF[RULES_DF["then_item_id"] == item_id]
+        .sort_values(by=["lift", "confidence"], ascending=False)
+        .head(top_k)
+    )
+
+    recommendations = matched.to_dict(orient="records")
+    return ItemRecommendationsResponse(
+        item_id=item_id,
+        count=len(recommendations),
+        recommendations=recommendations,
+    )
+
+
+@app.post(
+    "/train",
+    response_model=TrainResponse,
+    dependencies=[Depends(verify_internal_api_key)],
+    tags=["Training"],
+)
 def trigger_retraining():
     """
     Run the Apriori training pipeline, export rules to local CSV and PostgreSQL,
     and reload the in-memory recommendation cache.
+    Requires a valid X-API-Key header matching ML_API_KEY.
     """
     baskets = load_baskets()
     df_rules = mine_association_rules(baskets)
@@ -213,4 +306,4 @@ def trigger_retraining():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host=ML_HOST, port=ML_PORT)

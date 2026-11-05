@@ -1,6 +1,8 @@
-﻿using AutoMapper;
+﻿using System.Security.Claims;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 using RetailRocket.Application.DTOs.Request.Shop.Users;
 using RetailRocket.Application.DTOs.Response.Shop.Users;
 using RetailRocket.Application.Services.Shop;
@@ -8,6 +10,7 @@ using RetailRocket.Application.Services.Security;
 using RetailRocket.Application.Services.JWT;
 using RetailRocket.Domain.Entities.Shop;
 using RetailRocket.Domain.Exceptions;
+using SameSiteMode = Microsoft.AspNetCore.Http.SameSiteMode;
 
 namespace RetailRocket.API.Controllers.Shop;
 
@@ -74,6 +77,21 @@ public class UserController : ControllerBase
         return Ok(_mapper.Map<UserResponseDto>(user));
     }
 
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<IActionResult> GetByCurrentlyLoggedIn()
+    {
+        var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(idClaim, out var userId))
+            throw new UnauthorizedAccessException("abcdef");
+
+        var user = await _userService.GetUserAsync(userId);
+        if (user is null)
+            throw new UnauthorizedAccessException("Logging out. Redirecting to login page.");
+        
+        return Ok(new { userId = user.UserId, username = user.Username });
+    }
+
     [AllowAnonymous]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] UserCreateRequestDto createRequestDto)
@@ -115,14 +133,35 @@ public class UserController : ControllerBase
             throw new AuthenticationException("Invalid credentials.");
 
         var token = _tokenService.GenerateToken(user);
+        
+        Response.Cookies.Append("access_token", token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Lax,
+            Path = "/",
+            Expires = dto.RememberMe ? DateTimeOffset.UtcNow.AddDays(7) : null
+        });
 
         return Ok(new
         {
-            token,
-            expiresIn = 30,
             userId = user.UserId,
             username = user.Username
         });
+    }
+
+    [Authorize]
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        Response.Cookies.Delete("access_token", new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Lax,
+            Path = "/"
+        });
+        return NoContent();
     }
     
     // WIP: insert here sending email when password is forgotten

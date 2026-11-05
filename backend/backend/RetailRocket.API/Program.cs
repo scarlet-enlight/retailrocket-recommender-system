@@ -44,6 +44,18 @@ builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<RecommendationRuleService>();
 
+// CORS Policy
+builder.Services.AddCors(options =>
+    options.AddPolicy("AllowSpecificOrigin", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173")
+            .WithMethods("GET", "POST", "PUT", "DELETE")
+            .AllowAnyHeader()
+            .AllowCredentials();
+    })
+);
+
 // JWT Authentification
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -59,6 +71,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
         };
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = ctx =>
+            {
+                ctx.Token = ctx.Request.Cookies["access_token"];
+                return Task.CompletedTask;
+            },
+            OnAuthenticationFailed = ctx =>
+            {
+                Console.WriteLine($"JWT failed: {ctx.Exception.Message}");
+                return Task.CompletedTask;
+            }
+        };
     });
 builder.Services.AddScoped<JwtTokenService>();
 
@@ -73,20 +98,6 @@ builder.Services.AddAutoMapper(cfg => { cfg.AddMaps(typeof(ItemShortMappingProfi
 builder.Services.AddAutoMapper(cfg => { cfg.AddMaps(typeof(ProductShortMappingProfile).Assembly); });
 builder.Services.AddAutoMapper(cfg => { cfg.AddMaps(typeof(UserShortMappingProfile).Assembly); });
 
-// CORS Policy
-builder.Services.AddCors(options =>
-    options.AddPolicy("AllowSpecificOrigin", policy =>
-    {
-        policy
-            .WithOrigins(
-                "http://localhost:7228",
-                "https://localhost:6086",
-                "http://localhost:5173",
-                "https://localhost:5173")
-            .WithMethods("GET", "POST", "PUT", "DELETE")
-            .AllowAnyHeader();
-    })
-    );
 
 var app = builder.Build();
 
@@ -101,14 +112,14 @@ using (var scope = app.Services.CreateScope())
 
     if (app.Environment.IsDevelopment())
     {
-        await context.Database.EnsureDeletedAsync();
+        //await context.Database.EnsureDeletedAsync();
         await context.Database.MigrateAsync();
-        await AppDbContextSeeder.SeedAsync(context);
+        //await AppDbContextSeeder.SeedAsync(context);
     }
     else
     {
         await context.Database.MigrateAsync();
-        await AppDbContextSeeder.SeedAsync(context);
+        //await AppDbContextSeeder.SeedAsync(context);
     }
 }
 

@@ -1,8 +1,8 @@
-# All changes notify everyone
-* @LonelyLake @ElPollaco @Blazejost
+# All changes
+* @LonelyLake
 
 # Specific ownership
 /database/ @LonelyLake @ElPollaco
-/data-pipeline/ @LonelyLake @ElPollaco
+/data-pipeline/ @LonelyLake
 /backend/ @ElPollaco @LonelyLake
-/ml-service/ @Blazejost @LonelyLake
+/ml-service/ @Blazejost @LonelyLake @ElPollaco

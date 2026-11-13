@@ -41,6 +41,18 @@ def load_historical(conn: connection, data: dict[str, pd.DataFrame]) -> None:
         expected = events["itemid"].nunique()
         check_count(cur, "items", expected, rows)
 
+        # Load transactions
+        rows = load_transactions(cur, events)
+
+        expected = events["transactionid"].nunique()
+        check_count(cur, "transactions", expected, rows)
+
+        # Load transaction items
+        rows = load_transaction_items(cur, events)
+
+        expected = len(events[["transactionid", "itemid"]].dropna().drop_duplicates())
+        check_count(cur, "transaction_items", expected, rows)
+
 
 def load_categories(cur: cursor, df: pd.DataFrame) -> int:
     """Bulk-load the category tree via COPY and return the number of rows loaded."""
@@ -139,6 +151,69 @@ def load_items(cur: cursor, events_df: pd.DataFrame, props_df: pd.DataFrame) -> 
 
     buffer = io.StringIO()
     items.to_csv(buffer, index=False, header=False, na_rep="")
+    buffer.seek(0)
+    cur.copy_expert(sql, buffer)
+
+    return cur.rowcount
+
+
+def load_transactions(cur: cursor, events_df: pd.DataFrame) -> int:
+    """Bulk-load transactions via COPY and return the number of rows loaded."""
+
+    # Transform data before loading
+    transactions = events_df[events_df["event"] == "transaction"][
+        ["transactionid", "visitorid", "timestamp"]
+    ]
+    # One visitor per transaction is assumed (verified)
+    if transactions.groupby("transactionid")["visitorid"].nunique().max() > 1:
+        raise ValueError("transactions: a transaction has more than one visitor")
+    transactions = transactions.groupby("transactionid").agg(
+        visitor_id=("visitorid", "first"), ts=("timestamp", "min")
+    )  # ts = earliest row of the transaction
+    transactions = transactions.reset_index().rename(
+        columns={"transactionid": "transaction_id"}
+    )
+    transactions["transaction_id"] = transactions["transaction_id"].astype("int64")
+
+    # Load transactions into database
+    load_logger.info("Started loading transactions...")
+
+    sql = """
+        COPY historical.transactions (transaction_id, visitor_id, ts)
+        FROM STDIN WITH (FORMAT CSV, HEADER FALSE, NULL '')
+    """
+    buffer = io.StringIO()
+    transactions.to_csv(buffer, index=False, header=False, na_rep="")
+    buffer.seek(0)
+    cur.copy_expert(sql, buffer)
+
+    return cur.rowcount
+
+
+def load_transaction_items(cur: cursor, events_df: pd.DataFrame) -> int:
+    """Bulk-load transaction items via COPY and return the number of rows loaded."""
+
+    # Transform data before loading
+    transaction_items = events_df[events_df["event"] == "transaction"][
+        ["transactionid", "itemid"]
+    ]
+    transaction_items = transaction_items.dropna().drop_duplicates()
+    transaction_items = transaction_items.rename(
+        columns={"transactionid": "transaction_id", "itemid": "item_id"}
+    )
+    transaction_items["transaction_id"] = transaction_items["transaction_id"].astype(
+        "int64"
+    )
+
+    # Load transaction items into database
+    load_logger.info("Started loading transaction items...")
+
+    sql = """
+        COPY historical.transaction_items (transaction_id, item_id)
+        FROM STDIN WITH (FORMAT CSV, HEADER FALSE, NULL '')
+    """
+    buffer = io.StringIO()
+    transaction_items.to_csv(buffer, index=False, header=False, na_rep="")
     buffer.seek(0)
     cur.copy_expert(sql, buffer)
 

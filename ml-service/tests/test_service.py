@@ -84,7 +84,7 @@ class TestMLServiceAndDockerConfig(unittest.TestCase):
         self.assertIn("ml-service:", compose_text)
         self.assertIn("ML_HOST: 0.0.0.0", compose_text)
         self.assertIn('expose:\n      - "8000"', compose_text)
-        self.assertIn("../data/processed:/app/data/processed:ro", compose_text)
+        self.assertIn("../data:/app/data", compose_text)
         self.assertIn("condition: service_healthy", compose_text)
 
         # Ensure ml-service does not publish port 8000 to the host

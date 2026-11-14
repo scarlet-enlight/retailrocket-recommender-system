@@ -14,8 +14,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy service source code
 COPY src/ ./src/
 
-# Prepare processed data mount point and non-root runtime user
-RUN mkdir -p /app/data/processed \
+# Prepare data directories and non-root runtime user
+RUN mkdir -p /app/data/raw /app/data/processed \
     && useradd --create-home --shell /bin/bash appuser \
     && chown -R appuser:appuser /app
 

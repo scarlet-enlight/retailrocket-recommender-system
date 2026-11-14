@@ -35,7 +35,7 @@ services:
     expose:
       - "8000"
     volumes:
-      - ../data/processed:/app/data/processed:ro
+      - ../data:/app/data
     depends_on:
       postgres:
         condition: service_healthy

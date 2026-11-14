@@ -124,7 +124,7 @@ def compute_rule_statistics(
     }
 
 
-# Offline leave-one-out ranking evaluation
+# Offline given-one ranking evaluation
 
 def _score_predictions(
     recommendations: list[int],
@@ -151,7 +151,8 @@ def evaluate_recommendations_at_k(
 ) -> pd.DataFrame:
     """
     Evaluate top-K recommendation quality on held-out test baskets using a
-    leave-one-out protocol: for each item x in a basket B, predict B \\ {x}.
+    given-one protocol: given a single trigger item x in basket B, treat the
+    remaining basket items B \\ {x} as ground truth.
     """
     if k_values is None:
         k_values = [1, 3, 5, 10]
@@ -160,6 +161,7 @@ def evaluate_recommendations_at_k(
 
     for k in k_values:
         apriori_cov_hits, apriori_cov_prec, apriori_cov_rec = [], [], []
+        pop_cov_hits, pop_cov_prec, pop_cov_rec = [], [], []
         hybrid_hits, hybrid_prec, hybrid_rec = [], [], []
         pop_hits, pop_prec, pop_rec = [], [], []
 
@@ -173,14 +175,19 @@ def evaluate_recommendations_at_k(
                 apriori_recs = rule_lookup.get(trigger_item, [])
                 pop_recs = [item for item in popular_items if item != trigger_item][:k]
 
-                # 1. Apriori on covered trigger items (warm-start queries)
+                # 1. Covered trigger items (warm-start queries): Apriori vs Popularity on identical queries
                 if apriori_recs:
                     h, p, r = _score_predictions(apriori_recs, ground_truth, k)
                     apriori_cov_hits.append(h)
                     apriori_cov_prec.append(p)
                     apriori_cov_rec.append(r)
 
-                # 2. Hybrid: Apriori rules first, padded with popular items up to K
+                    h_pc, p_pc, r_pc = _score_predictions(pop_recs, ground_truth, k)
+                    pop_cov_hits.append(h_pc)
+                    pop_cov_prec.append(p_pc)
+                    pop_cov_rec.append(r_pc)
+
+                # 2. Hybrid across all queries: Apriori rules first, padded with popular items up to K
                 seen = set(apriori_recs) | {trigger_item}
                 hybrid_recs = list(apriori_recs[:k])
                 if len(hybrid_recs) < k:
@@ -209,6 +216,14 @@ def evaluate_recommendations_at_k(
             "recall_pct": round(sum(apriori_cov_rec) / max(len(apriori_cov_rec), 1) * 100, 2),
         })
         records.append({
+            "model": "Popularity Baseline (Covered Items)",
+            "k": k,
+            "queries_evaluated": len(pop_cov_hits),
+            "hit_rate_pct": round(sum(pop_cov_hits) / max(len(pop_cov_hits), 1) * 100, 2),
+            "precision_pct": round(sum(pop_cov_prec) / max(len(pop_cov_prec), 1) * 100, 2),
+            "recall_pct": round(sum(pop_cov_rec) / max(len(pop_cov_rec), 1) * 100, 2),
+        })
+        records.append({
             "model": "Apriori + Popularity (Hybrid)",
             "k": k,
             "queries_evaluated": len(hybrid_hits),
@@ -217,7 +232,7 @@ def evaluate_recommendations_at_k(
             "recall_pct": round(sum(hybrid_rec) / max(len(hybrid_rec), 1) * 100, 2),
         })
         records.append({
-            "model": "Popularity Baseline",
+            "model": "Popularity Baseline (All Queries)",
             "k": k,
             "queries_evaluated": len(pop_hits),
             "hit_rate_pct": round(sum(pop_hits) / max(len(pop_hits), 1) * 100, 2),

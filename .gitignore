@@ -225,6 +225,9 @@ __marimo__/
 data/**/*
 !data/**/.gitkeep
 
+# Notebooks
+data-pipeline/notebooks/
+
 # Build output and binaries
 backend/**/obj/
 [Bb]in/

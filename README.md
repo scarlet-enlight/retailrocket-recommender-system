@@ -39,7 +39,7 @@ The system uses a single **PostgreSQL** instance isolated into three database sc
     cp .env.example .env
     ```
 
-    (Optional: Open the newly created `.env` file and change the password if needed).
+    (Optional: Open the newly created `.env` file and change the password if needed. Set `ML_API_KEY` if you want to enable the internal `POST /train` endpoint; when `ML_API_KEY` is left empty, `/train` stays disabled in fail-closed mode).
 
 2. **Start the Database:**
 

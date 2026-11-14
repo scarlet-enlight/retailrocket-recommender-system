@@ -20,10 +20,13 @@ from src.pipeline import load_baskets, mine_association_rules
 
 
 def save_rules_locally(df_rules: pd.DataFrame) -> None:
-    """Save mined association rules to a local CSV file in data/processed/."""
-    LOCAL_RULES_CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
-    df_rules.to_csv(LOCAL_RULES_CSV_PATH, index=False)
-    print(f"[Train] Saved {len(df_rules):,} rules locally to: {LOCAL_RULES_CSV_PATH}")
+    """Save mined association rules to a local CSV file in data/processed/ when writable."""
+    try:
+        LOCAL_RULES_CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
+        df_rules.to_csv(LOCAL_RULES_CSV_PATH, index=False)
+        print(f"[Train] Saved {len(df_rules):,} rules locally to: {LOCAL_RULES_CSV_PATH}")
+    except OSError:
+        print(f"[Train] Directory {LOCAL_RULES_CSV_PATH.parent} is mounted read-only; skipping local CSV export.")
 
 
 def get_existing_historical_items(conn, is_pascal_case: bool) -> set[int]:

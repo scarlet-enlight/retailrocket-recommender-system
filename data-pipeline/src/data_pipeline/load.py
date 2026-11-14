@@ -10,6 +10,8 @@ from data_pipeline.utils.logger import setup_logger
 
 load_logger = setup_logger(name="load_logger")
 
+CHUNK = 500_000
+
 
 def load_historical(conn: connection, data: dict[str, pd.DataFrame]) -> None:
     """One of the main components of the ELT pipeline.
@@ -40,6 +42,12 @@ def load_historical(conn: connection, data: dict[str, pd.DataFrame]) -> None:
 
         expected = events["itemid"].nunique()
         check_count(cur, "items", expected, rows)
+
+        # Load events
+        rows = load_events(cur, events)
+
+        expected = len(events)
+        check_count(cur, "events", expected, rows)
 
         # Load transactions
         rows = load_transactions(cur, events)
@@ -155,6 +163,40 @@ def load_items(cur: cursor, events_df: pd.DataFrame, props_df: pd.DataFrame) -> 
     cur.copy_expert(sql, buffer)
 
     return cur.rowcount
+
+
+def load_events(cur: cursor, events_df: pd.DataFrame) -> int:
+    """Bulk-load the events via COPY and return the number of rows loaded."""
+
+    events = events_df.rename(
+        columns={
+            "visitorid": "visitor_id",
+            "itemid": "item_id",
+            "event": "event_type",
+            "timestamp": "ts",
+        }
+    )[["visitor_id", "item_id", "event_type", "ts"]]
+
+    events = events.sort_values("ts", kind="stable")
+
+    # Chunk loading
+    load_logger.info("Started loading events...")
+
+    sql = """
+        COPY historical.events (visitor_id, item_id, event_type, ts)
+        FROM STDIN WITH (FORMAT csv, HEADER FALSE, NULL '')
+    """
+
+    total = 0
+    for start in range(0, len(events), CHUNK):
+        part = events.iloc[start : start + CHUNK]
+        buffer = io.StringIO()
+        part.to_csv(buffer, index=False, header=False, na_rep="")
+        buffer.seek(0)
+        cur.copy_expert(sql, buffer)
+        total += cur.rowcount
+        load_logger.info("events: %d / %d", total, len(events))
+    return total
 
 
 def load_transactions(cur: cursor, events_df: pd.DataFrame) -> int:

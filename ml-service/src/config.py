@@ -19,6 +19,7 @@ if ENV_FILE_PATH.exists():
 RAW_EVENTS_PATH = PROJECT_ROOT / "data" / "raw" / "events.csv"
 PROCESSED_BASKETS_PATH = PROJECT_ROOT / "data" / "processed" / "baskets.parquet"
 LOCAL_RULES_CSV_PATH = PROJECT_ROOT / "data" / "processed" / "recommendation_rules.csv"
+EVALUATION_METRICS_CSV_PATH = PROJECT_ROOT / "data" / "processed" / "evaluation_metrics.csv"
 
 # Apriori algorithm hyperparameters (determined in 02_apriori_experiments.ipynb)
 BASKET_TYPE = "session_cart"

@@ -4,6 +4,7 @@ import duckdb
 
 from data_pipeline.config import BASKETS_PARQUET_PATH, db_config
 from data_pipeline.utils.logger import setup_logger
+from data_pipeline.utils.validators import validate_baskets
 
 transform_logger = setup_logger(name="transform_logger")
 
@@ -46,7 +47,8 @@ def run_transform(pg_dsn: str, out_path: Path) -> None:
         try:
             rows = export_baskets_to_parquet(con, tmp)
             transform_logger.info("Baskets written: %d rows", rows)
-            # validate_baskets(tmp)
+            validate_baskets(tmp)
+            transform_logger.info("Baskets validated")
             tmp.replace(out_path)
         finally:
             tmp.unlink(missing_ok=True)

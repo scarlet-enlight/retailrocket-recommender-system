@@ -46,6 +46,7 @@ CREATE TABLE shop.users (
     username      VARCHAR(100) UNIQUE NOT NULL,
     email         VARCHAR(200) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
+    role_level    SMALLINT NOT NULL DEFAULT 0 CHECK (role_level BETWEEN 0 AND 2),
     created_at    TIMESTAMP NOT NULL DEFAULT NOW()
 );
 

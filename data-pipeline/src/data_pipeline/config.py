@@ -1,7 +1,7 @@
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from urllib.parse import quote_plus
+from urllib.parse import quote
 
 from dotenv import load_dotenv
 
@@ -19,8 +19,8 @@ class DBConfig:
 
     @property
     def connection_string(self) -> str:
-        user = quote_plus(self.user)
-        password = quote_plus(self.password)  # escapes special characters
+        user = quote(self.user, safe="")
+        password = quote(self.password, safe="")
         return f"postgresql://{user}:{password}@{self.host}:{self.port}/{self.name}"
 
 

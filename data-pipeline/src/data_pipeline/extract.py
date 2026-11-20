@@ -76,7 +76,7 @@ def extract_items(path: Path) -> pd.DataFrame:
     if not path.is_file():
         raise FileNotFoundError(f"items file not found: {path}")
 
-    extract_logger.info("Started extracting items...")
+    extract_logger.info(f"Started extracting items {path.name}...")
 
     chunks = []
     for chunk in pd.read_csv(

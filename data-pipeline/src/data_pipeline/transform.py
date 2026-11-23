@@ -71,7 +71,4 @@ def export_baskets_to_parquet(con: duckdb.DuckDBPyConnection, path: Path) -> int
 
 
 if __name__ == "__main__":
-    pg_dsn = f"host={db_config.host} port={db_config.port} dbname={db_config.name} user={db_config.user} password={db_config.password}"
-    out_path = BASKETS_PARQUET_PATH
-
-    run_transform(pg_dsn, out_path)
+    run_transform(db_config.connection_string, BASKETS_PARQUET_PATH)

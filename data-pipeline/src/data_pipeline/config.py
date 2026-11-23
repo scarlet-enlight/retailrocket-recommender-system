@@ -1,10 +1,12 @@
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
+from urllib.parse import quote
 
 from dotenv import load_dotenv
 
-load_dotenv()
+ROOT_DIR = Path(__file__).resolve().parents[3]  # repo root
+load_dotenv(ROOT_DIR / "database" / ".env")  # shared with ml-service and Docker
 
 
 @dataclass(frozen=True)
@@ -13,31 +15,35 @@ class DBConfig:
     port: int
     name: str
     user: str
-    password: str
+    password: str = field(repr=False)  # keeps the password out of print()/logs
 
     @property
     def connection_string(self) -> str:
-        return f"postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.name}"
+        user = quote(self.user, safe="")
+        password = quote(self.password, safe="")
+        return f"postgresql://{user}:{password}@{self.host}:{self.port}/{self.name}"
 
 
-# Database config
-DB_HOST = os.getenv("DB_HOST", "localhost")
-DB_PORT = int(os.getenv("DB_PORT", 5559))
-DB_NAME = os.getenv("DB_NAME", "retailrocket")
-DB_USER = os.getenv("DB_USER", "admin")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "admin")
+def _require_env(name: str) -> str:
+    value = os.getenv(name)
+    if not value:
+        raise RuntimeError(f"{name} is not set (see database/.env.example)")
+    return value
 
-db_config = DBConfig(DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD)
 
+db_config = DBConfig(
+    host=os.getenv("DB_HOST", "localhost"),
+    port=int(os.getenv("DB_HOST_PORT", "5559")),
+    name=os.getenv("DB_NAME", "retailrocket"),
+    user=os.getenv("DB_USER", "admin"),
+    password=_require_env("DB_PASSWORD"),
+)
 
 # Paths
-ROOT_DIR = Path(__file__).parent.parent.parent.parent
-
 RAW_DATA_DIR = ROOT_DIR / "data" / "raw"
 PROCESSED_DATA_DIR = ROOT_DIR / "data" / "processed"
 
-# DuckDB
-DUCKDB_PATH = PROCESSED_DATA_DIR / "retailrocket.duckdb"
+# Outpu
 BASKETS_PARQUET_PATH = PROCESSED_DATA_DIR / "baskets.parquet"
 
 # CSV files

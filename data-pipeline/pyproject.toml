@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.scripts]
-data-pipeline = "data_pipeline:main"
+data-pipeline = "data_pipeline.pipeline:main"
 
 [build-system]
 requires = ["uv_build>=0.12.19,<0.13.0"]

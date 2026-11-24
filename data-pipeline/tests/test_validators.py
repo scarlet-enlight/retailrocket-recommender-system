@@ -141,7 +141,7 @@ def test_too_few_baskets_raises(tmp_path, monkeypatch):
             """SELECT
                 'session_cart'::VARCHAR AS basket_type,
                 '1'::VARCHAR AS basket_id,
-                1::BIGINT AS item_id         
+                1::BIGINT AS item_id
             """,
             "types mismatched",
         ),

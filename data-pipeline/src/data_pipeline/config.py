@@ -19,16 +19,11 @@ class DBConfig:
 
     @property
     def connection_string(self) -> str:
+        if not self.password:
+            raise RuntimeError("DB_PASSWORD is not set (see database/.env.example)")
         user = quote(self.user, safe="")
         password = quote(self.password, safe="")
         return f"postgresql://{user}:{password}@{self.host}:{self.port}/{self.name}"
-
-
-def _require_env(name: str) -> str:
-    value = os.getenv(name)
-    if not value:
-        raise RuntimeError(f"{name} is not set (see database/.env.example)")
-    return value
 
 
 db_config = DBConfig(
@@ -36,14 +31,14 @@ db_config = DBConfig(
     port=int(os.getenv("DB_HOST_PORT", "5559")),
     name=os.getenv("DB_NAME", "retailrocket"),
     user=os.getenv("DB_USER", "admin"),
-    password=_require_env("DB_PASSWORD"),
+    password=os.getenv("DB_PASSWORD", ""),
 )
 
 # Paths
 RAW_DATA_DIR = ROOT_DIR / "data" / "raw"
 PROCESSED_DATA_DIR = ROOT_DIR / "data" / "processed"
 
-# Outpu
+# Output
 BASKETS_PARQUET_PATH = PROCESSED_DATA_DIR / "baskets.parquet"
 
 # CSV files

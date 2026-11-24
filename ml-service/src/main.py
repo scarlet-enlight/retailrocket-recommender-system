@@ -283,7 +283,11 @@ def trigger_retraining():
     and reload the in-memory recommendation cache.
     Requires a valid X-API-Key header matching ML_API_KEY.
     """
-    baskets = load_baskets()
+    try:
+        baskets = load_baskets()
+    except (ValueError, FileNotFoundError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
     df_rules = mine_association_rules(baskets)
 
     if df_rules.empty:

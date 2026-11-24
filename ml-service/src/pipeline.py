@@ -4,6 +4,7 @@ Core Apriori pipeline functions for loading shopping baskets and mining associat
 
 from pathlib import Path
 import sys
+import warnings
 import pandas as pd
 from mlxtend.preprocessing import TransactionEncoder
 from mlxtend.frequent_patterns import apriori, association_rules
@@ -20,6 +21,9 @@ from src.config import (
     MIN_LIFT,
 )
 
+VALID_BASKET_TYPES = ("session_cart", "transaction")
+REQUIRED_PARQUET_COLUMNS = {"basket_type", "basket_id", "item_id"}
+
 
 def load_baskets(
     processed_path: Path = PROCESSED_BASKETS_PATH,
@@ -27,57 +31,75 @@ def load_baskets(
     basket_type: str = BASKET_TYPE,
 ) -> list[list[int]]:
     """
-    Load multi-item shopping baskets from the processed Parquet file if available,
-    or fall back to building 24-hour session baskets from raw events.csv.
+    Load multi-item shopping baskets from the processed baskets.parquet file if available,
+    or fall back with a warning to building baskets from raw events.csv.
     """
-    # Check both 'baskets.parquet' and 'basket.parquet' in data/processed/
-    alt_parquet_path = processed_path.parent / "basket.parquet"
-    parquet_file = processed_path if processed_path.exists() else (
-        alt_parquet_path if alt_parquet_path.exists() else None
-    )
-
-    if parquet_file is not None:
-        print(f"[Pipeline] Loading processed baskets from: {parquet_file}")
-        df = pd.read_parquet(parquet_file)
-
-        # Filter by basket_type if the column exists
-        if "basket_type" in df.columns:
-            available_types = df["basket_type"].unique().tolist()
-            if basket_type in available_types:
-                df = df[df["basket_type"] == basket_type]
-            else:
-                # Automatically pick the session/cart type if named differently
-                non_tx = [t for t in available_types if "trans" not in str(t).lower() or "cart" in str(t).lower() or "session" in str(t).lower()]
-                chosen_type = non_tx[0] if non_tx else available_types[0]
-                print(f"[Pipeline] Using basket_type='{chosen_type}' (available: {available_types})")
-                df = df[df["basket_type"] == chosen_type]
-
-        # Extract baskets whether stored as item lists or flat (basket_id, item_id) rows
-        list_cols = [c for c in df.columns if c in ("items", "item_ids", "basket_items")]
-        if list_cols:
-            raw_baskets = [[int(i) for i in set(items)] for items in df[list_cols[0]]]
-        else:
-            basket_col = next(c for c in df.columns if c in ("basket_id", "session_id", "transaction_id"))
-            item_col = next(c for c in df.columns if c in ("item_id", "itemid"))
-            df[item_col] = df[item_col].astype(int)
-            raw_baskets = df.groupby(basket_col)[item_col].apply(lambda s: list(set(s))).tolist()
-
-    else:
-        print(f"[Pipeline] Processed Parquet not found. Falling back to raw CSV: {raw_path}")
-        events = pd.read_csv(raw_path)
-
-        # Filter addtocart and transaction events to capture full shopping intent
-        cart_events = events[events["event"].isin(["addtocart", "transaction"])].copy()
-        cart_events["date"] = pd.to_datetime(cart_events["timestamp"], unit="ms").dt.date
-        cart_events["itemid"] = cart_events["itemid"].astype(int)
-
-        # Deduplicate items within the same visitor 24h session
-        cart_events = cart_events[["visitorid", "date", "itemid"]].drop_duplicates()
-        cart_events["session_id"] = (
-            cart_events["visitorid"].astype(str) + "_" + cart_events["date"].astype(str)
+    if basket_type not in VALID_BASKET_TYPES:
+        raise ValueError(
+            f"Unknown basket_type '{basket_type}'. Expected one of: {list(VALID_BASKET_TYPES)}"
         )
 
-        raw_baskets = cart_events.groupby("session_id")["itemid"].apply(list).tolist()
+    if processed_path.exists():
+        print(f"[Pipeline] Loading processed baskets from: {processed_path}")
+        df = pd.read_parquet(processed_path)
+
+        missing_cols = REQUIRED_PARQUET_COLUMNS - set(df.columns)
+        if missing_cols:
+            raise ValueError(
+                f"Missing required columns in {processed_path.name}: {sorted(missing_cols)}"
+            )
+
+        available_types = df["basket_type"].unique().tolist()
+        if basket_type not in available_types:
+            raise ValueError(
+                f"Requested basket_type '{basket_type}' not found in {processed_path.name} "
+                f"(available: {available_types})"
+            )
+
+        df = df[df["basket_type"] == basket_type].copy()
+        df["item_id"] = df["item_id"].astype(int)
+        raw_baskets = (
+            df.groupby("basket_id")["item_id"].apply(lambda s: list(set(s))).tolist()
+        )
+
+    else:
+        warning_msg = (
+            f"Processed Parquet file not found at {processed_path}. "
+            f"Falling back to raw CSV ({raw_path}). "
+            "Run the data-pipeline transform stage to generate baskets.parquet."
+        )
+        print(f"[Pipeline] WARNING: {warning_msg}")
+        warnings.warn(warning_msg, UserWarning, stacklevel=2)
+
+        if not raw_path.exists():
+            raise FileNotFoundError(
+                f"Neither processed Parquet ({processed_path}) nor raw CSV ({raw_path}) exists."
+            )
+
+        events = pd.read_csv(raw_path)
+
+        if basket_type == "session_cart":
+            # Filter addtocart and transaction events to capture full shopping intent
+            cart_events = events[events["event"].isin(["addtocart", "transaction"])].copy()
+            cart_events["date"] = pd.to_datetime(cart_events["timestamp"], unit="ms").dt.date
+            cart_events["itemid"] = cart_events["itemid"].astype(int)
+
+            # Deduplicate items within the same visitor 24h session
+            cart_events = cart_events[["visitorid", "date", "itemid"]].drop_duplicates()
+            cart_events["session_id"] = (
+                cart_events["visitorid"].astype(str) + "_" + cart_events["date"].astype(str)
+            )
+            raw_baskets = cart_events.groupby("session_id")["itemid"].apply(list).tolist()
+        else:
+            tx_events = (
+                events[events["event"] == "transaction"]
+                .dropna(subset=["transactionid"])
+                .copy()
+            )
+            tx_events["transactionid"] = tx_events["transactionid"].astype(int)
+            tx_events["itemid"] = tx_events["itemid"].astype(int)
+            tx_events = tx_events[["transactionid", "itemid"]].drop_duplicates()
+            raw_baskets = tx_events.groupby("transactionid")["itemid"].apply(list).tolist()
 
     # Keep only baskets with at least 2 distinct items (single items cannot form pairs)
     multi_item_baskets = [b for b in raw_baskets if len(b) >= 2]

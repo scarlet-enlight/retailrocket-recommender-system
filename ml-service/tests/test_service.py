@@ -5,17 +5,21 @@ FastAPI endpoints, and Docker deployment settings.
 
 from pathlib import Path
 import sys
+import tempfile
 import unittest
 from unittest.mock import patch
 import uuid
+import warnings
 
 from fastapi import HTTPException
+import pandas as pd
 
 # Add ml-service root to sys.path
 ML_SERVICE_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ML_SERVICE_ROOT))
 
 import src.main as main_module
+from src.pipeline import load_baskets
 
 
 class TestMLServiceAndDockerConfig(unittest.TestCase):
@@ -90,6 +94,87 @@ class TestMLServiceAndDockerConfig(unittest.TestCase):
         # Ensure ml-service does not publish port 8000 to the host
         ml_section = compose_text.split("ml-service:", maxsplit=1)[1]
         self.assertNotIn("ports:", ml_section)
+
+    def test_load_baskets_rejects_unknown_or_missing_basket_type(self) -> None:
+        with self.assertRaises(ValueError) as ctx:
+            load_baskets(basket_type="invalid_type")
+        self.assertIn("Unknown basket_type", str(ctx.exception))
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            parquet_path = Path(tmp_dir) / "baskets.parquet"
+            df = pd.DataFrame({
+                "basket_type": ["session_cart", "session_cart"],
+                "basket_id": ["v1_2020-01-01", "v1_2020-01-01"],
+                "item_id": [101, 102],
+            })
+            df.to_parquet(parquet_path, index=False)
+
+            with self.assertRaises(ValueError) as missing_ctx:
+                load_baskets(processed_path=parquet_path, basket_type="transaction")
+            self.assertIn("Requested basket_type 'transaction' not found", str(missing_ctx.exception))
+
+        with patch.object(main_module, "load_baskets", side_effect=ValueError("Unknown basket_type 'bad'")):
+            with self.assertRaises(HTTPException) as train_ctx:
+                main_module.trigger_retraining()
+            self.assertEqual(train_ctx.exception.status_code, 422)
+            self.assertIn("Unknown basket_type", str(train_ctx.exception.detail))
+
+    def test_load_baskets_reads_baskets_parquet_and_warns_on_csv_fallback(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            parquet_path = tmp_path / "baskets.parquet"
+            alias_path = tmp_path / "basket.parquet"
+            raw_csv_path = tmp_path / "events.csv"
+
+            df_parquet = pd.DataFrame({
+                "basket_type": ["session_cart", "session_cart", "session_cart"],
+                "basket_id": ["b1", "b1", "b2_single"],
+                "item_id": [10, 20, 30],
+            })
+            df_parquet.to_parquet(parquet_path, index=False)
+
+            baskets = load_baskets(processed_path=parquet_path, raw_path=raw_csv_path)
+            self.assertEqual(len(baskets), 1)
+            self.assertEqual(set(baskets[0]), {10, 20})
+
+            # Remove baskets.parquet and leave only basket.parquet alias + events.csv
+            parquet_path.unlink()
+            df_parquet.to_parquet(alias_path, index=False)
+            pd.DataFrame({
+                "timestamp": [1433221332117, 1433221332118, 1433221332119],
+                "visitorid": [1, 1, 1],
+                "event": ["addtocart", "transaction", "transaction"],
+                "itemid": [100, 200, 300],
+                "transactionid": [None, 1.0, 1.0],
+            }).to_csv(raw_csv_path, index=False)
+
+            with warnings.catch_warnings(record=True) as caught:
+                warnings.simplefilter("always")
+                fallback_baskets = load_baskets(
+                    processed_path=parquet_path,
+                    raw_path=raw_csv_path,
+                    basket_type="session_cart",
+                )
+            self.assertEqual(len(fallback_baskets), 1)
+            self.assertEqual(set(fallback_baskets[0]), {100, 200, 300})
+            self.assertTrue(
+                any("Falling back to raw CSV" in str(w.message) for w in caught),
+                "Expected UserWarning when falling back to raw CSV",
+            )
+
+            with warnings.catch_warnings(record=True) as tx_caught:
+                warnings.simplefilter("always")
+                tx_fallback_baskets = load_baskets(
+                    processed_path=parquet_path,
+                    raw_path=raw_csv_path,
+                    basket_type="transaction",
+                )
+            self.assertEqual(len(tx_fallback_baskets), 1)
+            self.assertEqual(set(tx_fallback_baskets[0]), {200, 300})
+            self.assertTrue(
+                any("Falling back to raw CSV" in str(w.message) for w in tx_caught),
+                "Expected UserWarning when falling back to raw CSV for transaction baskets",
+            )
 
 
 if __name__ == "__main__":

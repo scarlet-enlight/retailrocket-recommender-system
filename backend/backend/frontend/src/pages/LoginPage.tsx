@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {Link, useLocation, useNavigate} from "react-router-dom";
+import PasswordInput from "../components/PasswordInput.tsx";
 import { getErrorMessage } from "../api/getErrorMessage.ts";
 import { useAuth } from "../auth/AuthContext.tsx";
 
@@ -51,15 +52,17 @@ const LoginPage = () => {
                            onChange={(e) => setEmail(e.target.value)}/>
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="password" className="form-label">Password:</label>
-                    <input type="password" id="password" className="form-control" name="password"
-                           placeholder="Your password" value={password} autoComplete="password" required
-                           onChange={(e) => setPassword(e.target.value)}/>
+                    <PasswordInput id={"password"}
+                                   label={"Password: "}
+                                   value={password}
+                                   onChange={setPassword}
+                                   autoComplete={"current-password"}
+                                   placeholder={"Your password"}/>
                 </div>
                 <div className="form-check mb-3">
                     <input type="checkbox" id="rememberMe" className="form-check-input" name="checkbox" checked={rememberMe}
                            onChange={(e) => setRememberMe(e.target.checked)}/>
-                    <label htmlFor="remember-me" className="form-check-label">Remember me</label>
+                    <label htmlFor="rememberMe" className="form-check-label">Remember me</label>
                 </div>
 
                 {error && <div className="alert alert-danger py-2" role="alert">{error}</div>}

@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from "react-router-dom";
+import { checkPasswordLength } from "../scripts/passwordValidator.ts";
 import api from "../api/axiosConfig.ts";
 import { getErrorMessage } from "../api/getErrorMessage.ts"
+import PasswordInput from "../components/PasswordInput.tsx";
 
 const RegisterPage: React.FC = () => {
     const [username, setUsername] = useState<string>("");
@@ -20,6 +22,10 @@ const RegisterPage: React.FC = () => {
 
         if (!username.trim() || !email.trim() || !password || !repeatPassword) {
             setError("All fields are required.");
+            return;
+        }
+        if (!checkPasswordLength(password) || !checkPasswordLength(repeatPassword)) {
+            setError("Passwords' length must be at least 16 characters. Meet only this criteria, seriously.");
             return;
         }
         if (password !== repeatPassword) {
@@ -47,7 +53,7 @@ const RegisterPage: React.FC = () => {
     return (
         <div className="register-card">
             <h1 className="h3 mb-4">Sign Up</h1>
-            <form onSubmit={handleRegister} noValidate>
+            <form onSubmit={handleRegister}>
                 <div className="mb-3">
                     <label htmlFor="username" className="form-label">Username: </label>
                     <input type="text" id="username" className="form-control" name="username"
@@ -61,32 +67,45 @@ const RegisterPage: React.FC = () => {
                            onChange={(e) => setEmail(e.target.value)} />
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="password" className="form-label">Password: </label>
-                    <input type="password" id="password" className="form-control" name="password"
-                           placeholder="Your new password" value={password} autoComplete="password" required
-                           onChange={(e) => setPassword(e.target.value)}/>
+                    <PasswordInput id={"password"}
+                                   label={"Password: "}
+                                   value={password}
+                                   onChange={setPassword}
+                                   autoComplete={"new-password"}
+                                   placeholder={"Your new password"}/>
+                    <div className="form-control mt-4 mb-4 text-bg-light">
+                        Passwords can be fun and creative without being stingy with requirements. We care about your safety and privacy
+                            so we just ask you a few things:
+                            <ul>
+                                <li>Password must have at least 16 characters long.</li>
+                                <li>Insert whatever characters and symbols you like - spaces, non-latin, own alphabet, etc.</li>
+                                <li>Make it creative but not easy to guess.</li>
+                            </ul>
+                    </div>
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="repeatPassword" className="form-label">Repeat password: </label>
-                    <input type="password" id="repeatPassword" className="form-control" name="repeatPassword"
-                           placeholder="Repeat new password" value={repeatPassword} autoComplete="repeatPassword" required
-                           onChange={(e) => setRepeatPassword(e.target.value)}/>
+                    <PasswordInput id={"repeatPassword"}
+                                   label={"Repeat Password: "}
+                                   value={repeatPassword}
+                                   onChange={setRepeatPassword}
+                                   autoComplete={"repeat-password"}
+                                   placeholder={"Repeat new password"}/>
                 </div>
                 <div className="form-check mb-3">
                     <input type="checkbox" id="allAgreements" className="form-check-input" value="allAgreements"></input>
-                    <label htmlFor="all-agreements" className="form-check-label">Check all agreements</label>
+                    <label htmlFor="allAgreements" className="form-check-label">Check all agreements</label>
                 </div>
                 <hr/>
                 <div className="form-check mb-3">
                     <input type="checkbox" id="tosAgreement" className="form-check-input" value="tosAgreement"
                            onChange={(e) => setAcceptedTos(e.target.checked)}></input>
-                    <label htmlFor="tos-agreement" className="form-check-label">
+                    <label htmlFor="tosAgreement" className="form-check-label">
                         <span className="text-danger">*</span> I agree that I've read and acknowledged policy of <Link to="/tos">RetailRocket's Terms of Service</Link>
                     </label>
                 </div>
                 <div className="form-check mb-3">
-                    <input type="checkbox" id="otherAgreement" className="form-check-input" value="otherAgreement"></input>
-                    <label htmlFor="other-agreements" className="form-check-label">Newsletter and other agreements here and below</label>
+                    <input type="checkbox" id="otherAgreements" className="form-check-input" value="otherAgreements"></input>
+                    <label htmlFor="otherAgreements" className="form-check-label">Newsletter and other agreements here and below</label>
                 </div>
                 <div className="form-check mb-3">
                     <span className="text-danger">*</span><span className="text-secondary"> Required agreements</span>

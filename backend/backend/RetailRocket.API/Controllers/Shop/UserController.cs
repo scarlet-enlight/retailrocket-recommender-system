@@ -30,21 +30,21 @@ public class UserController : ControllerBase
     private readonly HashGeneratorService _hashService;
     private readonly WebAccessSettings _settings;
     private readonly IMapper _mapper;
-    private readonly ILogger _logger;
+    private readonly ILogger<UserController> _logger;
 
     public UserController(
         UserService userService,
         JwtTokenService tokenService,
         IMailerService mailerService,
         HashGeneratorService hashService,
-        WebAccessSettings settings,
-        IMapper mapper, ILogger logger)
+        IOptions<WebAccessSettings> settings,
+        IMapper mapper, ILogger<UserController> logger)
     {
         _userService = userService;
         _tokenService = tokenService;
         _mailerService = mailerService;
         _hashService = hashService;
-        _settings = settings;
+        _settings = settings.Value;
         _mapper = mapper;
         _logger = logger;
     }

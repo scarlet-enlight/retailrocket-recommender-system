@@ -9,7 +9,7 @@ public class VisitorConfiguration : IEntityTypeConfiguration<Visitor>
     public void Configure(EntityTypeBuilder<Visitor> builder)
     {
         builder.ToTable("visitors", "historical");
-        builder.HasKey(t => t.VisitorId);
-        builder.Property(t => t.VisitorId).ValueGeneratedOnAdd();
+        builder.HasKey(t => t.visitor_id);
+        builder.Property(t => t.visitor_id).ValueGeneratedOnAdd();
     }
 }

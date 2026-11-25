@@ -9,9 +9,9 @@ public class ItemConfiguration : IEntityTypeConfiguration<Item>
     public void Configure(EntityTypeBuilder<Item> builder)
     {
         builder.ToTable("items", "historical");
-        builder.HasKey(i => i.ItemId);
-        builder.Property(i => i.ItemId).ValueGeneratedOnAdd();
-        builder.HasOne(i => i.Category).WithMany().HasForeignKey(i => i.CategoryId);
-        builder.Property(i => i.IsAvailable).IsRequired();
+        builder.HasKey(i => i.item_id);
+        builder.Property(i => i.item_id).ValueGeneratedOnAdd();
+        builder.HasOne(i => i.category).WithMany().HasForeignKey(i => i.category_id);
+        builder.Property(i => i.available).IsRequired();
     }
 }

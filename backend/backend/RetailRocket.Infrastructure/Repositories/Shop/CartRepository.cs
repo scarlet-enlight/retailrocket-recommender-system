@@ -16,15 +16,15 @@ public class CartRepository : ICartRepository
 
     public async Task<Cart?> GetByIdAsync(Guid id) => 
         await  _dbContext.Carts
-            .Include(c => c.User)
-            .Include(c => c.Product).ThenInclude(p => p.Item).ThenInclude(i => i.Category).ThenInclude(c => c.ParentCategory)
-            .FirstOrDefaultAsync(c => c.CartId == id);
+            .Include(c => c.user)
+            .Include(c => c.product).ThenInclude(p => p.item).ThenInclude(i => i.category).ThenInclude(c => c.parent_category)
+            .FirstOrDefaultAsync(c => c.cart_id == id);
     
     public async Task<IEnumerable<Cart>> GetByUserIdAsync(Guid id) =>
         await  _dbContext.Carts
-            .Include(c => c.User)
-            .Include(c => c.Product).ThenInclude(p => p.Item).ThenInclude(i => i.Category).ThenInclude(c => c.ParentCategory)
-            .Where(c => c.UserId == id)
+            .Include(c => c.user)
+            .Include(c => c.product).ThenInclude(p => p.item).ThenInclude(i => i.category).ThenInclude(c => c.parent_category)
+            .Where(c => c.user_id == id)
             .ToListAsync();
 
     public async Task AddAsync(Cart cart)

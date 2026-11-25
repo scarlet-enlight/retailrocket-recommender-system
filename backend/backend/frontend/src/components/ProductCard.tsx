@@ -9,7 +9,7 @@ export default function ProductCard({ product }: {product: Product }) {
 
     return (
         <article className="product-card position-relative d-flex flex-column">
-            <div className="ration ratio-16x9 border-bottom">
+            <div className="ratio ratio-4x3 border-bottom">
                 <img
                     src={src}
                     alt={product.name}

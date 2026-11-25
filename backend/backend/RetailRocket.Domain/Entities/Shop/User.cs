@@ -2,21 +2,22 @@
 
 public class User
 {
-    public Guid UserId { get; }
-    public string Username { get; private set; }
-    public string Email { get; private set; }
-    public string PasswordHash { get; private set; }
-    public DateTime CreatedAt { get; }
+    public Guid user_id { get; }
+    public string username { get; private set; }
+    public string email { get; private set; }
+    public string password_hash { get; private set; }
+    public string role_level { get; private set; }
+    public DateTime created_at { get; }
     
-    public User(string username, string email, string passwordHash)
+    public User(string username, string email, string password_hash)
     {
-        Username = username;
-        Email = email;
-        PasswordHash = passwordHash;
+        this.username = username;
+        this.email = email;
+        this.password_hash = password_hash;
     }
     
-    public void UpdateEmail(string email) => Email = email;
-    public void UpdateUsername(string username) => Username = username;
+    public void UpdateEmail(string email) => this.email = email;
+    public void UpdateUsername(string username) => this.username = username;
 
-    public void UpdatePassword(string passwordHash) => PasswordHash = passwordHash;
+    public void UpdatePassword(string password_hash) => this.password_hash = password_hash;
 }

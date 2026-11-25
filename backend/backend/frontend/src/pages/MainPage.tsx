@@ -11,18 +11,20 @@ const MainPage = () => {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        const controller = new AbortController();
         setLoading(true);
         setError(null);
 
-        getRandomProducts()
+        getRandomProducts(controller.signal)
             .then(setProducts)
-            .catch((error) => {
-                if (axios.isCancel(error)) return;
-                setError(getErrorMessage(error));
+            .catch((err) => {
+                if (axios.isCancel(err)) return;
+                setError(getErrorMessage(err));
             })
             .finally(() => {
-                setLoading(false);
+                if (!controller.signal.aborted) setLoading(false);
             });
+        return () => controller.abort();
     }, []);
 
     return (

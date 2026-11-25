@@ -20,15 +20,15 @@ public class UserRepository : IUserRepository
     
     public async Task<User?> GetByIdAsync(Guid id) => 
         await _dbContext.Users
-            .FirstOrDefaultAsync(u => u.UserId == id);
+            .FirstOrDefaultAsync(u => u.user_id == id);
     
     public async Task<User?> GetByUsernameAsync(string username) =>
         await _dbContext.Users
-            .FirstOrDefaultAsync(u => u.Username == username);
+            .FirstOrDefaultAsync(u => u.username == username);
     
     public async Task<User?> GetByEmailAsync(string email) =>
         await _dbContext.Users
-            .FirstOrDefaultAsync(u => u.Email == email);
+            .FirstOrDefaultAsync(u => u.email == email);
 
 
     public async Task AddAsync(User user)

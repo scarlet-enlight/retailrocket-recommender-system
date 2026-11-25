@@ -2,14 +2,14 @@
 
 public class Item
 {
-    public int ItemId { get; }
-    public int CategoryId { get; private set; }
-    public Category? Category { get; private set; }
-    public bool IsAvailable { get; private set;  }
+    public int item_id { get; }
+    public int category_id { get; private set; }
+    public Category? category { get; private set; }
+    public bool available { get; private set;  }
 
-    public Item(int categoryId, bool isAvailable)
+    public Item(int category_id, bool available)
     {
-        CategoryId = categoryId;
-        IsAvailable = isAvailable;
+        this.category_id = category_id;
+        this.available = available;
     }
 }

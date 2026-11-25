@@ -10,6 +10,6 @@ public class CategoryShortMappingProfile : Profile
     {
         CreateMap<Category, CategoryShortDto>()
             .ForMember(dest => dest.ParentCategory,
-                opt => opt.MapFrom(src => src.ParentCategory));
+                opt => opt.MapFrom(src => src.parent_category));
     }
 }

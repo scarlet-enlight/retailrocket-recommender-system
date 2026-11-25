@@ -9,13 +9,13 @@ public class RecommendationRuleConfiguration : IEntityTypeConfiguration<Recommen
     public void Configure(EntityTypeBuilder<RecommendationRule> builder)
     {
         builder.ToTable("recommendation_rules", "ml");
-        builder.HasKey(rr => rr.RecommendationRuleId);
-        builder.Property(rr => rr.RecommendationRuleId).HasColumnType("uuid").ValueGeneratedOnAdd();
-        builder.HasOne(rr => rr.IfItem).WithMany().HasForeignKey(rr => rr.IfItemId);
-        builder.HasOne(rr => rr.ThenItem).WithMany().HasForeignKey(rr => rr.ThenItemId);
-        builder.Property(rr => rr.Support);
-        builder.Property(rr => rr.Confidence);
-        builder.Property(rr => rr.Lift);
-        builder.Property(rr => rr.CreatedAt).HasDefaultValueSql("NOW()");
+        builder.HasKey(rr => rr.recommendation_rule_id);
+        builder.Property(rr => rr.recommendation_rule_id).HasColumnType("uuid").ValueGeneratedOnAdd();
+        builder.HasOne(rr => rr.if_item).WithMany().HasForeignKey(rr => rr.if_item_id);
+        builder.HasOne(rr => rr.then_item).WithMany().HasForeignKey(rr => rr.then_item_id);
+        builder.Property(rr => rr.support);
+        builder.Property(rr => rr.confidence);
+        builder.Property(rr => rr.lift);
+        builder.Property(rr => rr.created_at).HasDefaultValueSql("NOW()");
     }
 }

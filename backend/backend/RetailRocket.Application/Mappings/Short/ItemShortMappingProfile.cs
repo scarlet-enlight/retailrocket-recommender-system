@@ -10,6 +10,6 @@ public class ItemShortMappingProfile : Profile
     {
         CreateMap<Item, ItemShortDto>()
             .ForMember(dest => dest.Category,
-                opt => opt.MapFrom(src => src.Category));
+                opt => opt.MapFrom(src => src.category));
     }
 }

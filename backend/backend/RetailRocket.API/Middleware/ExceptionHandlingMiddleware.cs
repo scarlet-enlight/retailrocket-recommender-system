@@ -21,57 +21,39 @@ public class ExceptionHandlingMiddleware
         {
             await _next(context);
         }
+        catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested)
+        {
+            _logger.LogWarning("Multiple error/warnings in queue.");
+        }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled error has occured.");
-            await HandleExceptionAsync(context, ex);
+            var (status, message) = Map(ex);
+            
+            if ((int)status >= 500)
+                _logger.LogError(ex, "Unhandled error on {Path}", context.Request.Path);
+            else
+                _logger.LogWarning("{Type} -> {Status}: {Message}", ex.GetType().Name, (int)status, message);
+            
+            if (context.Response.HasStarted) return;
+
+            context.Response.StatusCode = (int)status;
+            await context.Response.WriteAsJsonAsync(new { statusCode = (int)status, message });
         }
     }
 
-    public async Task HandleExceptionAsync(HttpContext context, Exception exception)
+    private static (HttpStatusCode Status, string Message) Map(Exception ex) => ex switch
     {
-        context.Response.ContentType = "application/json";
-
-        var response = exception switch
-        {
-            ValidationException => ( // 400 for no/bad data
-                StatusCode: HttpStatusCode.BadRequest,
-                Message: exception.Message
-            ),
-            AuthenticationException => ( // 401 for non-logged users
-                StatusCode: HttpStatusCode.Unauthorized,
-                Message: exception.Message
-            ),
-            NotFoundException => ( // 404 for entities
-                StatusCode: HttpStatusCode.NotFound,
-                Message: exception.Message
-                ),
-            ArgumentException => ( // default 400
-                    StatusCode: HttpStatusCode.BadRequest,
-                    Message: exception.Message
-                ),
-            UnauthorizedAccessException => ( // default 401
-                    StatusCode: HttpStatusCode.Unauthorized,
-                    Message: exception.Message
-                ),
-            KeyNotFoundException => ( // default 404
-                StatusCode: HttpStatusCode.NotFound,
-                Message: exception.Message
-                ),
-            _ => (
-                StatusCode: HttpStatusCode.InternalServerError, // default 500
-                Message: "An unexcepted error has occured."
-                ),
-        };
         
-        context.Response.StatusCode = (int)response.StatusCode;
-
-        var json = JsonSerializer.Serialize(new
-        {
-            statusCode = context.Response.StatusCode,
-            message = response.Message
-        });
-        
-        await context.Response.WriteAsync(json);
-    }
+        ValidationException => (HttpStatusCode.BadRequest, ex.Message),
+        AuthenticationException => (HttpStatusCode.Unauthorized, ex.Message),
+        AuthorizationException => (HttpStatusCode.Forbidden, ex.Message),
+        BannedUserException => (HttpStatusCode.Forbidden, ex.Message),
+        NotFoundException => (HttpStatusCode.NotFound, ex.Message),
+        EntityConflictException => (HttpStatusCode.Conflict, ex.Message),
+        EmailDeliveryException => (HttpStatusCode.ServiceUnavailable,
+            "Mail service temporarily unavailable. Please try again later."),
+        TimeoutException => (HttpStatusCode.ServiceUnavailable,
+            "Service temporarily unavailable. Please try again later."),
+        _ => (HttpStatusCode.InternalServerError, "An unexpected error has occurred.")
+    };
 }

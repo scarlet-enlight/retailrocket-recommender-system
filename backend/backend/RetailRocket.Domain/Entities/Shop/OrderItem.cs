@@ -2,18 +2,18 @@
 
 public class OrderItem
 {
-    public Guid OrderId { get; private set; }
-    public Guid ProductId { get; private set; }
-    public Order? Order { get; private set; }
-    public Product? Product { get; private set; }
-    public uint Quantity { get; private set; }
-    public decimal Price { get; private set; }
+    public Guid order_id { get; private set; }
+    public Guid product_id { get; private set; }
+    public Order? order { get; private set; }
+    public Product? product { get; private set; }
+    public uint quantity { get; private set; }
+    public decimal price { get; private set; }
 
-    public OrderItem(Guid orderId, Guid productId, uint quantity, decimal price)
+    public OrderItem(Guid order_id, Guid product_id, uint quantity, decimal price)
     {
-        OrderId = orderId;
-        ProductId = productId;
-        Quantity = quantity;
-        Price = price;
+        this.order_id = order_id;
+        this.product_id = product_id;
+        this.quantity = quantity;
+        this.price = price;
     }
 }

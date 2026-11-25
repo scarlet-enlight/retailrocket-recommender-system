@@ -65,8 +65,8 @@ public class OrderController : ControllerBase
         var order = new Order(userId, 500);
         await _orderService.AddOrderAsync(order);
 
-        var created = await _orderService.GetOrderAsync(order.OrderId);
-        return CreatedAtAction(nameof(GetById), new { id = created!.OrderId },
+        var created = await _orderService.GetOrderAsync(order.order_id);
+        return CreatedAtAction(nameof(GetById), new { id = created!.order_id },
             _mapper.Map<OrderResponseDto>(created));
     }
 

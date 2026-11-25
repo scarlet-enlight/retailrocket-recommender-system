@@ -1,23 +1,22 @@
 ﻿using System.Numerics;
-using RetailRocket.Domain.Entities.Enums;
-    
+
 namespace RetailRocket.Domain.Entities.Historical;
 
 public class Event
 {
-    public int EventId { get; }
-    public int? VisitorId { get; set; }
-    public Visitor? Visitor { get; set; }
-    public int? ItemId { get; set; }
-    public Item? Item { get; set; }
-    public string? EventType { get; private set; }
-    public long Timestamp { get; }
+    public int event_id { get; }
+    public int? visitor_id { get; set; }
+    public Visitor? visitor { get; set; }
+    public int? item_id { get; set; }
+    public Item? item { get; set; }
+    public string? event_type { get; private set; }
+    public BigInteger ts { get; }
 
-    public Event(int? visitorId, int? itemId, string eventType, long timestamp)
+    public Event(int? visitor_id, int? item_id, string event_type, BigInteger ts)
     {
-        VisitorId = visitorId;
-        ItemId = itemId;
-        EventType = eventType;
-        Timestamp = timestamp;
+        this.visitor_id = visitor_id;
+        this.item_id = item_id;
+        this.event_type = event_type;
+        this.ts = ts;
     }
 }

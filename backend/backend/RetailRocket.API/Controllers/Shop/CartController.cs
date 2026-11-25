@@ -76,8 +76,8 @@ public class CartController : ControllerBase
         var cart = new Cart(userId, createRequestDto.ProductId, (uint)createRequestDto.Quantity);
         await _cartService.AddCartAsync(cart);
 
-        var created = await _cartService.GetCartAsync(cart.CartId);
-        return CreatedAtAction(nameof(GetById), new { id = cart.CartId },
+        var created = await _cartService.GetCartAsync(cart.cart_id);
+        return CreatedAtAction(nameof(GetById), new { id = cart.cart_id },
             _mapper.Map<CartResponseDto>(created));
     }
 

@@ -74,8 +74,8 @@ public class ProductController : ControllerBase
         var product = new Product(createRequestDto.ItemId, createRequestDto.Name, createRequestDto.Price, createRequestDto.CategoryId);
         await _productService.CreateProductAsync(product);
         
-        var created = await _productService.GetProductAsync(product.ProductId);
-        return CreatedAtAction(nameof(GetById), new { id = created!.ProductId },
+        var created = await _productService.GetProductAsync(product.product_id);
+        return CreatedAtAction(nameof(GetById), new { id = created!.product_id },
             _mapper.Map<ProductResponseDto>(created));
     }
 

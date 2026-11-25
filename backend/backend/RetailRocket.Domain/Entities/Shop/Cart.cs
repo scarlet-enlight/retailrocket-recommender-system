@@ -2,22 +2,22 @@
 
 public class Cart
 {
-    public Guid CartId { get; }
-    public Guid UserId { get; private set; }
-    public User User { get; set; }
-    public Guid ProductId { get; private set; }
-    public Product Product { get; set; }
-    public uint Quantity { get; private set; }
-    public DateTime AddedAt { get; }
+    public Guid cart_id { get; }
+    public Guid user_id { get; private set; }
+    public User user { get; set; }
+    public Guid product_id { get; private set; }
+    public Product product { get; set; }
+    public uint quantity { get; private set; }
+    public DateTime added_at { get; }
 
-    public Cart(Guid userId, Guid productId, uint quantity)
+    public Cart(Guid user_id, Guid product_id, uint quantity)
     {
-        UserId = userId;
-        ProductId = productId;
-        Quantity = quantity;
+        this.user_id = user_id;
+        this.product_id = product_id;
+        this.quantity = quantity;
     }
 
     // not sure about updating those values (needs to update also Product)
-    public void UpdateProduct(Guid productId) => ProductId = productId;
-    public void UpdateQuantity(uint quantity) => Quantity = quantity;
+    public void UpdateProduct(Guid product_id) => this.product_id = product_id;
+    public void UpdateQuantity(uint quantity) => this.quantity = quantity;
 }

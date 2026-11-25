@@ -2,14 +2,14 @@
 
 public class Category
 {
-    public int CategoryId { get; }
-    public int? ParentCategoryId { get; private set; }
-    public Category? ParentCategory { get; private set; }
-    public string? Name { get; private set; }
+    public int category_id { get; }
+    public int? parent_id { get; private set; }
+    public Category? parent_category { get; private set; }
+    public string? name { get; private set; }
 
-    public Category(int? parentCategoryId, string? name)
+    public Category(int? parent_id, string? name)
     {
-        ParentCategoryId = parentCategoryId;
-        Name = name;
+        this.parent_id = parent_id;
+        this.name = name;
     }
 }

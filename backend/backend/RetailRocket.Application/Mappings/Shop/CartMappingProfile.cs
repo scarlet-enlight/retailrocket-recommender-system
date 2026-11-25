@@ -10,8 +10,8 @@ public class CartMappingProfile : Profile
     {
         CreateMap<Cart, CartResponseDto>()
             .ForMember(dest => dest.User,
-                opt => opt.MapFrom(src => src.User))
+                opt => opt.MapFrom(src => src.user))
             .ForMember(dest => dest.Product,
-                opt => opt.MapFrom(src => src.Product));
+                opt => opt.MapFrom(src => src.product));
     }
 }

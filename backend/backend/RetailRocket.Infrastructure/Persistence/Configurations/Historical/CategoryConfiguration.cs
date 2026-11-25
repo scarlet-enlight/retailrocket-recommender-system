@@ -9,8 +9,8 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
     public void Configure(EntityTypeBuilder<Category> builder)
     {
         builder.ToTable("categories", "historical");
-        builder.HasKey(c => c.CategoryId);
-        builder.Property(c => c.CategoryId).ValueGeneratedOnAdd();
-        builder.HasOne(c => c.ParentCategory).WithMany().HasForeignKey(c => c.ParentCategoryId);
+        builder.HasKey(c => c.category_id);
+        builder.Property(c => c.category_id).ValueGeneratedOnAdd();
+        builder.HasOne(c => c.parent_category).WithMany().HasForeignKey(c => c.parent_id);
     }
 }

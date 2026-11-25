@@ -9,10 +9,10 @@ public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
     public void Configure(EntityTypeBuilder<OrderItem> builder)
     {
         builder.ToTable("order_items", "shop");
-        builder.HasKey(oi => new {oi.OrderId, oi.ProductId});
-        builder.HasOne(oi => oi.Order).WithMany().HasForeignKey(o => o.OrderId);
-        builder.HasOne(oi => oi.Product).WithMany().HasForeignKey(o => o.ProductId);
-        builder.Property(oi => oi.Quantity);
-        builder.Property(oi => oi.Price).HasColumnType("decimal(10,2)");
+        builder.HasKey(oi => new {oi.order_id, oi.product_id});
+        builder.HasOne(oi => oi.order).WithMany().HasForeignKey(o => o.order_id);
+        builder.HasOne(oi => oi.product).WithMany().HasForeignKey(o => o.product_id);
+        builder.Property(oi => oi.quantity);
+        builder.Property(oi => oi.price).HasColumnType("decimal(10,2)");
     }
 }

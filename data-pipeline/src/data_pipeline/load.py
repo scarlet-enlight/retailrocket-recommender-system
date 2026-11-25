@@ -309,13 +309,7 @@ def check_count(cur: cursor, table: str, expected: int, loaded: int) -> None:
 if __name__ == "__main__":
     extracted_data = extract_all()
 
-    conn = psycopg2.connect(
-        host=db_config.host,
-        port=db_config.port,
-        dbname=db_config.name,
-        user=db_config.user,
-        password=db_config.password,
-    )
+    conn = psycopg2.connect(db_config.connection_string)
 
     try:
         load_historical(conn, extracted_data)

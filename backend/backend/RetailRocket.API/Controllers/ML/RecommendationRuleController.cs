@@ -101,8 +101,8 @@ public class RecommendationRuleController : ControllerBase
         await _recommendationRuleService.AddRecommendationRuleAsync(recommendationRule);
 
         var created =
-            await _recommendationRuleService.GetRecommendationRuleAsync(recommendationRule.RecommendationRuleId);
-        return CreatedAtAction(nameof(GetById), new { id = created!.RecommendationRuleId },
+            await _recommendationRuleService.GetRecommendationRuleAsync(recommendationRule.recommendation_rule_id);
+        return CreatedAtAction(nameof(GetById), new { id = created!.recommendation_rule_id },
             _mapper.Map<RecommendationRuleResponseDto>(created)); 
     }
     
@@ -129,7 +129,7 @@ public class RecommendationRuleController : ControllerBase
         {
             if (updateRequestDto.Support < 0 || updateRequestDto.Support > 1)
                 throw new ValidationException("Support must be between 0 and 1.");
-            if (HasChanged(updateRequestDto.Support, recommendationRule.Support))
+            if (HasChanged(updateRequestDto.Support, recommendationRule.support))
                 recommendationRule.UpdateSupportValue(updateRequestDto.Support);
         }
 
@@ -137,7 +137,7 @@ public class RecommendationRuleController : ControllerBase
         {
             if (updateRequestDto.Confidence < 0 || updateRequestDto.Confidence > 1)
                 throw new ValidationException("Confidence must be between 0 and 1.");
-            if (HasChanged(updateRequestDto.Confidence, recommendationRule.Confidence))
+            if (HasChanged(updateRequestDto.Confidence, recommendationRule.confidence))
                 recommendationRule.UpdateConfidenceValue(updateRequestDto.Confidence);
         }
 
@@ -145,7 +145,7 @@ public class RecommendationRuleController : ControllerBase
         {
             if (updateRequestDto.Lift < 0)
                 throw new ValidationException("Lift must be greater than 0.");
-            if (HasChanged(updateRequestDto.Lift, recommendationRule.Lift))
+            if (HasChanged(updateRequestDto.Lift, recommendationRule.lift))
                 recommendationRule.UpdateLiftValue(updateRequestDto.Lift);
         }
         

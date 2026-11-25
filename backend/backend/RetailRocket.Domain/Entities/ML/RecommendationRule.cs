@@ -4,28 +4,28 @@ namespace RetailRocket.Domain.Entities.ML;
 
 public class RecommendationRule
 {
-    public Guid RecommendationRuleId { get; }
-    public int IfItemId { get; private set; }
-    public Item? IfItem { get; set; }
-    public int ThenItemId { get; private set;  }
-    public Item? ThenItem { get; set; }
-    public double Support { get; private set; }
-    public double Confidence { get; private set; }
-    public double Lift { get; private set; }
-    public DateTime CreatedAt { get; }
+    public Guid recommendation_rule_id { get; }
+    public int if_item_id { get; private set; }
+    public Item? if_item { get; set; }
+    public int then_item_id { get; private set;  }
+    public Item? then_item { get; set; }
+    public double support { get; private set; }
+    public double confidence { get; private set; }
+    public double lift { get; private set; }
+    public DateTime created_at { get; }
 
-    public RecommendationRule(int ifItemId, int thenItemId, double support, double confidence, double lift)
+    public RecommendationRule(int if_item_id, int then_item_id, double support, double confidence, double lift)
     {
-        IfItemId = ifItemId;
-        ThenItemId = thenItemId;
-        Support = support;
-        Confidence = confidence;
-        Lift = lift;
+        this.if_item_id = if_item_id;
+        this.then_item_id = then_item_id;
+        this.support = support;
+        this.confidence = confidence;
+        this.lift = lift;
     }
 
-    public void UpdateRequiredItem(int itemId) =>  IfItemId = itemId;
-    public void UpdateTargetItem(int itemId) =>  ThenItemId = itemId;
-    public void UpdateSupportValue(double? support) =>  Support = support.GetValueOrDefault();
-    public void UpdateConfidenceValue(double? confidence) =>  Confidence = confidence.GetValueOrDefault();
-    public void UpdateLiftValue(double? lift) =>  Lift = lift.GetValueOrDefault();
+    public void UpdateRequiredItem(int if_item_id) =>  this.if_item_id = if_item_id;
+    public void UpdateTargetItem(int then_item_id) =>  this.then_item_id = then_item_id;
+    public void UpdateSupportValue(double? support) =>  this.support = support.GetValueOrDefault();
+    public void UpdateConfidenceValue(double? confidence) =>  this.confidence = confidence.GetValueOrDefault();
+    public void UpdateLiftValue(double? lift) =>  this.lift = lift.GetValueOrDefault();
 }

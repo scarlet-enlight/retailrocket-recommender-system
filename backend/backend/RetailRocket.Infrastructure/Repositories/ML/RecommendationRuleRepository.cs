@@ -16,28 +16,28 @@ public class RecommendationRuleRepository : IRecommendationRuleRepository
 
     public async Task<RecommendationRule?> GetByIdAsync(Guid id) =>
         await _dbContext.RecommendationRules
-            .Include(rr => rr.IfItem).ThenInclude(i => i.Category).ThenInclude(c => c.ParentCategory)
-            .Include(rr => rr.ThenItem).ThenInclude(i => i.Category).ThenInclude(c => c.ParentCategory)
-            .FirstOrDefaultAsync(rr => rr.RecommendationRuleId == id);
+            .Include(rr => rr.if_item).ThenInclude(i => i.category).ThenInclude(c => c.parent_category)
+            .Include(rr => rr.then_item).ThenInclude(i => i.category).ThenInclude(c => c.parent_category)
+            .FirstOrDefaultAsync(rr => rr.recommendation_rule_id == id);
 
     public async Task<IEnumerable<RecommendationRule>> GetAllAsync() =>
         await _dbContext.RecommendationRules
-            .Include(rr => rr.IfItem).ThenInclude(i => i.Category).ThenInclude(c => c.ParentCategory)
-            .Include(rr => rr.ThenItem).ThenInclude(i => i.Category).ThenInclude(c => c.ParentCategory)
+            .Include(rr => rr.if_item).ThenInclude(i => i.category).ThenInclude(c => c.parent_category)
+            .Include(rr => rr.then_item).ThenInclude(i => i.category).ThenInclude(c => c.parent_category)
             .ToListAsync();
     
     public async Task<IEnumerable<RecommendationRule>> GetByIfItemIdAsync(int ifItemId) =>
         await _dbContext.RecommendationRules
-            .Include(rr => rr.IfItem).ThenInclude(i => i.Category).ThenInclude(c => c.ParentCategory)
-            .Include(rr => rr.ThenItem).ThenInclude(i => i.Category).ThenInclude(c => c.ParentCategory)
-            .Where(rr => rr.IfItemId == ifItemId)
+            .Include(rr => rr.if_item).ThenInclude(i => i.category).ThenInclude(c => c.parent_category)
+            .Include(rr => rr.then_item).ThenInclude(i => i.category).ThenInclude(c => c.parent_category)
+            .Where(rr => rr.if_item_id == ifItemId)
             .ToListAsync();
     
     public async Task<IEnumerable<RecommendationRule>> GetByThenItemIdAsync(int thenItemId) =>
         await _dbContext.RecommendationRules
-            .Include(rr => rr.IfItem).ThenInclude(i => i.Category).ThenInclude(c => c.ParentCategory)
-            .Include(rr => rr.ThenItem).ThenInclude(i => i.Category).ThenInclude(c => c.ParentCategory)
-            .Where(rr => rr.ThenItemId == thenItemId)
+            .Include(rr => rr.if_item).ThenInclude(i => i.category).ThenInclude(c => c.parent_category)
+            .Include(rr => rr.then_item).ThenInclude(i => i.category).ThenInclude(c => c.parent_category)
+            .Where(rr => rr.then_item_id == thenItemId)
             .ToListAsync();
 
     public async Task AddAsync(RecommendationRule recommendationRule)

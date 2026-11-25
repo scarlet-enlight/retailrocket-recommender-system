@@ -2,7 +2,7 @@
 
 public class Visitor
 {
-    public int VisitorId { get; }
+    public int visitor_id { get; }
 
     public Visitor(){}
 }

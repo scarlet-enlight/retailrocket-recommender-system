@@ -2,19 +2,19 @@
 
 public class Order
 {
-    public Guid OrderId { get; }
-    public Guid UserId { get; private set; }
-    public User? User { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public decimal Total { get; private set; }
+    public Guid order_id { get; }
+    public Guid user_id { get; private set; }
+    public User? user { get; set; }
+    public DateTime created_at { get; set; }
+    public decimal total { get; private set; }
 
-    public Order(Guid userId, decimal total)
+    public Order(Guid user_id, decimal total)
     {
-        UserId = userId;
-        Total = total;
+        this.user_id = user_id;
+        this.total = total;
     }
     
-    public void UpdateTotal(decimal total) => Total = total;
+    public void UpdateTotal(decimal total) => this.total = total;
     
     // needs updating in terms of total price
 }

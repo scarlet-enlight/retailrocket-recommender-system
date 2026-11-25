@@ -33,8 +33,8 @@ public class AppDbContextSeeder
         
         var categories = new List<Category>
         {
-            new Category(root.CategoryId, "Kitchen Appliances"),
-            new Category(root.CategoryId, "Utensils"),
+            new Category(root.category_id, "Kitchen Appliances"),
+            new Category(root.category_id, "Utensils"),
         };
         
         await context.Categories.AddRangeAsync(categories);
@@ -45,8 +45,8 @@ public class AppDbContextSeeder
     {
         if (context.Events.Any()) return;
         
-        var visitorIds = context.Visitors.Select(v => v.VisitorId).ToList();
-        var itemIds = context.Items.Select(i => i.ItemId).ToList();
+        var visitorIds = context.Visitors.Select(v => v.visitor_id).ToList();
+        var itemIds = context.Items.Select(i => i.item_id).ToList();
 
         var events = new List<Event>
         {
@@ -63,7 +63,7 @@ public class AppDbContextSeeder
     {
         if (context.Items.Any()) return;
 
-        var categoryIds = context.Categories.Select(c => c.CategoryId).ToList();
+        var categoryIds = context.Categories.Select(c => c.category_id).ToList();
 
         var items = new List<Item>
         {
@@ -80,7 +80,7 @@ public class AppDbContextSeeder
     {
         if (context.Transactions.Any()) return;
         
-        var visitorIds = context.Visitors.Select(v => v.VisitorId).ToList();
+        var visitorIds = context.Visitors.Select(v => v.visitor_id).ToList();
         
         var transactions = new List<Transaction>
         {
@@ -97,8 +97,8 @@ public class AppDbContextSeeder
     {
         if (context.TransactionItems.Any()) return;
         
-        var transactionIds = context.Transactions.Select(t => t.TransactionId).ToList();
-        var itemIds = context.Items.Select(i => i.ItemId).ToList();
+        var transactionIds = context.Transactions.Select(t => t.transaction_id).ToList();
+        var itemIds = context.Items.Select(i => i.item_id).ToList();
 
         var transactionItems = new List<TransactionItem> 
         {
@@ -130,8 +130,8 @@ public class AppDbContextSeeder
     {
         if (context.RecommendationRules.Any()) return;
         
-        var ifItemIds =  context.Items.Select(i => i.ItemId).ToList();
-        var thenItemIds = context.Items.Select(i => i.ItemId).ToList();
+        var ifItemIds =  context.Items.Select(i => i.item_id).ToList();
+        var thenItemIds = context.Items.Select(i => i.item_id).ToList();
 
         var recommendationRules = new List<RecommendationRule>
         {
@@ -148,8 +148,8 @@ public class AppDbContextSeeder
     {
         if (context.Carts.Any()) return;
         
-        var userIds = context.Users.Select(u => u.UserId).ToList();
-        var productIds = context.Products.Select(p => p.ProductId).ToList();
+        var userIds = context.Users.Select(u => u.user_id).ToList();
+        var productIds = context.Products.Select(p => p.product_id).ToList();
 
         var carts = new List<Cart>
         {
@@ -166,7 +166,7 @@ public class AppDbContextSeeder
     {
         if (context.Orders.Any()) return;
         
-        var userIds = context.Users.Select(u => u.UserId).ToList();
+        var userIds = context.Users.Select(u => u.user_id).ToList();
 
         var orders = new List<Order>
         {
@@ -183,8 +183,8 @@ public class AppDbContextSeeder
     {
         if (context.OrderItems.Any()) return;
         
-        var orderIds = context.Orders.Select(o => o.OrderId).ToList();
-        var productIds = context.Products.Select(i => i.ProductId).ToList();
+        var orderIds = context.Orders.Select(o => o.order_id).ToList();
+        var productIds = context.Products.Select(i => i.product_id).ToList();
 
         var orderItems = new List<OrderItem>
         {
@@ -201,8 +201,8 @@ public class AppDbContextSeeder
     {
         if (context.Products.Any()) return;
         
-        var itemIds = context.Items.Select(i => i.ItemId).ToList();
-        var categoryIds = context.Categories.Select(c => c.CategoryId).ToList();
+        var itemIds = context.Items.Select(i => i.item_id).ToList();
+        var categoryIds = context.Categories.Select(c => c.category_id).ToList();
 
         var products = new List<Product>
         {

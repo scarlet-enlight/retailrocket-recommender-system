@@ -89,7 +89,11 @@ public class UserController : ControllerBase
         if (user is null)
             throw new UnauthorizedAccessException("Logging out. Redirecting to login page.");
         
-        return Ok(new { userId = user.UserId, username = user.Username });
+        return Ok(new
+        {
+            UserId = user.user_id,
+            Username = user.username
+        });
     }
 
     [AllowAnonymous]
@@ -116,8 +120,8 @@ public class UserController : ControllerBase
         var user = new User(createRequestDto.Username, createRequestDto.Email, hash);
         await _userService.AddUserAsync(user);
 
-        var created = await _userService.GetUserAsync(user.UserId);
-        return CreatedAtAction(nameof(GetById), new { id = created!.UserId },
+        var created = await _userService.GetUserAsync(user.user_id);
+        return CreatedAtAction(nameof(GetById), new { id = created!.user_id },
             _mapper.Map<UserResponseDto>(created));
     }
 
@@ -129,7 +133,7 @@ public class UserController : ControllerBase
             throw new ValidationException("Email and password are required.");
 
         var user = await _userService.GetUserByEmailAsync(dto.Email);
-        if (user is null || !PasswordHasherService.Verify(user.PasswordHash, dto.Password))
+        if (user is null || !PasswordHasherService.Verify(user.password_hash, dto.Password))
             throw new AuthenticationException("Invalid credentials.");
 
         var token = _tokenService.GenerateToken(user);
@@ -145,8 +149,8 @@ public class UserController : ControllerBase
 
         return Ok(new
         {
-            userId = user.UserId,
-            username = user.Username
+            UserId = user.user_id,
+            Username = user.username
         });
     }
 
@@ -209,7 +213,7 @@ public class UserController : ControllerBase
         if (user is null)
             throw new NotFoundException("User not found.");
 
-        if (updateRequestDto.Username == user.Username)
+        if (updateRequestDto.Username == user.username)
             throw new ValidationException("You cannot change your username.");
         
         if (!string.IsNullOrWhiteSpace(updateRequestDto.Username)) 

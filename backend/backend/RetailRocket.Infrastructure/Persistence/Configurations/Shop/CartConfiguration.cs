@@ -9,11 +9,11 @@ public class CartConfiguration : IEntityTypeConfiguration<Cart>
     public void Configure(EntityTypeBuilder<Cart> builder)
     {
         builder.ToTable("carts", "shop");
-        builder.HasKey(u => u.CartId);
-        builder.Property(u => u.CartId).HasColumnType("uuid").ValueGeneratedOnAdd();
-        builder.HasOne(u => u.User).WithMany().HasForeignKey(u => u.UserId);
-        builder.HasOne(u => u.Product).WithMany().HasForeignKey(u => u.ProductId);
-        builder.Property(u => u.Quantity).HasDefaultValue(1);
-        builder.Property(u => u.AddedAt).HasDefaultValueSql("NOW()");
+        builder.HasKey(u => u.cart_id);
+        builder.Property(u => u.cart_id).HasColumnType("uuid").ValueGeneratedOnAdd();
+        builder.HasOne(u => u.user).WithMany().HasForeignKey(u => u.user_id);
+        builder.HasOne(u => u.product).WithMany().HasForeignKey(u => u.product_id);
+        builder.Property(u => u.quantity).HasDefaultValue(1);
+        builder.Property(u => u.added_at).HasDefaultValueSql("NOW()");
     }
 }

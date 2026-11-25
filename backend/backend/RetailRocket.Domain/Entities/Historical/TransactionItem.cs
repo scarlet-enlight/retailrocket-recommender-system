@@ -2,14 +2,14 @@
 
 public class TransactionItem
 {
-    public int TransactionId { get; private set; }
-    public int ItemId { get; private set; }
-    public Transaction?  Transaction { get; private set; }
-    public Item? Item { get; private set; }
+    public int transaction_id { get; private set; }
+    public int item_id { get; private set; }
+    public Transaction? transaction { get; private set; }
+    public Item? item { get; private set; }
 
-    public TransactionItem(int transactionId, int itemId)
+    public TransactionItem(int transaction_id, int item_id)
     {
-        TransactionId = transactionId;
-        ItemId = itemId;
+        this.transaction_id = transaction_id;
+        this.item_id = item_id;
     }
 }

@@ -10,8 +10,8 @@ public class RecommendationRuleMappingProfile : Profile
     {
         CreateMap<RecommendationRule, RecommendationRuleResponseDto>()
             .ForMember(dest => dest.IfItem,
-                opt => opt.MapFrom(src => src.IfItem))
+                opt => opt.MapFrom(src => src.if_item))
             .ForMember(dest => dest.ThenItem,
-                opt => opt.MapFrom(src => src.ThenItem));
+                opt => opt.MapFrom(src => src.then_item));
     }
 }

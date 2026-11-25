@@ -3,24 +3,24 @@ namespace RetailRocket.Domain.Entities.Shop;
 
 public class Product
 {
-    public Guid ProductId { get; }
-    public int ItemId { get; private set; }
-    public Item Item { get; set; }
-    public string? Name { get; private set; }
-    public decimal? Price { get; private set; }
-    public int CategoryId { get; private set; }
-    public Category Category { get; set; }
+    public Guid product_id { get; }
+    public int item_id { get; private set; }
+    public Item item { get; set; }
+    public string? name { get; private set; }
+    public decimal? price { get; private set; }
+    public int category_id { get; private set; }
+    public Category category { get; set; }
 
-    public Product(int itemId, string? name, decimal? price, int categoryId)
+    public Product(int item_id, string? name, decimal? price, int category_id)
     {
-        ItemId = itemId;
-        Name = name;
-        Price = price;
-        CategoryId = categoryId;
+        this.item_id = item_id;
+        this.name = name;
+        this.price = price;
+        this.category_id = category_id;
     }
     
-    public void UpdateItem(int itemId) => ItemId = itemId;
-    public void UpdateName(string? name) => Name = name;
-    public void UpdatePrice(decimal? price) => Price = price;
-    public void UpdateCategory(int categoryId) => CategoryId = categoryId;
+    public void UpdateItem(int item_id) => this.item_id = item_id;
+    public void UpdateName(string? name) => this.name = name;
+    public void UpdatePrice(decimal? price) => this.price = price;
+    public void UpdateCategory(int category_id) => this.category_id = category_id;
 }

@@ -16,18 +16,18 @@ public class ProductRepository : IProductRepository
     
     public async Task<IEnumerable<Product>> GetAllAsync() =>
         await _dbContext.Products
-            .Include(p => p.Item).ThenInclude(i => i.Category).ThenInclude(c => c.ParentCategory)
+            .Include(p => p.item).ThenInclude(i => i.category).ThenInclude(c => c.parent_category)
             .ToListAsync();
     
     public async Task<Product?> GetByIdAsync(Guid id) => 
         await _dbContext.Products
-            .Include(p => p.Item).ThenInclude(i => i.Category).ThenInclude(c => c.ParentCategory)
-            .FirstOrDefaultAsync(p => p.ProductId == id);
+            .Include(p => p.item).ThenInclude(i => i.category).ThenInclude(c => c.parent_category)
+            .FirstOrDefaultAsync(p => p.product_id == id);
 
     public async Task<Product?> GetByNameAsync(string productName) =>
         await _dbContext.Products
-            .Include(p => p.Item).ThenInclude(i => i.Category).ThenInclude(c => c.ParentCategory)
-            .FirstOrDefaultAsync(p => p.Name == productName);
+            .Include(p => p.item).ThenInclude(i => i.category).ThenInclude(c => c.parent_category)
+            .FirstOrDefaultAsync(p => p.name == productName);
 
     public async Task AddAsync(Product product)
     {

@@ -11,8 +11,8 @@ public class DtoMapping
 
         return new CategoryShortDto
         {
-            Name = category.Name,
-            ParentCategory = MapCategory(category.ParentCategory)
+            Name = category.name,
+            ParentCategory = MapCategory(category.parent_category)
         };
     }
 }

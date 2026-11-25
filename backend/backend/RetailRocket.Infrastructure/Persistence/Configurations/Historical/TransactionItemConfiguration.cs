@@ -9,8 +9,8 @@ public class TransactionItemConfiguration : IEntityTypeConfiguration<Transaction
     public void Configure(EntityTypeBuilder<TransactionItem> builder)
     {
         builder.ToTable("transaction_items", "historical");
-        builder.HasKey(ti => new { ti.TransactionId, ti.ItemId });
-        builder.HasOne(ti => ti.Transaction).WithMany().HasForeignKey(ti => ti.TransactionId);
-        builder.HasOne(ti => ti.Item).WithMany().HasForeignKey(ti => ti.ItemId);
+        builder.HasKey(ti => new { ti.transaction_id, ti.item_id });
+        builder.HasOne(ti => ti.transaction).WithMany().HasForeignKey(ti => ti.transaction_id);
+        builder.HasOne(ti => ti.item).WithMany().HasForeignKey(ti => ti.item_id);
     }
 }

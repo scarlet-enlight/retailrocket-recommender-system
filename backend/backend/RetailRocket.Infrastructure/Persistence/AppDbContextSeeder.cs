@@ -27,14 +27,14 @@ public class AppDbContextSeeder
     {
         if (context.Categories.Any()) return;
 
-        var root = new Category(null, "Kitchen");
+        var root = new Category(1, null, "Kitchen");
         await context.Categories.AddRangeAsync(root);
         await context.SaveChangesAsync();
         
         var categories = new List<Category>
         {
-            new Category(root.category_id, "Kitchen Appliances"),
-            new Category(root.category_id, "Utensils"),
+            new Category(2, root.category_id, "Kitchen Appliances"),
+            new Category(3, root.category_id, "Utensils"),
         };
         
         await context.Categories.AddRangeAsync(categories);
@@ -67,9 +67,9 @@ public class AppDbContextSeeder
 
         var items = new List<Item>
         {
-            new Item(categoryIds[1], true),
-            new Item(categoryIds[2], true),
-            new Item(categoryIds[2], false)
+            new Item(3, categoryIds[1], true),
+            new Item(1, categoryIds[2], true),
+            new Item(2, categoryIds[2], false)
         };
         
         await context.Items.AddRangeAsync(items);
@@ -84,9 +84,9 @@ public class AppDbContextSeeder
         
         var transactions = new List<Transaction>
         {
-            new Transaction(visitorIds[1], DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()),
-            new Transaction(visitorIds[2], DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()),
-            new Transaction(visitorIds[0], DateTimeOffset.UtcNow.ToUnixTimeMilliseconds())
+            new Transaction(2, visitorIds[1], DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()),
+            new Transaction(3, visitorIds[2], DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()),
+            new Transaction(1, visitorIds[0], DateTimeOffset.UtcNow.ToUnixTimeMilliseconds())
         };
         
         await context.Transactions.AddRangeAsync(transactions);
@@ -117,9 +117,9 @@ public class AppDbContextSeeder
 
         var visitors = new List<Visitor>
         {
-            new Visitor(),
-            new Visitor(),
-            new Visitor()
+            new Visitor(1),
+            new Visitor(2),
+            new Visitor(3)
         };
         
         await context.Visitors.AddRangeAsync(visitors);

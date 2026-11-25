@@ -9,6 +9,9 @@ public class RecommendationRuleMappingProfile : Profile
 {
     public RecommendationRuleMappingProfile()
     {
+        SourceMemberNamingConvention = new LowerUnderscoreNamingConvention();
+        DestinationMemberNamingConvention = new PascalCaseNamingConvention();
+        
         CreateMap<RecommendationRule, RecommendationRuleResponseDto>()
             .ForMember(dest => dest.RecommendationRuleId,
                 opt => opt.MapFrom(src => src.rule_id))

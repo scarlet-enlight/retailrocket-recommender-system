@@ -8,6 +8,9 @@ public class OrderMappingProfile : Profile
 {
     public OrderMappingProfile()
     {
+        SourceMemberNamingConvention = new LowerUnderscoreNamingConvention();
+        DestinationMemberNamingConvention = new PascalCaseNamingConvention();
+        
         CreateMap<Order, OrderResponseDto>();
     }
 }

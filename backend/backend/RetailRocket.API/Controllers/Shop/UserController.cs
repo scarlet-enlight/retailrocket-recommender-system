@@ -136,15 +136,15 @@ public class UserController : ControllerBase
         if (user is null || !PasswordHasherService.Verify(user.password_hash, dto.Password))
             throw new AuthenticationException("Invalid credentials.");
 
-        var token = _tokenService.GenerateToken(user);
+        var issued = _tokenService.GenerateToken(user, dto.RememberMe);
         
-        Response.Cookies.Append("access_token", token, new CookieOptions
+        Response.Cookies.Append("access_token", issued.Token, new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.Lax,
             Path = "/",
-            Expires = dto.RememberMe ? DateTimeOffset.UtcNow.AddDays(7) : null
+            Expires = dto.RememberMe ? issued.ExpiresAt : null
         });
 
         return Ok(new

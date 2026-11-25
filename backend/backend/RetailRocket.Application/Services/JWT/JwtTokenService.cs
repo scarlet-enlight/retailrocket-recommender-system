@@ -1,7 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using RetailRocket.Domain.Entities.Shop;
 
@@ -9,36 +9,38 @@ namespace RetailRocket.Application.Services.JWT;
 
 public class JwtTokenService
 {
-    private readonly IConfiguration _config;
-    
-    public JwtTokenService(IConfiguration config) =>
-        _config = config;
+    private readonly JwtSettings _settings;
 
-    public string GenerateToken(User user)
+    public JwtTokenService(IOptions<JwtSettings> options) =>
+        _settings = options.Value;
+
+    public IssuedToken GenerateToken(User user, bool rememberMe)
     {
+        var minutes = rememberMe ? _settings.ExpiryMinutesRememberMe : _settings.ExpiryMinutesDefault;
+        var expiresAt = DateTimeOffset.UtcNow.AddMinutes(minutes);
+        
         var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
-
+            Encoding.UTF8.GetBytes(_settings.Key));
+        
         var credentials = new SigningCredentials(
             key, SecurityAlgorithms.HmacSha256);
-
+        
         var claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-            new Claim(JwtRegisteredClaimNames.UniqueName, user.Username!),
+            new Claim(JwtRegisteredClaimNames.Sub, user.user_id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, user.email!),
+            new Claim(JwtRegisteredClaimNames.UniqueName, user.username!),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };
 
         var token = new JwtSecurityToken(
-            issuer: _config["Jwt:Issuer"],
-            audience: _config["Jwt:Audience"],
+            issuer: _settings.Issuer,
+            audience: _settings.Audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(
-                double.Parse(_config["Jwt:ExpiryMinutes"]!)),
+            expires: expiresAt.UtcDateTime,
             signingCredentials: credentials
         );
         
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return new IssuedToken(new JwtSecurityTokenHandler().WriteToken(token), expiresAt);
     }
 }

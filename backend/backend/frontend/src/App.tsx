@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import TermsOfServicePage from './pages/TermsOfServicePage'
 import ForgottenPasswordPage from './pages/ForgottenPasswordPage'
+import ProductPage from "./pages/ProductPage.tsx";
 import AboutUsPage from "./pages/AboutUsPage.tsx";
 import PasswordResetPage from "./pages/PasswordResetPage.tsx";
 import ContactPage from "./pages/ContactPage.tsx";
@@ -23,6 +24,7 @@ function App() {
               <Route path="/about-us" element={<AboutUsPage />}/>
               <Route path="/cookies" element={<CookiesPage />}/>
               <Route path="/forgot-password" element={<ForgottenPasswordPage />} />
+              <Route path="/product/:guid" element={<ProductPage />} />
               <Route path="/reset-password" element={<PasswordResetPage />}/>
           </Route>
       </Routes>

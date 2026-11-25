@@ -12,8 +12,8 @@ function shuffleProducts<T>(array: T[]): T[] {
     return array;
 }
 
-export async function getRandomProducts(): Promise<Product[]> {
-    const res = await api.get<Product[]>("/product");
+export async function getRandomProducts(signal?: AbortSignal): Promise<Product[]> {
+    const res = await api.get<Product[]>("/product", { signal });
     res.data = shuffleProducts(res.data);
     return res.data;
 }

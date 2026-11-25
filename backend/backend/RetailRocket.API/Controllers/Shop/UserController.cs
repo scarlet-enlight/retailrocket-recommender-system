@@ -1,13 +1,19 @@
 ﻿using System.Security.Claims;
+using System.Security.Cryptography;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Net.Http.Headers;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
 using RetailRocket.Application.DTOs.Request.Shop.Users;
 using RetailRocket.Application.DTOs.Response.Shop.Users;
+using RetailRocket.Application.Interfaces.Mail;
+using RetailRocket.Application.Services.HashGen;
 using RetailRocket.Application.Services.Shop;
 using RetailRocket.Application.Services.Security;
 using RetailRocket.Application.Services.JWT;
+using RetailRocket.Application.Services.Mail;
+using RetailRocket.Application.Services.WebAccess;
 using RetailRocket.Domain.Entities.Shop;
 using RetailRocket.Domain.Exceptions;
 using SameSiteMode = Microsoft.AspNetCore.Http.SameSiteMode;
@@ -20,13 +26,27 @@ public class UserController : ControllerBase
 {
     private readonly UserService _userService;
     private readonly JwtTokenService _tokenService;
+    private readonly IMailerService _mailerService;
+    private readonly HashGeneratorService _hashService;
+    private readonly WebAccessSettings _settings;
     private readonly IMapper _mapper;
+    private readonly ILogger _logger;
 
-    public UserController(UserService userService, JwtTokenService tokenService, IMapper mapper)
+    public UserController(
+        UserService userService,
+        JwtTokenService tokenService,
+        IMailerService mailerService,
+        HashGeneratorService hashService,
+        WebAccessSettings settings,
+        IMapper mapper, ILogger logger)
     {
         _userService = userService;
         _tokenService = tokenService;
+        _mailerService = mailerService;
+        _hashService = hashService;
+        _settings = settings;
         _mapper = mapper;
+        _logger = logger;
     }
 
     [Authorize]
@@ -83,11 +103,11 @@ public class UserController : ControllerBase
     {
         var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (!Guid.TryParse(idClaim, out var userId))
-            throw new UnauthorizedAccessException("abcdef");
+            throw new AuthenticationException("No user to log out. Redirecting to login page.");
 
         var user = await _userService.GetUserAsync(userId);
         if (user is null)
-            throw new UnauthorizedAccessException("Logging out. Redirecting to login page.");
+            throw new AuthenticationException("User not found. Redirecting to login page.");
         
         return Ok(new
         {
@@ -115,7 +135,7 @@ public class UserController : ControllerBase
         
         var hash = PasswordHasherService.Hash(createRequestDto.Password);
         if (!PasswordHasherService.Verify(hash, createRequestDto.Password))
-            throw new UnauthorizedAccessException("Something wrong has occured during signing in. Please sign in again.");
+            throw new AuthenticationException("Something wrong has occured during signing in. Please sign in again.");
         
         var user = new User(createRequestDto.Username, createRequestDto.Email, hash);
         await _userService.AddUserAsync(user);
@@ -158,6 +178,14 @@ public class UserController : ControllerBase
     [HttpPost("logout")]
     public async Task<IActionResult> Logout()
     {
+        var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(idClaim, out var userId))
+            throw new AuthenticationException("No user to log out. Redirecting to login page.");
+
+        var user = await _userService.GetUserAsync(userId);
+        if (user is null)
+            throw new AuthenticationException("User not found. Redirecting to login page.");
+        
         Response.Cookies.Delete("access_token", new CookieOptions
         {
             HttpOnly = true,
@@ -166,6 +194,42 @@ public class UserController : ControllerBase
             Path = "/"
         });
         return NoContent();
+    }
+
+    [AllowAnonymous]
+    [EnableRateLimiting("mail-service")]
+    [HttpPost("password-reset")]
+    public async Task<IActionResult> RequestPasswordReset([FromBody] RequestPasswordResetDto dto)
+    {
+        if (dto.Email is null || string.IsNullOrWhiteSpace(dto.Email))
+            throw new ValidationException("Email is required.");
+        
+        var user = await _userService.GetUserByEmailAsync(dto.Email);
+        if (user is null)
+            return Ok(new
+            {
+                message = "If an account exists for this address, we've sent an email."
+            });
+        
+        var token = _hashService.GenerateToken();
+        _hashService.HashData(token);
+        // insert here token storing into temp database with time limit
+        var link = $"{_settings.BaseUrl}/reset-password?token={token}";
+        var mail = EmailTemplates.PasswordReset(user.username, link);
+
+        try
+        {
+            await _mailerService.SendEmailAsync(user.email, mail.Subject, mail.Html, mail.Text);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Password reset email failed for user {user_id}.", user.user_id);
+        }
+
+        return Ok(new
+        {
+            message = "If an account exists for this address, we've sent an email."
+        });
     }
     
     // WIP: insert here sending email when password is forgotten
@@ -193,7 +257,7 @@ public class UserController : ControllerBase
         
         var hash = PasswordHasherService.Hash(passwordRequestDto.NewPassword);
         if (!PasswordHasherService.Verify(hash, passwordRequestDto.NewPassword))
-            throw new UnauthorizedAccessException("Something wrong has occured during changing this account's password. Please try again.");
+            throw new AuthenticationException("Something wrong has occured during changing this account's password. Please try again.");
 
         user.UpdatePassword(hash);
         await _userService.UpdateUserAsync(user);

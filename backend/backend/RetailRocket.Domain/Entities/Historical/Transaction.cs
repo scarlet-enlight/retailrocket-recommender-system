@@ -9,8 +9,9 @@ public class Transaction
     public Visitor? visitor { get; private set; }
     public BigInteger ts { get; }
 
-    public Transaction(int visitor_id, BigInteger ts)
+    public Transaction(int transaction_id, int visitor_id, BigInteger ts)
     {
+        this.transaction_id = transaction_id;
         this.visitor_id = visitor_id;
         this.ts = ts;
     }

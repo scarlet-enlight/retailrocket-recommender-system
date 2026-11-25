@@ -10,9 +10,9 @@ public class Event
     public int? item_id { get; set; }
     public Item? item { get; set; }
     public string? event_type { get; private set; }
-    public BigInteger ts { get; }
+    public long ts { get; }
 
-    public Event(int? visitor_id, int? item_id, string event_type, BigInteger ts)
+    public Event(int? visitor_id, int? item_id, string event_type, long ts)
     {
         this.visitor_id = visitor_id;
         this.item_id = item_id;

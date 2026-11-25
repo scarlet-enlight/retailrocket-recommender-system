@@ -9,6 +9,8 @@ public class CartMappingProfile : Profile
     public CartMappingProfile()
     {
         CreateMap<Cart, CartResponseDto>()
+            .ForMember(dest => dest.CartId,
+                opt => opt.MapFrom(src => src.cart_id))
             .ForMember(dest => dest.User,
                 opt => opt.MapFrom(src => src.user))
             .ForMember(dest => dest.Product,

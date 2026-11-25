@@ -6,10 +6,10 @@ public class OrderItem
     public Guid product_id { get; private set; }
     public Order? order { get; private set; }
     public Product? product { get; private set; }
-    public uint quantity { get; private set; }
+    public int quantity { get; private set; }
     public decimal price { get; private set; }
 
-    public OrderItem(Guid order_id, Guid product_id, uint quantity, decimal price)
+    public OrderItem(Guid order_id, Guid product_id, int quantity, decimal price)
     {
         this.order_id = order_id;
         this.product_id = product_id;

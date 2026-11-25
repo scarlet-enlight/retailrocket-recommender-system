@@ -101,8 +101,8 @@ public class RecommendationRuleController : ControllerBase
         await _recommendationRuleService.AddRecommendationRuleAsync(recommendationRule);
 
         var created =
-            await _recommendationRuleService.GetRecommendationRuleAsync(recommendationRule.recommendation_rule_id);
-        return CreatedAtAction(nameof(GetById), new { id = created!.recommendation_rule_id },
+            await _recommendationRuleService.GetRecommendationRuleAsync(recommendationRule.rule_id);
+        return CreatedAtAction(nameof(GetById), new { id = created!.rule_id },
             _mapper.Map<RecommendationRuleResponseDto>(created)); 
     }
     

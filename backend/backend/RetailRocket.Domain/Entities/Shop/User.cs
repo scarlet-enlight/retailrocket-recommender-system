@@ -6,7 +6,7 @@ public class User
     public string username { get; private set; }
     public string email { get; private set; }
     public string password_hash { get; private set; }
-    public string role_level { get; private set; }
+    public short role_level { get; private set; }
     public DateTime created_at { get; }
     
     public User(string username, string email, string password_hash)

@@ -4,5 +4,8 @@ public class Visitor
 {
     public int visitor_id { get; }
 
-    public Visitor(){}
+    public Visitor(int visitor_id)
+    {
+        this.visitor_id = visitor_id;
+    }
 }

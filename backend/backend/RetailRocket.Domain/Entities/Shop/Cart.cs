@@ -7,10 +7,10 @@ public class Cart
     public User user { get; set; }
     public Guid product_id { get; private set; }
     public Product product { get; set; }
-    public uint quantity { get; private set; }
+    public int quantity { get; private set; }
     public DateTime added_at { get; }
 
-    public Cart(Guid user_id, Guid product_id, uint quantity)
+    public Cart(Guid user_id, Guid product_id, int quantity)
     {
         this.user_id = user_id;
         this.product_id = product_id;
@@ -19,5 +19,5 @@ public class Cart
 
     // not sure about updating those values (needs to update also Product)
     public void UpdateProduct(Guid product_id) => this.product_id = product_id;
-    public void UpdateQuantity(uint quantity) => this.quantity = quantity;
+    public void UpdateQuantity(int quantity) => this.quantity = quantity;
 }

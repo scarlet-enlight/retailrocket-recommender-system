@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.scripts]
-data-pipeline = "data_pipeline:main"
+data-pipeline = "data_pipeline.pipeline:main"
 
 [build-system]
 requires = ["uv_build>=0.12.19,<0.13.0"]
@@ -24,6 +24,9 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "ipykernel>=7.4.0",
+    "jupyter>=1.1.1",
+    "pyarrow>=26.0.1",
     "pytest>=9.1.1",
     "ruff>=0.16.9",
 ]

@@ -65,7 +65,8 @@ def _check_baskets_types(basket_types: list[str]) -> None:
 
     if missing or extra:
         raise DataQualityError(
-            f"basket types values mismatch: missing={sorted(missing)}, extra={sorted(extra)}"
+            "basket types values mismatch: "
+            f"missing={sorted(missing)}, extra={sorted(extra)}"
         )
 
 

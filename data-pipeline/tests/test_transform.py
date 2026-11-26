@@ -15,7 +15,8 @@ def db():
             CREATE TABLE pg.historical.events (
                 visitor_id INT NOT NULL,
                 item_id INT NOT NULL,
-                event_type VARCHAR(20) NOT NULL CHECK (event_type IN ('view', 'addtocart', 'transaction')),
+                event_type VARCHAR(20) NOT NULL
+                    CHECK (event_type IN ('view', 'addtocart', 'transaction')),
                 ts BIGINT NOT NULL
             )
         """)

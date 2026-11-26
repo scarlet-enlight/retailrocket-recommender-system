@@ -15,7 +15,8 @@ def write_baskets(path, rows):
     """Write rows [(basket_type, basket_id, item_id), ...] to a parquet file."""
 
     values = ", ".join(
-        f"({sql_literal(basket_type)}, {sql_literal(basket_id)}, {sql_literal(item_id)})"
+        f"({sql_literal(basket_type)}, {sql_literal(basket_id)}, "
+        f"{sql_literal(item_id)})"
         for basket_type, basket_id, item_id in rows
     )
     duckdb.sql(f"""

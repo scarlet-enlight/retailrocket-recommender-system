@@ -167,3 +167,4 @@ def _count_baskets(con: duckdb.DuckDBPyConnection, path: Path) -> dict[str, int]
 
 if __name__ == "__main__":
     validate_baskets(BASKETS_PARQUET_PATH)
+x = 1+1  

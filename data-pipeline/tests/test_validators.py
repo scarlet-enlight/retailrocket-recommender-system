@@ -150,7 +150,9 @@ def test_too_few_baskets_raises(tmp_path, monkeypatch):
 def test_bad_structure_raises(tmp_path, query, message):
     path = tmp_path / "baskets.parquet"
 
-    duckdb.sql(f"COPY ({query}) TO '{path}' (FORMAT parquet)")
+    duckdb.sql(
+        f"COPY ({query}) TO '{path}' (FORMAT parquet)                                        "
+    )
 
     with pytest.raises(DataQualityError, match=message):
         validate_baskets(path)

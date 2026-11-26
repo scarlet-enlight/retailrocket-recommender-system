@@ -8,7 +8,7 @@ public class CartConfiguration : IEntityTypeConfiguration<Cart>
 {
     public void Configure(EntityTypeBuilder<Cart> builder)
     {
-        builder.ToTable("carts", "shop");
+        builder.ToTable("cart", "shop");
         builder.HasKey(u => u.cart_id);
         builder.Property(u => u.cart_id).HasColumnType("uuid").ValueGeneratedOnAdd();
         builder.HasOne(u => u.user).WithMany().HasForeignKey(u => u.user_id);

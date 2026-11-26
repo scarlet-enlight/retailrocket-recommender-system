@@ -8,6 +8,9 @@ public class ProductShortMappingProfile : Profile
 {
     public ProductShortMappingProfile()
     {
+        SourceMemberNamingConvention = new LowerUnderscoreNamingConvention();
+        DestinationMemberNamingConvention = new PascalCaseNamingConvention();
+        
         CreateMap<Product, ProductShortDto>();
     }
 }

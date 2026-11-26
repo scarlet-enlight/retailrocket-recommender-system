@@ -71,7 +71,8 @@ public class ProductController : ControllerBase
         if (createRequestDto.CategoryId < 1)
             throw new ValidationException("Category ID must be greater than zero.");
         
-        var product = new Product(createRequestDto.ItemId, createRequestDto.Name, createRequestDto.Price, createRequestDto.CategoryId);
+        var product = new Product(createRequestDto.ItemId, createRequestDto.Name,
+            createRequestDto.Price, createRequestDto.CategoryId);
         await _productService.CreateProductAsync(product);
         
         var created = await _productService.GetProductAsync(product.product_id);

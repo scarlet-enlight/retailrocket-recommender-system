@@ -9,8 +9,8 @@ public class RecommendationRuleConfiguration : IEntityTypeConfiguration<Recommen
     public void Configure(EntityTypeBuilder<RecommendationRule> builder)
     {
         builder.ToTable("recommendation_rules", "ml");
-        builder.HasKey(rr => rr.recommendation_rule_id);
-        builder.Property(rr => rr.recommendation_rule_id).HasColumnType("uuid").ValueGeneratedOnAdd();
+        builder.HasKey(rr => rr.rule_id);
+        builder.Property(rr => rr.rule_id).HasColumnType("uuid").ValueGeneratedOnAdd();
         builder.HasOne(rr => rr.if_item).WithMany().HasForeignKey(rr => rr.if_item_id);
         builder.HasOne(rr => rr.then_item).WithMany().HasForeignKey(rr => rr.then_item_id);
         builder.Property(rr => rr.support);

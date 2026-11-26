@@ -10,7 +10,7 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
     {
         builder.ToTable("categories", "historical");
         builder.HasKey(c => c.category_id);
-        builder.Property(c => c.category_id).ValueGeneratedOnAdd();
+        builder.Property(c => c.category_id).ValueGeneratedNever();
         builder.HasOne(c => c.parent_category).WithMany().HasForeignKey(c => c.parent_id);
     }
 }

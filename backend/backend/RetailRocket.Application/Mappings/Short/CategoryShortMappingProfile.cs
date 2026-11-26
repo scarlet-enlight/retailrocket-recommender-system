@@ -8,6 +8,9 @@ public class CategoryShortMappingProfile : Profile
 {
     public CategoryShortMappingProfile()
     {
+        SourceMemberNamingConvention = new LowerUnderscoreNamingConvention();
+        DestinationMemberNamingConvention = new PascalCaseNamingConvention();
+        
         CreateMap<Category, CategoryShortDto>()
             .ForMember(dest => dest.ParentCategory,
                 opt => opt.MapFrom(src => src.parent_category));

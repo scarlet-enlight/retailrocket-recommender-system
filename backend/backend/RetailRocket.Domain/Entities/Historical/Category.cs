@@ -7,8 +7,9 @@ public class Category
     public Category? parent_category { get; private set; }
     public string? name { get; private set; }
 
-    public Category(int? parent_id, string? name)
+    public Category(int category_id, int? parent_id, string? name)
     {
+        this.category_id = category_id;
         this.parent_id = parent_id;
         this.name = name;
     }

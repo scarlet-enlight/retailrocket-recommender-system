@@ -18,7 +18,7 @@ public class RecommendationRuleRepository : IRecommendationRuleRepository
         await _dbContext.RecommendationRules
             .Include(rr => rr.if_item).ThenInclude(i => i.category).ThenInclude(c => c.parent_category)
             .Include(rr => rr.then_item).ThenInclude(i => i.category).ThenInclude(c => c.parent_category)
-            .FirstOrDefaultAsync(rr => rr.recommendation_rule_id == id);
+            .FirstOrDefaultAsync(rr => rr.rule_id == id);
 
     public async Task<IEnumerable<RecommendationRule>> GetAllAsync() =>
         await _dbContext.RecommendationRules

@@ -97,12 +97,18 @@ public class RecommendationRuleController : ControllerBase
         if (createRequestDto.Lift < 0)
             throw new ValidationException("Recommendation Rule's Lift value must be greater than 0.");
         
-        var recommendationRule = new RecommendationRule(createRequestDto.IfItemId, createRequestDto.ThenItemId, createRequestDto.Support, createRequestDto.Confidence, createRequestDto.Lift);
+        var recommendationRule = new RecommendationRule(
+            createRequestDto.IfItemId,
+            createRequestDto.ThenItemId,
+            createRequestDto.Support,
+            createRequestDto.Confidence,
+            createRequestDto.Lift
+            );
         await _recommendationRuleService.AddRecommendationRuleAsync(recommendationRule);
 
         var created =
-            await _recommendationRuleService.GetRecommendationRuleAsync(recommendationRule.recommendation_rule_id);
-        return CreatedAtAction(nameof(GetById), new { id = created!.recommendation_rule_id },
+            await _recommendationRuleService.GetRecommendationRuleAsync(recommendationRule.rule_id);
+        return CreatedAtAction(nameof(GetById), new { id = created!.rule_id },
             _mapper.Map<RecommendationRuleResponseDto>(created)); 
     }
     

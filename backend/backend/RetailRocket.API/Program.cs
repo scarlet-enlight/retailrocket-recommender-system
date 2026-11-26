@@ -3,7 +3,6 @@ using System.Threading.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using RetailRocket.API.Middleware;
 using RetailRocket.Application.Interfaces.Mail;
@@ -15,6 +14,7 @@ using RetailRocket.Application.Services.Shop;
 using RetailRocket.Application.Mappings.ML;
 using RetailRocket.Application.Mappings.Shop;
 using RetailRocket.Application.Mappings.Short;
+using RetailRocket.Application.Services.HashGen;
 using RetailRocket.Application.Services.Mail;
 using RetailRocket.Application.Services.WebAccess;
 using RetailRocket.Infrastructure.Persistence;
@@ -49,6 +49,20 @@ builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<RecommendationRuleService>();
+
+// AutoMapper Configurations
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddMaps(typeof(RecommendationRuleMappingProfile).Assembly);
+    cfg.AddMaps(typeof(CartMappingProfile).Assembly);
+    cfg.AddMaps(typeof(OrderMappingProfile).Assembly);
+    cfg.AddMaps(typeof(ProductMappingProfile).Assembly);
+    cfg.AddMaps(typeof(UserMappingProfile).Assembly);
+    cfg.AddMaps(typeof(CategoryShortMappingProfile).Assembly);
+    cfg.AddMaps(typeof(ItemShortMappingProfile).Assembly);
+    cfg.AddMaps(typeof(ProductShortMappingProfile).Assembly);
+    cfg.AddMaps(typeof(UserShortMappingProfile).Assembly);
+});
 
 // CORS Policy
 builder.Services.AddCors(options =>
@@ -100,19 +114,11 @@ builder.Services.AddScoped<JwtTokenService>();
 builder.Services.AddOptions<SmtpSettings>().BindConfiguration(SmtpSettings.SectionName).ValidateDataAnnotations().ValidateOnStart();
 builder.Services.AddSingleton<IMailerService, MailerService>();
 
+// HashGen
+builder.Services.AddSingleton<HashGeneratorService>();
+
 // WebAccess
 builder.Services.AddOptions<WebAccessSettings>().BindConfiguration(WebAccessSettings.SectionName).ValidateDataAnnotations().ValidateOnStart();
-
-// AutoMapper Configurations
-builder.Services.AddAutoMapper(cfg => { cfg.AddMaps(typeof(RecommendationRuleMappingProfile).Assembly); });
-builder.Services.AddAutoMapper(cfg => { cfg.AddMaps(typeof(CartMappingProfile).Assembly); });
-builder.Services.AddAutoMapper(cfg => { cfg.AddMaps(typeof(OrderMappingProfile).Assembly); });
-builder.Services.AddAutoMapper(cfg => { cfg.AddMaps(typeof(ProductMappingProfile).Assembly); });
-builder.Services.AddAutoMapper(cfg => { cfg.AddMaps(typeof(UserMappingProfile).Assembly); });
-builder.Services.AddAutoMapper(cfg => { cfg.AddMaps(typeof(CategoryShortMappingProfile).Assembly); });
-builder.Services.AddAutoMapper(cfg => { cfg.AddMaps(typeof(ItemShortMappingProfile).Assembly); });
-builder.Services.AddAutoMapper(cfg => { cfg.AddMaps(typeof(ProductShortMappingProfile).Assembly); });
-builder.Services.AddAutoMapper(cfg => { cfg.AddMaps(typeof(UserShortMappingProfile).Assembly); });
 
 // Rate Limiter
 builder.Services.AddRateLimiter(options =>
@@ -131,23 +137,20 @@ var app = builder.Build();
 // Add exception handler for web errors
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-// Seed database with example entities
-// Mustn't go into production
+// Database connection initiation
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-    if (app.Environment.IsDevelopment())
-    {
-        //await context.Database.EnsureDeletedAsync();
-        await context.Database.MigrateAsync();
-        //await AppDbContextSeeder.SeedAsync(context);
-    }
-    else
-    {
-        await context.Database.MigrateAsync();
-        //await AppDbContextSeeder.SeedAsync(context);
-    }
+    scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    
+    // Seed database with example entities
+    // Mustn't go into production
+    
+    //var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    // if (app.Environment.IsDevelopment())
+    // {
+    //     await AppDbContextSeeder.SeedAsync(context);
+    // }
+    // Console.WriteLine(await context.Database.CanConnectAsync() ? "DB OK" : "DB unreachable");
 }
 
 // Configure the HTTP request pipeline.
@@ -159,12 +162,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // Rate Limiter appliance
-app.UseRouting();
 app.UseRateLimiter();
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
 
 // End appliances
 app.UseHttpsRedirection();

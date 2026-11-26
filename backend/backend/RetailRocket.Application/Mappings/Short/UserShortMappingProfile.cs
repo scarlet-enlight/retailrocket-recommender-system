@@ -8,6 +8,9 @@ public class UserShortMappingProfile : Profile
 {
     public UserShortMappingProfile()
     {
+        SourceMemberNamingConvention = new LowerUnderscoreNamingConvention();
+        DestinationMemberNamingConvention = new PascalCaseNamingConvention();
+        
         CreateMap<User, UserShortDto>();
     }
 }

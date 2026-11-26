@@ -8,7 +8,12 @@ public class CartMappingProfile : Profile
 {
     public CartMappingProfile()
     {
+        SourceMemberNamingConvention = new LowerUnderscoreNamingConvention();
+        DestinationMemberNamingConvention = new PascalCaseNamingConvention();
+        
         CreateMap<Cart, CartResponseDto>()
+            .ForMember(dest => dest.CartId,
+                opt => opt.MapFrom(src => src.cart_id))
             .ForMember(dest => dest.User,
                 opt => opt.MapFrom(src => src.user))
             .ForMember(dest => dest.Product,
